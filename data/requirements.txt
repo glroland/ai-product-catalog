@@ -1,0 +1,4 @@
+opendatasets
+pandas
+ipykernel
+psycopg2
