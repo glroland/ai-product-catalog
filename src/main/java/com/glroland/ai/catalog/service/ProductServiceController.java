@@ -14,8 +14,8 @@ public class ProductServiceController
     @Autowired
     private ProductDAO productDAO;
 
-    @GetMapping("/")
-    public String sayHello()
+    @GetMapping("/greeting")
+    public String greeting()
     {
         return "Hello";
     }
