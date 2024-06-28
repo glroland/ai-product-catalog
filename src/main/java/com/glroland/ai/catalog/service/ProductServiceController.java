@@ -1,6 +1,5 @@
 package com.glroland.ai.catalog.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
