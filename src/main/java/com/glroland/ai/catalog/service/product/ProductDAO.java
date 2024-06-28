@@ -1,12 +1,10 @@
-package com.glroland.ai.catalog.service.dao;
+package com.glroland.ai.catalog.service.product;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-
-import com.glroland.ai.catalog.service.entities.Product;
 
 @Component
 public class ProductDAO {

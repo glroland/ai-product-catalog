@@ -1,4 +1,4 @@
-package com.glroland.ai.catalog.service;
+package com.glroland.ai.catalog.service.product;
 
 import java.util.List;
 
@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.glroland.ai.catalog.service.dao.ProductDAO;
-import com.glroland.ai.catalog.service.entities.Product;
 
 @RestController
 public class ProductServiceController 

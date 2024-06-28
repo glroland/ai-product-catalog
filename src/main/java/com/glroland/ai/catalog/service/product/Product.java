@@ -1,4 +1,4 @@
-package com.glroland.ai.catalog.service.entities;
+package com.glroland.ai.catalog.service.product;
 
 public class Product 
 {
