@@ -8,23 +8,32 @@
 
         function onSearchButtonClicked(buttonRef) 
         {
-            url =  window.location.protocol + "//" + window.location.host + "/product/1";
+            url =  window.location.protocol + "//" + window.location.host + "/search";
             console.log("Search URL: " + url);
+
+            data = { 
+                        category: document.getElementById("category").value, 
+                        brand : document.getElementById("brand").value,
+                        sku : document.getElementById("sku").value,
+                        size : document.getElementById("productSize").value,
+                        nameDesc : document.getElementById("nameDescription").value
+                   };
 
             buttonRef.disabled = true;
             purgePriorResults();
 
             $.ajax({
                 url: url,
-                type: "GET",
+                type: "POST",
+                data: data,
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
 
                 success: function (data) 
                 {
-                    console.log("Successfully retrieved search results: " + data);
+                    console.log("Successfully retrieved search results: " + data.json);
                     buttonRef.disabled = false;
 
-                    searchResults = [data,data,data];
-                    displaySearchResults(searchResults);
+                    displaySearchResults(data);
                 },
 
                 error: function (error) 
