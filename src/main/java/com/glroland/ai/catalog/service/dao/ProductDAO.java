@@ -16,8 +16,19 @@ public class ProductDAO {
 
     public Product getProduct(int id)
     {
+        String sql = "SELECT product_id, "
+                          + "product_code, "
+                          + "brand_id, " 
+                          + "product_name, "
+                          + "product_desc, "
+                          + "size, "
+                          + "msrp, "
+                          + "category_id "
+                    + "FROM products "
+                    + "WHERE product_id = ?";
+
         List<Product> products = (List<Product>)jdbcTemplate.query(
-            "SELECT product_id, product_code, brand_id, product_name, product_desc, size, msrp, category_id FROM products WHERE product_id = ?",
+            sql,
             (rs, rowNum) -> new Product(rs.getInt("product_id"), 
                                         rs.getString("product_code"), 
                                         rs.getInt("brand_id"), 
@@ -25,7 +36,8 @@ public class ProductDAO {
                                         rs.getString("product_desc"), 
                                         rs.getString("size"), 
                                         rs.getDouble("msrp"), 
-                                        rs.getInt("category_id")));
+                                        rs.getInt("category_id")),
+            id);
 
         if ((products == null) || (products.size() == 0))
             return null;
