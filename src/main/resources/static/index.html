@@ -53,6 +53,9 @@
 
         // cool utility function - https://www.tutorialspoint.com/how-to-convert-json-data-to-a-html-table-using-javascript-jquery
         function displaySearchResults(searchResults) {
+            if (searchResults.length == 0)
+                return;
+
          let container = document.getElementById("container");
 
          let table = document.createElement("table");

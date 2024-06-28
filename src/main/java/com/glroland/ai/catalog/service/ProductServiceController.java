@@ -44,10 +44,10 @@ public class ProductServiceController
      )
     {
         log.info("Search API called with the following parameters: category=" + category + " brand=" + brand + " sku=" + sku + " size=" + size + " nameDesc=" + nameDesc);
-        
-        ArrayList<Product> list = new ArrayList<Product>();
-        for (int i=0; i<10; i++)
-            list.add(productDAO.getProduct(1));
-        return list;
+
+        List<Product> products = productDAO.search(category, brand, sku, size, nameDesc);
+        log.info("# of Search Results: " + products.size());
+
+        return products;
     }
 }
