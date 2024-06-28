@@ -3,6 +3,86 @@
 <head> 
     <title>AI Product Catalog Service</title> 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        function onSearchButtonClicked(buttonRef) 
+        {
+            url =  window.location.protocol + "//" + window.location.host + "/product/1";
+            console.log("Search URL: " + url);
+
+            buttonRef.disabled = true;
+            purgePriorResults();
+
+            $.ajax({
+                url: url,
+                type: "GET",
+
+                success: function (data) 
+                {
+                    console.log("Successfully retrieved search results: " + data);
+                    buttonRef.disabled = false;
+
+                    searchResults = [data,data,data];
+                    displaySearchResults(searchResults);
+                },
+
+                error: function (error) 
+                {
+                    console.log("Search failed with the following error: " + error);
+                    alert(`Error ${error}`);
+                    buttonRef.disabled = false;
+                }
+            });
+        }
+
+        function purgePriorResults() 
+        {
+            let container = document.getElementById("container");
+            container.innerHTML = "";
+        }
+
+        // cool utility function - https://www.tutorialspoint.com/how-to-convert-json-data-to-a-html-table-using-javascript-jquery
+        function displaySearchResults(searchResults) {
+         let container = document.getElementById("container");
+
+         let table = document.createElement("table");
+         
+         // Get the keys (column names) of the first object in the JSON data
+         let cols = Object.keys(searchResults[0]);
+         
+         // Create the header element
+         let thead = document.createElement("thead");
+         let tr = document.createElement("tr");
+         
+         // Loop through the column names and create header cells
+         cols.forEach((item) => {
+            let th = document.createElement("th");
+            th.innerText = item; // Set the column name as the text of the header cell
+            tr.appendChild(th); // Append the header cell to the header row
+         });
+         thead.appendChild(tr); // Append the header row to the header
+         table.append(tr) // Append the header to the table
+         
+         // Loop through the JSON data and create table rows
+         searchResults.forEach((item) => {
+            let tr = document.createElement("tr");
+            
+            // Get the values of the current object in the JSON data
+            let vals = Object.values(item);
+            
+            // Loop through the values and create table cells
+            vals.forEach((elem) => {
+               let td = document.createElement("td");
+               td.innerText = elem; // Set the value as the text of the table cell
+               tr.appendChild(td); // Append the table cell to the table row
+            });
+            table.appendChild(tr); // Append the table row to the table
+         });
+         container.appendChild(table) // Append the table to the container element
+      }
+
+    </script>
 </head>
 <body>
     <h1 align="center">Product Search</h1>
@@ -26,9 +106,13 @@
                 <td colspan="3" align="center"><br /><br /><br /></td>
             </tr>
             <tr>
-                <td colspan="3" align="center"><input type="submit" value="Search" /></td>
+                <td colspan="3" align="center"><input type="submit" value="Search" onclick="onSearchButtonClicked(this) " /></td>
             </tr>
         </table>
     </p>
+    <p>
+        <div id="container"></div>
+    </p>
 </body>
+
 </html>
