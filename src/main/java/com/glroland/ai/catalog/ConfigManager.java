@@ -1,4 +1,4 @@
-package com.glroland.ai.catalog.service;
+package com.glroland.ai.catalog;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

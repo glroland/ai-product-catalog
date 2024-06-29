@@ -1,9 +1,9 @@
-package com.glroland.ai.catalog.service.product;
+package com.glroland.ai.catalog.product;
 
 public class Product 
 {
     private int productId;
-    private String productCode;
+    private String sku;
     private int brandId;
     private String productName;
     private String productDescription;
@@ -11,10 +11,10 @@ public class Product
     private double msrp;
     private int categoryId;
 
-    public Product(int productId, String productCode, int brandId, String productName, String productDescription,
+    public Product(int productId, String sku, int brandId, String productName, String productDescription,
             String size, double msrp, int categoryId) {
         this.productId = productId;
-        this.productCode = productCode;
+        this.sku = sku;
         this.brandId = brandId;
         this.productName = productName;
         this.productDescription = productDescription;
@@ -28,12 +28,6 @@ public class Product
     }
     public void setProductId(int productId) {
         this.productId = productId;
-    }
-    public String getProductCode() {
-        return productCode;
-    }
-    public void setProductCode(String productCode) {
-        this.productCode = productCode;
     }
     public int getBrandId() {
         return brandId;
@@ -70,5 +64,11 @@ public class Product
     }
     public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
+    }
+    public String getSku() {
+        return sku;
+    }
+    public void setSku(String sku) {
+        this.sku = sku;
     }
 }

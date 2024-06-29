@@ -1,4 +1,4 @@
-package com.glroland.ai.catalog.service.agent;
+package com.glroland.ai.catalog.agent;
 
 import java.time.LocalTime;
 

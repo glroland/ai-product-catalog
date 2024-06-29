@@ -1,4 +1,4 @@
-package com.glroland.ai.catalog.service.agent;
+package com.glroland.ai.catalog.agent;
 
 import dev.langchain4j.service.SystemMessage;
 

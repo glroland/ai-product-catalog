@@ -1,4 +1,4 @@
-package com.glroland.ai.catalog.service.product;
+package com.glroland.ai.catalog.product;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ public class ProductDAO {
     public Product getProduct(int id)
     {
         String sql = "SELECT product_id, "
-                          + "product_code, "
+                          + "sku, "
                           + "brand_id, " 
                           + "product_name, "
                           + "product_desc, "
@@ -28,7 +28,7 @@ public class ProductDAO {
         List<Product> products = (List<Product>)jdbcTemplate.query(
             sql,
             (rs, rowNum) -> new Product(rs.getInt("product_id"), 
-                                        rs.getString("product_code"), 
+                                        rs.getString("sku"), 
                                         rs.getInt("brand_id"), 
                                         rs.getString("product_name"), 
                                         rs.getString("product_desc"), 
@@ -50,7 +50,7 @@ public class ProductDAO {
     {
         StringBuffer sql = new StringBuffer();
         sql.append("SELECT product_id, "
-                        + "product_code, "
+                        + "sku, "
                         + "brand_id, " 
                         + "product_name, "
                         + "product_desc, "
@@ -83,7 +83,7 @@ public class ProductDAO {
                 sql.append("WHERE ");
             else 
                 sql.append("AND ");
-            sql.append("UPPER(product_code) LIKE '%").append(sku.toUpperCase()).append("%' ");
+            sql.append("UPPER(sku) LIKE '%").append(sku.toUpperCase()).append("%' ");
             firstParam = false;
         }
         if ((nameDesc != null) && (nameDesc.length() > 0))
@@ -100,7 +100,7 @@ public class ProductDAO {
         return (List<Product>)jdbcTemplate.query(
             sql.toString(),
             (rs, rowNum) -> new Product(rs.getInt("product_id"), 
-                                        rs.getString("product_code"), 
+                                        rs.getString("sku"), 
                                         rs.getInt("brand_id"), 
                                         rs.getString("product_name"), 
                                         rs.getString("product_desc"), 

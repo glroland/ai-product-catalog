@@ -1,4 +1,4 @@
-package com.glroland.ai.catalog.service.agent;
+package com.glroland.ai.catalog.agent;
 
 import java.time.Duration;
 import java.util.List;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.glroland.ai.catalog.service.ConfigManager;
+import com.glroland.ai.catalog.ConfigManager;
 
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;

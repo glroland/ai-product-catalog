@@ -1,4 +1,4 @@
-package com.glroland.ai.catalog.service.product;
+package com.glroland.ai.catalog.product;
 
 import java.util.List;
 
