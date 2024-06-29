@@ -14,6 +14,9 @@ public class ConfigManager
     @Autowired
     private Environment env;
 
+    public static final String CHAT_MODEL_MISTRAL = "mistral";
+    public static final String CHAT_MODEL_OPENAI = "openai";
+
     public String getInferenceEndpoint()
     {
         String value = env.getProperty("ai-product-catalog.inference-endpoint");
@@ -61,5 +64,12 @@ public class ConfigManager
         String value = env.getProperty("ai-product-catalog.top-p");
         log.debug("Configured Top-P = " + value);
         return Double.valueOf(value);
+    }
+
+    public String getDefaultChatModel()
+    {
+        String value = env.getProperty("ai-product-catalog.default-chat-model");
+        log.debug("Configured Default Chat Model = " + value);
+        return value;
     }
 }
