@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,7 +29,7 @@ public class ChatServiceController
     @Autowired
     private ConfigManager configManager;
 
-    @GetMapping("/chat")
+    @PostMapping("/chat")
     public String chat(@RequestParam(value = "userMessage", defaultValue = "What is the current date and time?") String userMessage)
     {
         ChatLanguageModel chatLanguageModel = MistralAiChatModel.builder()
@@ -41,7 +42,7 @@ public class ChatServiceController
                     .timeout(Duration.ofSeconds(configManager.getInferenceTimeout()))
                     .logRequests(true)
                     .logResponses(true)
-                    .responseFormat(MistralAiResponseFormatType.JSON_OBJECT)
+                    .responseFormat(MistralAiResponseFormatType.TEXT)
                     .build();
 
         ChatAgent agent = AiServices.builder(ChatAgent.class)
