@@ -2,6 +2,7 @@ package com.glroland.ai.catalog.agent;
 
 import java.time.Duration;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,9 @@ import com.glroland.ai.catalog.ConfigManager;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.mistralai.MistralAiChatModel;
 import dev.langchain4j.model.mistralai.MistralAiResponseFormatType;
+import dev.langchain4j.model.mistralai.MistralAiChatModel.MistralAiChatModelBuilder;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.openai.OpenAiChatModel.OpenAiChatModelBuilder;
 
 @Component
 public class ChatLanguageModelFactory 
@@ -25,39 +28,53 @@ public class ChatLanguageModelFactory
     public ChatLanguageModel createMistral()
     {
         log.debug("Creating Mistral Chat Language Model");
-        ChatLanguageModel chatLanguageModel = MistralAiChatModel.builder()
-            .baseUrl(configManager.getInferenceEndpoint())
-            .apiKey(configManager.getInferenceApiKey())
-            .modelName(configManager.getModelName())
-            .maxTokens(configManager.getMaxTokens())
-            .temperature(configManager.getTemperature())
-            .topP(configManager.getTopP())
-            .timeout(Duration.ofSeconds(configManager.getInferenceTimeout()))
+        MistralAiChatModelBuilder builder = MistralAiChatModel.builder()
             .logRequests(true)
             .logResponses(true)
-            .responseFormat(MistralAiResponseFormatType.TEXT)
-            .build();
+            .responseFormat(MistralAiResponseFormatType.TEXT);
 
-        return chatLanguageModel;
+        if (StringUtils.isNotEmpty(configManager.getInferenceEndpoint()))
+            builder = builder.baseUrl(configManager.getInferenceEndpoint());
+        if (StringUtils.isNotEmpty(configManager.getInferenceApiKey()))
+            builder = builder.apiKey(configManager.getInferenceApiKey());
+        if (StringUtils.isNotEmpty(configManager.getModelName()))
+            builder = builder.modelName(configManager.getModelName());
+        if (configManager.getMaxTokens() != null)
+            builder = builder.maxTokens(configManager.getMaxTokens());
+        if (configManager.getTemperature() != null)
+            builder = builder.temperature(configManager.getTemperature());
+        if (configManager.getTopP() != null)
+            builder = builder.topP(configManager.getTopP());
+        if (configManager.getInferenceTimeout() != null)
+            builder = builder.timeout(Duration.ofSeconds(configManager.getInferenceTimeout()));
+
+        return builder.build();
     }
 
     public ChatLanguageModel createOpenAi()
     {
         log.debug("Creating Mistral Chat Language Model");
-        ChatLanguageModel chatLanguageModel = OpenAiChatModel.builder()
-            .baseUrl(configManager.getInferenceEndpoint())
-            .apiKey(configManager.getInferenceApiKey())
-            .modelName(configManager.getModelName())
-            .maxTokens(configManager.getMaxTokens())
-            .temperature(configManager.getTemperature())
-            .topP(configManager.getTopP())
-            .timeout(Duration.ofSeconds(configManager.getInferenceTimeout()))
+        OpenAiChatModelBuilder builder = OpenAiChatModel.builder()
             .logRequests(true)
             .logResponses(true)
-            .responseFormat("TEXT")
-            .build();
+            .responseFormat("TEXT");
+        
+        if (StringUtils.isNotEmpty(configManager.getInferenceEndpoint()))
+            builder = builder.baseUrl(configManager.getInferenceEndpoint());
+        if (StringUtils.isNotEmpty(configManager.getInferenceApiKey()))
+            builder = builder.apiKey(configManager.getInferenceApiKey());
+        if (StringUtils.isNotEmpty(configManager.getModelName()))
+            builder = builder.modelName(configManager.getModelName());
+        if (configManager.getMaxTokens() != null)
+            builder = builder.maxTokens(configManager.getMaxTokens());
+        if (configManager.getTemperature() != null)
+            builder = builder.temperature(configManager.getTemperature());
+        if (configManager.getTopP() != null)
+            builder = builder.topP(configManager.getTopP());
+        if (configManager.getInferenceTimeout() != null)
+            builder = builder.timeout(Duration.ofSeconds(configManager.getInferenceTimeout()));
 
-        return chatLanguageModel;
+        return builder.build();
     }
 
     public ChatLanguageModel createDefault()
