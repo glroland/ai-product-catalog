@@ -35,4 +35,4 @@ build/
 kaggle.json
 products-datasets
 .DS_Store
-
+application.properties
