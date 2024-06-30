@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import io.micrometer.common.util.StringUtils;
+
 @Component
 public class ConfigManager 
 {
@@ -14,35 +16,81 @@ public class ConfigManager
     @Autowired
     private Environment env;
 
+    public static final String CONFIG_GROUP = "ai-product-catalog";
+
+    public static final String CONFIG_ENTRY_ENDPOINT = "inference-endpoint";
+    public static final String CONFIG_ENTRY_APIKEY = "api-key";
+    public static final String CONFIG_ENTRY_MODEL_NAME = "model-name";
+    public static final String CONFIG_ENTRY_MAX_TOKENS = "max-tokens";
+    public static final String CONFIG_ENTRY_TIMEOUT = "timeout-seconds";
+    public static final String CONFIG_ENTRY_TEMP = "temperature";
+    public static final String CONFIG_ENTRY_TOP_P = "top-p";
+
     public static final String CHAT_MODEL_MISTRAL = "mistral";
     public static final String CHAT_MODEL_OPENAI = "openai";
+    public static final String CHAT_MODEL_OLLAMA = "ollama";
+    public static final String CHAT_MODEL_LOCALAI = "localai";
+
+    public static final String AGENT_TYPE_SIMPLE = "simple";
+    public static final String AGENT_TYPE_TOOL = "tool";
+
+    private String getValue(String chatModel, String propertyName)
+    {
+        // order of precidence - chat model override first
+        if (StringUtils.isNotEmpty(chatModel))
+        {
+            String value = env.getProperty(CONFIG_GROUP + "." + chatModel + "." + propertyName);
+            if (value != null)
+            {
+                log.debug("Configured Value -- [" + chatModel + "] [propertyName=" + propertyName + "] [value=" + value + "]");                
+                return value;
+            }
+        }
+            
+        // order of precidence - root override second
+        String value = env.getProperty(CONFIG_GROUP + "." + chatModel + "." + propertyName);
+        log.debug("Configured Value -- [DEFAULT] [propertyName=" + propertyName + "] [value=" + value + "]");                
+        return value;
+    }
 
     public String getInferenceEndpoint()
     {
-        String value = env.getProperty("ai-product-catalog.inference-endpoint");
-        log.debug("Configured Endpoint URL = " + value);
-        return value;
+        return getInferenceEndpoint("");
+    }
+
+    public String getInferenceEndpoint(String chatModel)
+    {
+        return getValue(chatModel, CONFIG_ENTRY_ENDPOINT);
     }
 
     public String getInferenceApiKey()
     {
-        String value = env.getProperty("ai-product-catalog.api-key");
-        log.debug("Configured API Key = " + value);
-        return value;
+        return getInferenceApiKey("");
+    }
+
+    public String getInferenceApiKey(String chatModel)
+    {
+        return getValue(chatModel, CONFIG_ENTRY_APIKEY);
     }
 
     public String getModelName()
     {
-        String value = env.getProperty("ai-product-catalog.model-name");
-        log.debug("Configured Model Name = " + value);
-        return value;
+        return getModelName("");
+    }
+
+    public String getModelName(String chatModel)
+    {
+        return getValue(chatModel, CONFIG_ENTRY_MODEL_NAME);
     }
 
     public Integer getMaxTokens()
     {
-        String value = env.getProperty("ai-product-catalog.max-tokens");
-        log.debug ("Configured Max Tokens = " + value);
+        return getMaxTokens("");
+    }
 
+    public Integer getMaxTokens(String chatModel)
+    {
+        String value = getValue(chatModel, CONFIG_ENTRY_MAX_TOKENS);
         if (value == null)
             return null;
         return Integer.valueOf(value);
@@ -50,9 +98,12 @@ public class ConfigManager
 
     public Integer getInferenceTimeout()
     {
-        String value = env.getProperty("ai-product-catalog.timeout-seconds");
-        log.debug("Configured Inference Timeout = " + value);
+        return getInferenceTimeout("");
+    }
 
+    public Integer getInferenceTimeout(String chatModel)
+    {
+        String value = getValue(chatModel, CONFIG_ENTRY_TIMEOUT);
         if (value == null)
             return null;
         return Integer.valueOf(value);
@@ -60,9 +111,12 @@ public class ConfigManager
 
     public Double getTemperature()
     {
-        String value = env.getProperty("ai-product-catalog.temperature");
-        log.debug("Configured Temperature = " + value);
+        return getTemperature("");
+    }
 
+    public Double getTemperature(String chatModel)
+    {
+        String value = getValue(chatModel, CONFIG_ENTRY_TEMP);
         if (value == null)
             return null;
         return Double.valueOf(value);
@@ -70,9 +124,12 @@ public class ConfigManager
 
     public Double getTopP()
     {
-        String value = env.getProperty("ai-product-catalog.top-p");
-        log.debug("Configured Top-P = " + value);
+        return getTopP("");
+    }
 
+    public Double getTopP(String chatModel)
+    {
+        String value = getValue(chatModel, CONFIG_ENTRY_TOP_P);
         if (value == null)
             return null;
         return Double.valueOf(value);

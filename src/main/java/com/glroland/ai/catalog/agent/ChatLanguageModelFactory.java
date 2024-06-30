@@ -11,8 +11,12 @@ import org.springframework.stereotype.Component;
 import com.glroland.ai.catalog.ConfigManager;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.localai.LocalAiChatModel;
+import dev.langchain4j.model.localai.LocalAiChatModel.LocalAiChatModelBuilder;
 import dev.langchain4j.model.mistralai.MistralAiChatModel;
 import dev.langchain4j.model.mistralai.MistralAiResponseFormatType;
+import dev.langchain4j.model.ollama.OllamaChatModel;
+import dev.langchain4j.model.ollama.OllamaChatModel.OllamaChatModelBuilder;
 import dev.langchain4j.model.mistralai.MistralAiChatModel.MistralAiChatModelBuilder;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel.OpenAiChatModelBuilder;
@@ -33,20 +37,27 @@ public class ChatLanguageModelFactory
             .logResponses(true)
             .responseFormat(MistralAiResponseFormatType.TEXT);
 
-        if (StringUtils.isNotEmpty(configManager.getInferenceEndpoint()))
-            builder = builder.baseUrl(configManager.getInferenceEndpoint());
-        if (StringUtils.isNotEmpty(configManager.getInferenceApiKey()))
-            builder = builder.apiKey(configManager.getInferenceApiKey());
-        if (StringUtils.isNotEmpty(configManager.getModelName()))
-            builder = builder.modelName(configManager.getModelName());
-        if (configManager.getMaxTokens() != null)
-            builder = builder.maxTokens(configManager.getMaxTokens());
-        if (configManager.getTemperature() != null)
-            builder = builder.temperature(configManager.getTemperature());
-        if (configManager.getTopP() != null)
-            builder = builder.topP(configManager.getTopP());
-        if (configManager.getInferenceTimeout() != null)
-            builder = builder.timeout(Duration.ofSeconds(configManager.getInferenceTimeout()));
+        String v = configManager.getInferenceEndpoint(ConfigManager.CHAT_MODEL_MISTRAL);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.baseUrl(v);
+        v = configManager.getInferenceApiKey(ConfigManager.CHAT_MODEL_MISTRAL);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.apiKey(v);
+        v = configManager.getModelName(ConfigManager.CHAT_MODEL_MISTRAL);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.modelName(v);
+        Integer iv = configManager.getMaxTokens(ConfigManager.CHAT_MODEL_MISTRAL);
+        if (v != null)
+            builder = builder.maxTokens(iv);
+        Double dv = configManager.getTemperature(ConfigManager.CHAT_MODEL_MISTRAL);
+        if (dv != null)
+            builder = builder.temperature(dv);
+        dv = configManager.getTopP(ConfigManager.CHAT_MODEL_MISTRAL);
+        if (dv != null)
+            builder = builder.topP(dv);
+        iv = configManager.getInferenceTimeout(ConfigManager.CHAT_MODEL_MISTRAL);
+        if (iv != null)
+            builder = builder.timeout(Duration.ofSeconds(iv));
 
         return builder.build();
     }
@@ -58,21 +69,83 @@ public class ChatLanguageModelFactory
             .logRequests(true)
             .logResponses(true)
             .responseFormat("text"); // Supported values are: 'json_object' and 'text'.
-        
-        if (StringUtils.isNotEmpty(configManager.getInferenceEndpoint()))
-            builder = builder.baseUrl(configManager.getInferenceEndpoint());
-        if (StringUtils.isNotEmpty(configManager.getInferenceApiKey()))
-            builder = builder.apiKey(configManager.getInferenceApiKey());
-        if (StringUtils.isNotEmpty(configManager.getModelName()))
-            builder = builder.modelName(configManager.getModelName());
-        if (configManager.getMaxTokens() != null)
-            builder = builder.maxTokens(configManager.getMaxTokens());
-        if (configManager.getTemperature() != null)
-            builder = builder.temperature(configManager.getTemperature());
-        if (configManager.getTopP() != null)
-            builder = builder.topP(configManager.getTopP());
-        if (configManager.getInferenceTimeout() != null)
-            builder = builder.timeout(Duration.ofSeconds(configManager.getInferenceTimeout()));
+
+        String v = configManager.getInferenceEndpoint(ConfigManager.CHAT_MODEL_OPENAI);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.baseUrl(v);
+        v = configManager.getInferenceApiKey(ConfigManager.CHAT_MODEL_OPENAI);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.apiKey(v);
+        v = configManager.getModelName(ConfigManager.CHAT_MODEL_OPENAI);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.modelName(v);
+        Integer iv = configManager.getMaxTokens(ConfigManager.CHAT_MODEL_OPENAI);
+        if (v != null)
+            builder = builder.maxTokens(iv);
+        Double dv = configManager.getTemperature(ConfigManager.CHAT_MODEL_OPENAI);
+        if (dv != null)
+            builder = builder.temperature(dv);
+        dv = configManager.getTopP(ConfigManager.CHAT_MODEL_OPENAI);
+        if (dv != null)
+            builder = builder.topP(dv);
+        iv = configManager.getInferenceTimeout(ConfigManager.CHAT_MODEL_OPENAI);
+        if (iv != null)
+            builder = builder.timeout(Duration.ofSeconds(iv));
+    
+        return builder.build();
+    }
+
+    public ChatLanguageModel createOllama()
+    {
+        log.debug("Creating Ollama Chat Language Model");
+        OllamaChatModelBuilder builder = OllamaChatModel.builder()
+            .logRequests(true)
+            .logResponses(true);
+
+        String v = configManager.getInferenceEndpoint(ConfigManager.CHAT_MODEL_OLLAMA);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.baseUrl(v);
+        v = configManager.getModelName(ConfigManager.CHAT_MODEL_OLLAMA);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.modelName(v);
+        Double dv = configManager.getTemperature(ConfigManager.CHAT_MODEL_OLLAMA);
+        if (dv != null)
+            builder = builder.temperature(dv);
+        dv = configManager.getTopP(ConfigManager.CHAT_MODEL_OLLAMA);
+        if (dv != null)
+            builder = builder.topP(dv);
+        Integer iv = configManager.getInferenceTimeout(ConfigManager.CHAT_MODEL_OLLAMA);
+        if (iv != null)
+            builder = builder.timeout(Duration.ofSeconds(iv));
+
+        return builder.build();
+    }
+
+    public ChatLanguageModel createLocalAi()
+    {
+        log.debug("Creating Local AI Chat Language Model");
+        LocalAiChatModelBuilder builder = LocalAiChatModel.builder()
+            .logRequests(true)
+            .logResponses(true);
+
+        String v = configManager.getInferenceEndpoint(ConfigManager.CHAT_MODEL_LOCALAI);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.baseUrl(v);
+        v = configManager.getModelName(ConfigManager.CHAT_MODEL_LOCALAI);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.modelName(v);
+        Integer iv = configManager.getMaxTokens(ConfigManager.CHAT_MODEL_LOCALAI);
+        if (v != null)
+            builder = builder.maxTokens(iv);
+        Double dv = configManager.getTemperature(ConfigManager.CHAT_MODEL_LOCALAI);
+        if (dv != null)
+            builder = builder.temperature(dv);
+        dv = configManager.getTopP(ConfigManager.CHAT_MODEL_LOCALAI);
+        if (dv != null)
+            builder = builder.topP(dv);
+        iv = configManager.getInferenceTimeout(ConfigManager.CHAT_MODEL_LOCALAI);
+        if (iv != null)
+            builder = builder.timeout(Duration.ofSeconds(iv));
 
         return builder.build();
     }
@@ -96,6 +169,18 @@ public class ChatLanguageModelFactory
         {
             log.debug("Using Open AI Chat Model");
             return this.createOpenAi();
+        }
+
+        if(ConfigManager.CHAT_MODEL_OLLAMA.equalsIgnoreCase(defaultModel))
+        {
+            log.debug("Using Ollama Chat Model");
+            return this.createOllama();
+        }
+
+        if(ConfigManager.CHAT_MODEL_LOCALAI.equalsIgnoreCase(defaultModel))
+        {
+            log.debug("Using Ollama Chat Model");
+            return this.createLocalAi();
         }
 
         // unknown chat model type
