@@ -42,6 +42,9 @@ public class ConfigManager
     {
         String value = env.getProperty("ai-product-catalog.max-tokens");
         log.debug ("Configured Max Tokens = " + value);
+
+        if (value == null)
+            return null;
         return Integer.valueOf(value);
     }
 
@@ -49,6 +52,9 @@ public class ConfigManager
     {
         String value = env.getProperty("ai-product-catalog.timeout-seconds");
         log.debug("Configured Inference Timeout = " + value);
+
+        if (value == null)
+            return null;
         return Integer.valueOf(value);
     }
 
@@ -56,6 +62,9 @@ public class ConfigManager
     {
         String value = env.getProperty("ai-product-catalog.temperature");
         log.debug("Configured Temperature = " + value);
+
+        if (value == null)
+            return null;
         return Double.valueOf(value);
     }
 
@@ -63,6 +72,9 @@ public class ConfigManager
     {
         String value = env.getProperty("ai-product-catalog.top-p");
         log.debug("Configured Top-P = " + value);
+
+        if (value == null)
+            return null;
         return Double.valueOf(value);
     }
 

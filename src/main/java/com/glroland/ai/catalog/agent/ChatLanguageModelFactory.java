@@ -57,7 +57,7 @@ public class ChatLanguageModelFactory
         OpenAiChatModelBuilder builder = OpenAiChatModel.builder()
             .logRequests(true)
             .logResponses(true)
-            .responseFormat("TEXT");
+            .responseFormat("text"); // Supported values are: 'json_object' and 'text'.
         
         if (StringUtils.isNotEmpty(configManager.getInferenceEndpoint()))
             builder = builder.baseUrl(configManager.getInferenceEndpoint());
