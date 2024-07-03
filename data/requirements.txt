@@ -1,4 +1,4 @@
-opendatasets
 pandas
 ipykernel
 psycopg2
+datadotworld
