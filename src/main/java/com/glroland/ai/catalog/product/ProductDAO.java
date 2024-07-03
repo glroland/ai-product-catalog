@@ -41,7 +41,41 @@ public class ProductDAO {
             return null;
 
         if (products.size() > 1)
-            throw new RuntimeException("More than one product found with ID.  Unexpected...");
+            throw new RuntimeException("More than one product found with ID.  Unexpected...  ProductID=" + id);
+
+        return products.get(0);
+    }
+
+    public Product getProductBySKU(String sku)
+    {
+        String sql = "SELECT product_id, "
+                          + "sku, "
+                          + "brand_id, " 
+                          + "product_name, "
+                          + "product_desc, "
+                          + "size, "
+                          + "msrp, "
+                          + "category_id "
+                    + "FROM products "
+                    + "WHERE sku = ?";
+
+        List<Product> products = (List<Product>)jdbcTemplate.query(
+            sql,
+            (rs, rowNum) -> new Product(rs.getInt("product_id"), 
+                                        rs.getString("sku"), 
+                                        rs.getInt("brand_id"), 
+                                        rs.getString("product_name"), 
+                                        rs.getString("product_desc"), 
+                                        rs.getString("size"), 
+                                        rs.getDouble("msrp"), 
+                                        rs.getInt("category_id")),
+            sku);
+
+        if ((products == null) || (products.size() == 0))
+            return null;
+
+        if (products.size() > 1)
+            throw new RuntimeException("More than one product found with SKU.  Unexpected...  SKU=" + sku);
 
         return products.get(0);
     }
@@ -51,50 +85,31 @@ public class ProductDAO {
         StringBuffer sql = new StringBuffer();
         sql.append("SELECT product_id, "
                         + "sku, "
-                        + "brand_id, " 
+                        + "products.brand_id as brand_id, " 
                         + "product_name, "
                         + "product_desc, "
                         + "size, "
                         + "msrp, "
-                        + "category_id "
-                 + "FROM products ");
-        boolean firstParam = true;
+                        + "products.category_id as category_id "
+                 + "FROM products, categories, brands " 
+                 + "WHERE products.category_id = categories.category_id "
+                 + "AND products.brand_id = brands.brand_id ");
         if ((category != null) && (category.length() > 0))
         {
-            if (firstParam)
-                sql.append("WHERE ");
-            else 
-                sql.append("AND ");
-            sql.append("category_id = ").append(category).append(" ");
-            firstParam = false;
+            sql.append("AND categories.category_desc LIKE '%").append(category).append("%' ");
         }
         if ((brand != null) && (brand.length() > 0))
         {
-            if (firstParam)
-                sql.append("WHERE ");
-            else 
-                sql.append("AND ");
-            sql.append("brand_id = ").append(brand).append(" ");
-            firstParam = false;
+            sql.append("AND brand_desc LIKE '%").append(brand).append("%' ");
         }
         if ((sku != null) && (sku.length() > 0))
         {
-            if (firstParam)
-                sql.append("WHERE ");
-            else 
-                sql.append("AND ");
-            sql.append("UPPER(sku) LIKE '%").append(sku.toUpperCase()).append("%' ");
-            firstParam = false;
+            sql.append("AND UPPER(sku) LIKE '%").append(sku.toUpperCase()).append("%' ");
         }
         if ((nameDesc != null) && (nameDesc.length() > 0))
         {
-            if (firstParam)
-                sql.append("WHERE ");
-            else 
-                sql.append("AND ");
-            sql.append("UPPER(product_name) LIKE '%").append(nameDesc.toUpperCase()).append("%' OR ");
+            sql.append("AND UPPER(product_name) LIKE '%").append(nameDesc.toUpperCase()).append("%' OR ");
             sql.append("UPPER(product_desc) LIKE '%").append(nameDesc.toUpperCase()).append("%' ");
-            firstParam = false;
         }
 
         return (List<Product>)jdbcTemplate.query(
