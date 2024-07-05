@@ -11,15 +11,24 @@ import org.springframework.stereotype.Component;
 import com.glroland.ai.catalog.ConfigManager;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.localai.LocalAiChatModel;
 import dev.langchain4j.model.localai.LocalAiChatModel.LocalAiChatModelBuilder;
+import dev.langchain4j.model.localai.LocalAiEmbeddingModel;
+import dev.langchain4j.model.localai.LocalAiEmbeddingModel.LocalAiEmbeddingModelBuilder;
 import dev.langchain4j.model.mistralai.MistralAiChatModel;
-import dev.langchain4j.model.mistralai.MistralAiResponseFormatType;
+import dev.langchain4j.model.mistralai.internal.api.MistralAiResponseFormatType;
 import dev.langchain4j.model.ollama.OllamaChatModel;
+import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import dev.langchain4j.model.ollama.OllamaChatModel.OllamaChatModelBuilder;
+import dev.langchain4j.model.ollama.OllamaEmbeddingModel.OllamaEmbeddingModelBuilder;
 import dev.langchain4j.model.mistralai.MistralAiChatModel.MistralAiChatModelBuilder;
+import dev.langchain4j.model.mistralai.MistralAiEmbeddingModel;
+import dev.langchain4j.model.mistralai.MistralAiEmbeddingModel.MistralAiEmbeddingModelBuilder;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel.OpenAiChatModelBuilder;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder;
 
 @Component
 public class ChatLanguageModelFactory 
@@ -28,6 +37,26 @@ public class ChatLanguageModelFactory
 
     @Autowired
     private ConfigManager configManager;
+
+    public MistralAiEmbeddingModel createMistralEmbeddingModel()
+    {
+        log.debug("Creating Mistral Embedding Model");
+        MistralAiEmbeddingModelBuilder builder = MistralAiEmbeddingModel.builder()
+            .logRequests(true)
+            .logResponses(true);
+
+        String v = configManager.getInferenceEndpoint(ConfigManager.CHAT_MODEL_MISTRAL);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.baseUrl(v);
+        v = configManager.getInferenceApiKey(ConfigManager.CHAT_MODEL_MISTRAL);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.apiKey(v);
+        v = configManager.getModelName(ConfigManager.CHAT_MODEL_MISTRAL);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.modelName(v);
+
+        return builder.build();
+    }
 
     public ChatLanguageModel createMistral()
     {
@@ -62,9 +91,33 @@ public class ChatLanguageModelFactory
         return builder.build();
     }
 
+    public OpenAiEmbeddingModel createOpenAiEmbeddingModel()
+    {
+        log.debug("Creating Open AI Embedding Model");
+
+        OpenAiEmbeddingModelBuilder builder = OpenAiEmbeddingModel.builder()
+            .logRequests(true)
+            .logResponses(true);
+
+        String v = configManager.getInferenceEndpoint(ConfigManager.CHAT_MODEL_OPENAI);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.baseUrl(v);
+        v = configManager.getInferenceApiKey(ConfigManager.CHAT_MODEL_OPENAI);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.apiKey(v);
+        v = configManager.getModelName(ConfigManager.CHAT_MODEL_OPENAI);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.modelName(v);
+        Integer iv = configManager.getInferenceTimeout(ConfigManager.CHAT_MODEL_OPENAI);
+        if (iv != null)
+            builder = builder.timeout(Duration.ofSeconds(iv));
+    
+        return builder.build();
+    }
+
     public ChatLanguageModel createOpenAi()
     {
-        log.debug("Creating Mistral Chat Language Model");
+        log.debug("Creating OpenAI Chat Language Model");
         OpenAiChatModelBuilder builder = OpenAiChatModel.builder()
             .logRequests(true)
             .logResponses(true)
@@ -95,6 +148,26 @@ public class ChatLanguageModelFactory
         return builder.build();
     }
 
+    public OllamaEmbeddingModel createOllamaEmbeddingModel()
+    {
+        log.debug("Creating Ollama Embedding Model");
+        OllamaEmbeddingModelBuilder builder = OllamaEmbeddingModel.builder()
+            .logRequests(true)
+            .logResponses(true);
+
+        String v = configManager.getInferenceEndpoint(ConfigManager.CHAT_MODEL_OLLAMA);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.baseUrl(v);
+        v = configManager.getModelName(ConfigManager.CHAT_MODEL_OLLAMA);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.modelName(v);
+        Integer iv = configManager.getInferenceTimeout(ConfigManager.CHAT_MODEL_OLLAMA);
+        if (iv != null)
+            builder = builder.timeout(Duration.ofSeconds(iv));
+    
+        return builder.build();
+    }
+
     public ChatLanguageModel createOllama()
     {
         log.debug("Creating Ollama Chat Language Model");
@@ -118,6 +191,25 @@ public class ChatLanguageModelFactory
         if (iv != null)
             builder = builder.timeout(Duration.ofSeconds(iv));
 
+        return builder.build();
+    }
+
+    public LocalAiEmbeddingModel createLocalAiEmbeddingModel()
+    {
+        LocalAiEmbeddingModelBuilder builder = LocalAiEmbeddingModel.builder()
+            .logRequests(true)
+            .logResponses(true);
+
+        String v = configManager.getInferenceEndpoint(ConfigManager.CHAT_MODEL_LOCALAI);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.baseUrl(v);
+        v = configManager.getModelName(ConfigManager.CHAT_MODEL_LOCALAI);
+        if (StringUtils.isNotEmpty(v))
+            builder = builder.modelName(v);
+        Integer iv = configManager.getInferenceTimeout(ConfigManager.CHAT_MODEL_LOCALAI);
+        if (iv != null)
+            builder = builder.timeout(Duration.ofSeconds(iv));
+    
         return builder.build();
     }
 
@@ -185,6 +277,45 @@ public class ChatLanguageModelFactory
 
         // unknown chat model type
         String msg = "Unknown Chat Model Type Requested: " + defaultModel;
+        log.error(msg);
+        throw new RuntimeException(msg);
+    }
+
+    public EmbeddingModel createDefaultEmbeddingModel()
+    {
+        String defaultModel = configManager.getDefaultChatModel();
+        if ((defaultModel == null) || (defaultModel.length() == 0))
+        {
+            log.warn("No default chat model specified.  Using default for embedding model...");
+            defaultModel = ConfigManager.CHAT_MODEL_MISTRAL;
+        }
+
+        if(ConfigManager.CHAT_MODEL_MISTRAL.equalsIgnoreCase(defaultModel))
+        {
+            log.debug("Using Mistral Embedding Model");
+            return this.createMistralEmbeddingModel();
+        }
+
+        if(ConfigManager.CHAT_MODEL_OPENAI.equalsIgnoreCase(defaultModel))
+        {
+            log.debug("Using Open AI Embedding Model");
+            return this.createOpenAiEmbeddingModel();
+        }
+
+        if(ConfigManager.CHAT_MODEL_OLLAMA.equalsIgnoreCase(defaultModel))
+        {
+            log.debug("Using Ollama Embedding Model");
+            return this.createOllamaEmbeddingModel();
+        }
+
+        if(ConfigManager.CHAT_MODEL_LOCALAI.equalsIgnoreCase(defaultModel))
+        {
+            log.debug("Using Ollama Embedding Model");
+            return this.createLocalAiEmbeddingModel();
+        }
+
+        // unknown chat model type
+        String msg = "Unknown Chat Model Type Requested: " + defaultModel + ".  Cannot provide embedding model.";
         log.error(msg);
         throw new RuntimeException(msg);
     }

@@ -33,6 +33,7 @@ public class ConfigManager
 
     public static final String AGENT_TYPE_SIMPLE = "simple";
     public static final String AGENT_TYPE_TOOL = "tool";
+    public static final String AGENT_TYPE_RAG = "rag";
 
     private String getValue(String chatModel, String propertyName)
     {
