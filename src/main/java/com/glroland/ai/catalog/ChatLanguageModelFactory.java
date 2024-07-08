@@ -1,4 +1,4 @@
-package com.glroland.ai.catalog.agent;
+package com.glroland.ai.catalog;
 
 import java.time.Duration;
 
@@ -7,8 +7,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.glroland.ai.catalog.ConfigManager;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
@@ -111,7 +109,10 @@ public class ChatLanguageModelFactory
         Integer iv = configManager.getInferenceTimeout(ConfigManager.CHAT_MODEL_OPENAI);
         if (iv != null)
             builder = builder.timeout(Duration.ofSeconds(iv));
-    
+        iv = configManager.getEmbeddingsDimensions(ConfigManager.CHAT_MODEL_OPENAI);
+        if (iv != null)
+            builder.dimensions(iv);
+
         return builder.build();
     }
 

@@ -1,23 +1,19 @@
 <!DOCTYPE HTML>
 <html>
 <head> 
-    <title>AI Product Catalog - Chat-Based Search</title> 
+    <title>AI Product Catalog - RAG-Based Search</title> 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
 
-        function onSendButtonClicked(buttonRef) 
+        function onSearchButtonClicked(buttonRef) 
         {
-            url =  window.location.protocol + "//" + window.location.host + "/chat";
+            url =  window.location.protocol + "//" + window.location.host + "/ragsearch";
             console.log("Chat URL: " + url);
-
-            agentType = document.getElementById("toolType").value;
-            console.log("Chat Agent Type: " + agentType);
 
             userMessage =  document.getElementById("userMessage").value;
             data = { 
-                userMessage: userMessage,
-                type: agentType
+                userMessage: userMessage
                    };
 
             document.getElementById("userMessage").disabled = true;
@@ -80,7 +76,7 @@
             </tr>
             <tr>
                 <td></td>
-                <td align="center"><input type="submit" value="Send" style="width: 80%" onclick="onSendButtonClicked(this) " /><select id="toolType"><option value="simple">General</option><option value="tool" selected>General w/Tool</option></select>
+                <td align="center"><input type="submit" value="Search" style="width: 80%" onclick="onSearchButtonClicked(this) " />
             </tr>
             <tr id="chat_table_divider"><td colspan="2"></td></tr>
         </table>

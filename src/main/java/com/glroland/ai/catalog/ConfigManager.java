@@ -25,6 +25,7 @@ public class ConfigManager
     public static final String CONFIG_ENTRY_TIMEOUT = "timeout-seconds";
     public static final String CONFIG_ENTRY_TEMP = "temperature";
     public static final String CONFIG_ENTRY_TOP_P = "top-p";
+    public static final String CONFIG_ENTRY_EMBEDDINGS_DIMENSIONS = "embeddings-dimensions";
 
     public static final String CHAT_MODEL_MISTRAL = "mistral";
     public static final String CHAT_MODEL_OPENAI = "openai";
@@ -33,7 +34,6 @@ public class ConfigManager
 
     public static final String AGENT_TYPE_SIMPLE = "simple";
     public static final String AGENT_TYPE_TOOL = "tool";
-    public static final String AGENT_TYPE_RAG = "rag";
 
     private String getValue(String chatModel, String propertyName)
     {
@@ -105,6 +105,14 @@ public class ConfigManager
     public Integer getInferenceTimeout(String chatModel)
     {
         String value = getValue(chatModel, CONFIG_ENTRY_TIMEOUT);
+        if (value == null)
+            return null;
+        return Integer.valueOf(value);
+    }
+
+    public Integer getEmbeddingsDimensions(String chatModel)
+    {
+        String value = getValue(chatModel, CONFIG_ENTRY_EMBEDDINGS_DIMENSIONS);
         if (value == null)
             return null;
         return Integer.valueOf(value);
