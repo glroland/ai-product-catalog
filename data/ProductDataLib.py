@@ -23,20 +23,35 @@ class ProductDataSet:
         DESC = "Category_Desc"
         ID = "Category_ID"
 
+    class EmbeddingColumns:
+        PRODUCT_ID = "Product_ID"
+        ENGINE = "Engine"
+        MODEL = "Model"
+        EMBEDDING = "Embedding"
+
     PROVIDER_OPENAI = "openai"
     PROVIDER_OPENAI_EMBEDDINGS_MODEL = "text-embedding-ada-002"
 
     dataSourceDescription = None
     targetDatabaseConnString = None
+    maxEmbeddingsAllowed = -1
     productsDF = None
     brandsDF = None
+    categoriesDF = None
+    embeddingsDF = None
+    openaiClient = None
+    embeddingsCounter = 0
 
-    def __init__(self, dataSourceDescription, targetDatabaseConnString):
+    def __init__(self, dataSourceDescription, targetDatabaseConnString, maxEmbeddingsAllowed = -1):
         self.dataSourceDescription = dataSourceDescription
         self.targetDatabaseConnString = targetDatabaseConnString
+        self.maxEmbeddingsAllowed = maxEmbeddingsAllowed
 
         if self.targetDatabaseConnString == None or len(self.targetDatabaseConnString) == 0:
             raise RuntimeError("Database Connection String for Destination DB is required!")
+        
+        self.openaiClient = openai.OpenAI()
+
 
     def import_df(self, inputDF, mapping):
         self.productsDF = inputDF.copy(deep=True)    
@@ -61,31 +76,48 @@ class ProductDataSet:
 
         return self.productsDF
 
-    def sql_execute(self, sql, values, fetchOne = True):
+
+    def sql_execute(self, sql, values, fetch = True):
         with psycopg.connect(self.targetDatabaseConnString) as db_connection:
             with db_connection.cursor() as c:
                 c.execute(sql, values)
 
-                if fetchOne:
-                    rows = c.fetchone()
+                if fetch == True:
+                    rows = c.fetchall()
                     return rows
 
-    def sql_insert_dataframe_row(self, row, insertSQL, existsSQL):
+
+    def sql_insert_dataframe_row(self, row, insertSQL, existsSQL, fetch=True):
         try:
-            result = self.sql_execute(existsSQL, row, True)
+            result = self.sql_execute(existsSQL, row, fetch)
         except Exception as e:
             print ("Caught Exception While Executing SQL!  ", e, "Impacting Values Were =", row)
             raise e
         
         if (result == None):
 #            print ("Not Found.  Creating....")
-            result = self.sql_execute(insertSQL, row, True)
-#        print("RESULT=", result[0])
-        return result[0]
+            result = self.sql_execute(insertSQL, row, fetch)
+
+        if fetch:
+            if len(result) == 0:
+                print ("Unexpectedly NO RESULTS from neither INSERT or EXISTS statements...", insertSQL, existsSQL)
+                return None
+            elif len(result) > 1:
+                print ("Unexpectedly MULTIPLE RESULTS from INSERT or EXISTS statements... Count=", str(len(result)), insertSQL, existsSQL)
+                raise RuntimeError("Unexpectedly MULTIPLE RESULTS from INSERT or EXISTS statements... Count=" + str(len(result)))
+
+            result, = result[0]
+
+    #        print("RESULT....  Type=", str(type(result)), "Value=", result)
+            return result
     
-    def sql_insert_dataframe(self, df, idColumn, insertSQL, existsSQL):
-        df[idColumn] = df.apply(lambda row: self.sql_insert_dataframe_row(row.to_dict(), insertSQL, existsSQL), axis=1)
+
+    def sql_insert_dataframe(self, df, idColumn, insertSQL, existsSQL, fetch=True):
+        result = df.apply(lambda row: self.sql_insert_dataframe_row(row.to_dict(), insertSQL, existsSQL, fetch), axis=1)
+        if fetch:
+            df[idColumn] = result
 #        print(df.head())
+
 
     def reset_brand_id_for_product(self, row):
         brandDesc = row[self.ProductColumns.BRAND_DESC]
@@ -96,6 +128,7 @@ class ProductDataSet:
             raise RuntimeError("Too many Brand IDs were found for the given brand descrption: " + str(len(brandIds)));
         return brandIds.values[0]
 
+
     def reset_category_id_for_product(self, row):
         categoryDesc = row[self.ProductColumns.CATEGORY_DESC]
         categoryIds = self.categoriesDF[self.categoriesDF[self.CategoryColumns.DESC] == categoryDesc][self.CategoryColumns.ID]
@@ -104,6 +137,7 @@ class ProductDataSet:
         elif (len(categoryIds) > 1):
             raise RuntimeError("Too many Category IDs were found for the given brand descrption: " + str(len(categoryIds)));
         return categoryIds.values[0]
+
 
     def persist(self):
         self.persist_categories()
@@ -115,6 +149,7 @@ class ProductDataSet:
         self.persist_products()
         return
     
+
     def persist_categories(self):
         insertSQL = f"""
                         INSERT INTO categories(category_desc) VALUES (%({self.CategoryColumns.DESC})s) RETURNING category_id;
@@ -123,6 +158,7 @@ class ProductDataSet:
                         SELECT category_id FROM categories WHERE %({self.CategoryColumns.DESC})s = category_desc;
                     """
         self.sql_insert_dataframe(self.categoriesDF, self.CategoryColumns.ID, insertSQL, existsSQL)
+
 
     def persist_brands(self):
         insertSQL = f"""
@@ -133,6 +169,7 @@ class ProductDataSet:
                     """
         self.sql_insert_dataframe(self.brandsDF, self.BrandColumns.ID, insertSQL, existsSQL)
     
+
     def persist_products(self):
         insertSQL = f"""
                         INSERT INTO products
@@ -170,16 +207,61 @@ class ProductDataSet:
         self.sql_insert_dataframe(self.productsDF, self.ProductColumns.ID, insertSQL, existsSQL)
 
 
+    def load_embeddings(self):
+        selectSQL = f"""
+                        SELECT  product_id,
+                                engine,
+                                model,
+                                embedding
+                        FROM product_embeddings
+                    """
+        rows = self.sql_execute(selectSQL, {}, True)
+        self.embeddingsDF = pd.DataFrame(columns=(self.EmbeddingColumns.PRODUCT_ID,
+                                                  self.EmbeddingColumns.ENGINE,
+                                                  self.EmbeddingColumns.MODEL,
+                                                  self.EmbeddingColumns.EMBEDDING))
+        for row in rows:
+            print (row)
 
 
+    def refresh_embeddings(self):
+        self.productsDF.apply(lambda row: self.append_embedding_for_product(row), axis=1, result_type='expand')
+        print (self.embeddingsDF.head())
+        return self.embeddingsDF
 
 
+    def append_embedding_for_product(self, row):
+        productId = row[self.ProductColumns.ID]
+        engine = self.PROVIDER_OPENAI
+        model = self.PROVIDER_OPENAI_EMBEDDINGS_MODEL
+        
+        embedded_text = f"""'{row[self.ProductColumns.NAME]}', '{row[self.ProductColumns.SKU]}', {row[self.ProductColumns.PRICE]}, '{row[self.ProductColumns.BRAND_DESC]}', '{row[self.ProductColumns.DESC]}'"""
+        embedded_text = embedded_text.replace("\n", " ")
+
+        print ("Preparing to create embedding....  Product_ID:", productId, "Engine:", engine, "Model:", model, "Text:\"", embedded_text, "\"")
+
+        matchingDF = self.embeddingsDF[(self.embeddingsDF[self.EmbeddingColumns.PRODUCT_ID] == productId) &
+                                       (self.embeddingsDF[self.EmbeddingColumns.ENGINE] == engine) &
+                                       (self.embeddingsDF[self.EmbeddingColumns.MODEL] == model)]
+        
+        if len(matchingDF) > 0:
+            print ("... skipping - Some # of embeddings for product ALREADY EXIST ...", matchingDF.head())
+            return None
+
+        self.embeddingsCounter = self.embeddingsCounter + 1
+        if (self.maxEmbeddingsAllowed > 0) and (self.embeddingsCounter > self.maxEmbeddingsAllowed):
+            print("Maximum # of Embeddings Reached.  Skipping embedding invocation....  Limit:", self.maxEmbeddingsAllowed, "Counter:", self.embeddingsCounter)
+            return
+
+        embedding = self.openaiClient.embeddings.create(input = [embedded_text], model=model).data[0].embedding
+        print ("CREATED Embedding for ....  Text:", embedded_text)
+
+        newRow = [ productId, engine, model, embedding ]
+        self.embeddingsDF.loc[len(self.embeddingsDF)] = newRow
+        return newRow
 
     def persist_embeddings(self):
-        with psycopg.connect(db_conn_str) as db_connection:
-            with db_connection.cursor() as c:
-                c.executemany(
-                    f"""
+        insertSQL = f"""
                         INSERT INTO product_embeddings
                         (
                             product_id,
@@ -189,148 +271,22 @@ class ProductDataSet:
                         ) 
                         VALUES
                         (
-                            (
-                                select product_id 
-                                from products 
-                                where product_name=%(product_name)s
-                                    and sku=%(product_id)s
-                                    and brand_id=(select brand_id from brands where brand_desc=%(brand)s fetch first 1 rows only)
-                                    and product_desc=%(description)s
-                                fetch first 1 rows only
-                            ),
-                            '{PROVIDER_OPENAI}',
-                            '{PROVIDER_OPENAI_EMBEDDINGS_MODEL}',
-                            %(embeddingToStore)s
+                            %({self.EmbeddingColumns.PRODUCT_ID})s,
+                            %({self.EmbeddingColumns.ENGINE})s,
+                            %({self.EmbeddingColumns.MODEL})s,
+                            %({self.EmbeddingColumns.EMBEDDING})s
                         )
-                    """,
-                    embeddingsDF.to_dict(orient="records"),
-                )
+                    """
+        existsSQL = f"""
+                        SELECT product_id, engine, model, embedding
+                        FROM product_embeddings 
+                        WHERE   product_id = %({self.EmbeddingColumns.PRODUCT_ID})s
+                            AND engine = %({self.EmbeddingColumns.ENGINE})s
+                            AND model = %({self.EmbeddingColumns.MODEL})s
+                            AND embedding = cast(%({self.EmbeddingColumns.EMBEDDING})s as vector(1536))
+                    """
+        self.sql_insert_dataframe(self.embeddingsDF, None, insertSQL, existsSQL, fetch=False)
 
-
-    def get_embedding_from_db(self, db_conn_str, productName, sku, price, brand, description, model):
-        productName = productName.replace("'", "''")
-        
-        cleansedDescription = None
-        if description != None and type(description) != float:
-            cleansedDescription = description.replace("\n", " ").replace("'", "''")
-
-        with psycopg.connect(db_conn_str) as db_connection:
-            with db_connection.cursor() as c:
-                sql = f"""
-                                select embedding
-                                from product_embeddings
-                                where model = '{model}'
-                                and engine = '{PROVIDER_OPENAI}'
-                                and product_id = 
-                                    (
-                                        select product_id 
-                                        from products 
-                                        where product_name='{productName}'
-                                        and sku='{sku}'
-                                        and brand_id=(select brand_id from brands where brand_desc='{brand}' fetch first 1 rows only)
-                                        and product_desc"""
-                if cleansedDescription != None:
-                    sql = sql + f"='{cleansedDescription}'"
-                else:
-                    sql = sql + " is null"
-                    sql = sql + f"""
-                                            fetch first 1 rows only
-                                        )
-                            """
-        #            print(sql)
-                
-                c.execute(sql)
-                record = c.fetchone()
-
-                if record == None:
-                    return None
-                
-                return record[0]
-            
-
-    def get_embedding_from_db(self, db_conn_str, productName, sku, price, brand, description, model):
-        productName = productName.replace("'", "''")
-        
-        cleansedDescription = None
-        if description != None and type(description) != float:
-            cleansedDescription = description.replace("\n", " ").replace("'", "''")
-
-        with psycopg.connect(db_conn_str) as db_connection:
-            with db_connection.cursor() as c:
-                sql = f"""
-                                select embedding
-                                from product_embeddings
-                                where model = '{model}'
-                                and engine = '{PROVIDER_OPENAI}'
-                                and product_id = 
-                                    (
-                                        select product_id 
-                                        from products 
-                                        where product_name='{productName}'
-                                        and sku='{sku}'
-                                        and brand_id=(select brand_id from brands where brand_desc='{brand}' fetch first 1 rows only)
-                                        and product_desc"""
-                if cleansedDescription != None:
-                    sql = sql + f"='{cleansedDescription}'"
-                else:
-                    sql = sql + " is null"
-                    sql = sql + f"""
-                                            fetch first 1 rows only
-                                        )
-                            """
-    #            print(sql)
-                
-                c.execute(sql)
-                record = c.fetchone()
-
-                if record == None:
-                    return None
-                
-                return record[0]
-            
-
-
-    def refresh_embeddings(self):
-        client = openai.OpenAI()
-
-#    df['embeddingToStore'] = df.apply(lambda row: create_embedding(row["product_name"], row["product_id"], row["msrp"], row["brand"], row["description"], model=PROVIDER_OPENAI_EMBEDDINGS_MODEL), axis=1)
-
-#    embeddingsDF = df[df['embeddingToStore'].notnull()]
-#    print("Shape:", embeddingsDF.shape)
-#    #print ("Vector Length:", str(len(embeddingsDF[0])))
-#    embeddingsDF.head()
-
-#        return df
-
-
-
-
-
-
-
-
-
-    # counter = 0
-
-    def create_embedding(self, openai_client, db_conn_str, productName, sku, price, brand, description, model):
-        global counter
-
-        text = f"""'{productName}', '{sku}', {price}, '{brand}', '{description}'"""
-        text = text.replace("\n", " ")
-
-        embedding = get_embedding_from_db(db_conn_str, productName, sku, price, brand, description, model)
-        
-        if embedding != None:
-            print ("... skipping - ALREADY EXISTS ...", text, "Embedding from DB =", embedding)
-            return None
-
-        #   counter = counter + 1
-        #   if counter > 10:
-        #      return None
-
-        response = openai_client.embeddings.create(input = [text], model=model).data[0].embedding
-        print ("CREATING Embedding for ....  ", text, "Response =", response)
-        return response
 
 
 if __name__ == "__main__":
@@ -359,5 +315,8 @@ if __name__ == "__main__":
                         }
                     )
     productDataSet.persist()
+    productDataSet.load_embeddings()
+    productDataSet.refresh_embeddings()
+    productDataSet.persist_embeddings()
     
     print(resultDF.head())
