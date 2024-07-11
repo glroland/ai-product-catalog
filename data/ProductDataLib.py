@@ -82,7 +82,7 @@ class ProductDataSet:
             with db_connection.cursor() as c:
                 c.execute(sql, values)
 
-                if fetch == True:
+                if fetch:
                     rows = c.fetchall()
                     return rows
 
@@ -94,7 +94,7 @@ class ProductDataSet:
             print ("Caught Exception While Executing SQL!  ", e, "Impacting Values Were =", row)
             raise e
         
-        if (result == None):
+        if (len(result) == 0):
 #            print ("Not Found.  Creating....")
             result = self.sql_execute(insertSQL, row, fetch)
 
