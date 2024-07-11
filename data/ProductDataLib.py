@@ -89,7 +89,7 @@ class ProductDataSet:
 
     def sql_insert_dataframe_row(self, row, insertSQL, existsSQL, fetch=True):
         try:
-            result = self.sql_execute(existsSQL, row, fetch)
+            result = self.sql_execute(existsSQL, row, True)
         except Exception as e:
             print ("Caught Exception While Executing SQL!  ", e, "Impacting Values Were =", row)
             raise e
