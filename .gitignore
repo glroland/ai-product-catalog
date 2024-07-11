@@ -37,3 +37,4 @@ products-datasets
 .DS_Store
 application.properties
 .env
+__pycache__
