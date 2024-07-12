@@ -125,4 +125,37 @@ public class ProductDAO {
                                         )
             );
     }
+
+    public List<Product> similaritySearch(float [] embedding, int limit)
+    {
+        StringBuffer sql = new StringBuffer();
+        sql.append("SELECT products.product_id, "
+                        + "sku, "
+                        + "products.brand_id as brand_id, " 
+                        + "product_name, "
+                        + "product_desc, "
+                        + "size, "
+                        + "msrp, "
+                        + "products.category_id as category_id "
+                 + "FROM products, categories, brands, product_embeddings " 
+                 + "WHERE products.category_id = categories.category_id "
+                 + "AND products.brand_id = brands.brand_id "
+                 + "AND product_embeddings.product_id = products.product_id "
+                 + "ORDER BY embedding <-> CAST(? as vector) "
+                 + "LIMIT ?");
+
+        List<Product> products = (List<Product>)jdbcTemplate.query(
+            sql.toString(),
+            (rs, rowNum) -> new Product(rs.getInt("product_id"), 
+                                        rs.getString("sku"), 
+                                        rs.getInt("brand_id"), 
+                                        rs.getString("product_name"), 
+                                        rs.getString("product_desc"), 
+                                        rs.getString("size"), 
+                                        rs.getDouble("msrp"), 
+                                        rs.getInt("category_id")),
+            new Object[] { embedding, limit });
+
+        return products;
+    }
 }

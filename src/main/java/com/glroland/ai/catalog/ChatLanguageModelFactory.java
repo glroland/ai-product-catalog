@@ -49,7 +49,7 @@ public class ChatLanguageModelFactory
         v = configManager.getInferenceApiKey(ConfigManager.CHAT_MODEL_MISTRAL);
         if (StringUtils.isNotEmpty(v))
             builder = builder.apiKey(v);
-        v = configManager.getModelName(ConfigManager.CHAT_MODEL_MISTRAL);
+        v = configManager.getEmbeddingModelName(ConfigManager.CHAT_MODEL_MISTRAL);
         if (StringUtils.isNotEmpty(v))
             builder = builder.modelName(v);
 
@@ -70,7 +70,7 @@ public class ChatLanguageModelFactory
         v = configManager.getInferenceApiKey(ConfigManager.CHAT_MODEL_MISTRAL);
         if (StringUtils.isNotEmpty(v))
             builder = builder.apiKey(v);
-        v = configManager.getModelName(ConfigManager.CHAT_MODEL_MISTRAL);
+        v = configManager.getAgentModelName(ConfigManager.CHAT_MODEL_MISTRAL);
         if (StringUtils.isNotEmpty(v))
             builder = builder.modelName(v);
         Integer iv = configManager.getMaxTokens(ConfigManager.CHAT_MODEL_MISTRAL);
@@ -103,7 +103,7 @@ public class ChatLanguageModelFactory
         v = configManager.getInferenceApiKey(ConfigManager.CHAT_MODEL_OPENAI);
         if (StringUtils.isNotEmpty(v))
             builder = builder.apiKey(v);
-        v = configManager.getModelName(ConfigManager.CHAT_MODEL_OPENAI);
+        v = configManager.getEmbeddingModelName(ConfigManager.CHAT_MODEL_OPENAI);
         if (StringUtils.isNotEmpty(v))
             builder = builder.modelName(v);
         Integer iv = configManager.getInferenceTimeout(ConfigManager.CHAT_MODEL_OPENAI);
@@ -130,7 +130,7 @@ public class ChatLanguageModelFactory
         v = configManager.getInferenceApiKey(ConfigManager.CHAT_MODEL_OPENAI);
         if (StringUtils.isNotEmpty(v))
             builder = builder.apiKey(v);
-        v = configManager.getModelName(ConfigManager.CHAT_MODEL_OPENAI);
+        v = configManager.getAgentModelName(ConfigManager.CHAT_MODEL_OPENAI);
         if (StringUtils.isNotEmpty(v))
             builder = builder.modelName(v);
         Integer iv = configManager.getMaxTokens(ConfigManager.CHAT_MODEL_OPENAI);
@@ -159,7 +159,7 @@ public class ChatLanguageModelFactory
         String v = configManager.getInferenceEndpoint(ConfigManager.CHAT_MODEL_OLLAMA);
         if (StringUtils.isNotEmpty(v))
             builder = builder.baseUrl(v);
-        v = configManager.getModelName(ConfigManager.CHAT_MODEL_OLLAMA);
+        v = configManager.getEmbeddingModelName(ConfigManager.CHAT_MODEL_OLLAMA);
         if (StringUtils.isNotEmpty(v))
             builder = builder.modelName(v);
         Integer iv = configManager.getInferenceTimeout(ConfigManager.CHAT_MODEL_OLLAMA);
@@ -179,7 +179,7 @@ public class ChatLanguageModelFactory
         String v = configManager.getInferenceEndpoint(ConfigManager.CHAT_MODEL_OLLAMA);
         if (StringUtils.isNotEmpty(v))
             builder = builder.baseUrl(v);
-        v = configManager.getModelName(ConfigManager.CHAT_MODEL_OLLAMA);
+        v = configManager.getAgentModelName(ConfigManager.CHAT_MODEL_OLLAMA);
         if (StringUtils.isNotEmpty(v))
             builder = builder.modelName(v);
         Double dv = configManager.getTemperature(ConfigManager.CHAT_MODEL_OLLAMA);
@@ -204,7 +204,7 @@ public class ChatLanguageModelFactory
         String v = configManager.getInferenceEndpoint(ConfigManager.CHAT_MODEL_LOCALAI);
         if (StringUtils.isNotEmpty(v))
             builder = builder.baseUrl(v);
-        v = configManager.getModelName(ConfigManager.CHAT_MODEL_LOCALAI);
+        v = configManager.getEmbeddingModelName(ConfigManager.CHAT_MODEL_LOCALAI);
         if (StringUtils.isNotEmpty(v))
             builder = builder.modelName(v);
         Integer iv = configManager.getInferenceTimeout(ConfigManager.CHAT_MODEL_LOCALAI);
@@ -224,7 +224,7 @@ public class ChatLanguageModelFactory
         String v = configManager.getInferenceEndpoint(ConfigManager.CHAT_MODEL_LOCALAI);
         if (StringUtils.isNotEmpty(v))
             builder = builder.baseUrl(v);
-        v = configManager.getModelName(ConfigManager.CHAT_MODEL_LOCALAI);
+        v = configManager.getAgentModelName(ConfigManager.CHAT_MODEL_LOCALAI);
         if (StringUtils.isNotEmpty(v))
             builder = builder.modelName(v);
         Integer iv = configManager.getMaxTokens(ConfigManager.CHAT_MODEL_LOCALAI);

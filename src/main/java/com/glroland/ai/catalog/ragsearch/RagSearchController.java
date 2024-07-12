@@ -41,7 +41,7 @@ public class RagSearchController
     private ProductDAO productDAO;
 
     @PostMapping("/ragsearch")
-    private String searchWithRag(String userMessage)
+    public String searchWithRag(String userMessage)
     {
         EmbeddingModel embeddingModel = chatLanguageModelFactory.createOpenAiEmbeddingModel();
 
