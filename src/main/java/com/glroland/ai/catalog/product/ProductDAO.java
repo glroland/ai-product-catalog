@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import com.glroland.ai.catalog.ragsearch.ProductEmbedding;
+
 @Component
 public class ProductDAO {
 
@@ -157,5 +159,28 @@ public class ProductDAO {
             new Object[] { embedding, limit });
 
         return products;
+    }
+
+    public List<ProductEmbedding> getEmbeddingsForProduct(int productId)
+    {
+        StringBuffer sql = new StringBuffer();
+        sql.append("SELECT product_id, "
+                        + "engine, "
+                        + "model, " 
+                        + "text_segment, "
+                        + "embedding "
+                 + "FROM product_embeddings " 
+                 + "WHERE product_id = ? ");
+
+        List<ProductEmbedding> productEmbeddings = (List<ProductEmbedding>)jdbcTemplate.query(
+            sql.toString(),
+            (rs, rowNum) -> new ProductEmbedding(rs.getInt("product_id"), 
+                                                 rs.getString("engine"), 
+                                                 rs.getString("model"), 
+                                                 rs.getString("text_segment"), 
+                                                 rs.getString("embedding")),
+            new Object[] { productId });
+
+        return productEmbeddings;
     }
 }

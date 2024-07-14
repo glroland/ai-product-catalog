@@ -37,7 +37,8 @@ create table if not exists product_embeddings
   product_id integer not null,
   engine varchar(25) not null,
   model varchar(75) not null,
-  embedding vector(1536) NOT NULL,
+  text_segment varchar(5000) not null,
+  embedding vector(1536) not null,
   
   CONSTRAINT fk_product
       FOREIGN KEY(product_id) 

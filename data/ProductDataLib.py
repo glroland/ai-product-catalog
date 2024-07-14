@@ -27,6 +27,7 @@ class ProductDataSet:
         PRODUCT_ID = "Product_ID"
         ENGINE = "Engine"
         MODEL = "Model"
+        TEXT_SEGMENT = "Text_Segment"
         EMBEDDING = "Embedding"
 
     PROVIDER_OPENAI = "openai"
@@ -212,6 +213,7 @@ class ProductDataSet:
                         SELECT  product_id,
                                 engine,
                                 model,
+                                text_segment,
                                 embedding
                         FROM product_embeddings
                     """
@@ -219,6 +221,7 @@ class ProductDataSet:
         self.embeddingsDF = pd.DataFrame(columns=(self.EmbeddingColumns.PRODUCT_ID,
                                                   self.EmbeddingColumns.ENGINE,
                                                   self.EmbeddingColumns.MODEL,
+                                                  self.EmbeddingColumns.TEXT_SEGMENT,
                                                   self.EmbeddingColumns.EMBEDDING))
         for row in rows:
             print (row)
@@ -242,7 +245,8 @@ class ProductDataSet:
 
         matchingDF = self.embeddingsDF[(self.embeddingsDF[self.EmbeddingColumns.PRODUCT_ID] == productId) &
                                        (self.embeddingsDF[self.EmbeddingColumns.ENGINE] == engine) &
-                                       (self.embeddingsDF[self.EmbeddingColumns.MODEL] == model)]
+                                       (self.embeddingsDF[self.EmbeddingColumns.MODEL] == model) &
+                                       (self.embeddingsDF[self.EmbeddingColumns.TEXT_SEGMENT] == embedded_text)]
         
         if len(matchingDF) > 0:
             print ("... skipping - Some # of embeddings for product ALREADY EXIST ...", matchingDF.head())
@@ -256,7 +260,7 @@ class ProductDataSet:
         embedding = self.openaiClient.embeddings.create(input = [embedded_text], model=model).data[0].embedding
         print ("CREATED Embedding for ....  Text:", embedded_text)
 
-        newRow = [ productId, engine, model, embedding ]
+        newRow = [ productId, engine, model, embedded_text, embedding ]
         self.embeddingsDF.loc[len(self.embeddingsDF)] = newRow
         return newRow
 
@@ -267,6 +271,7 @@ class ProductDataSet:
                             product_id,
                             engine,
                             model,
+                            text_segment,
                             embedding
                         ) 
                         VALUES
@@ -274,15 +279,17 @@ class ProductDataSet:
                             %({self.EmbeddingColumns.PRODUCT_ID})s,
                             %({self.EmbeddingColumns.ENGINE})s,
                             %({self.EmbeddingColumns.MODEL})s,
+                            %({self.EmbeddingColumns.TEXT_SEGMENT})s,
                             %({self.EmbeddingColumns.EMBEDDING})s
                         )
                     """
         existsSQL = f"""
-                        SELECT product_id, engine, model, embedding
+                        SELECT product_id, engine, model, text_segment, embedding
                         FROM product_embeddings 
                         WHERE   product_id = %({self.EmbeddingColumns.PRODUCT_ID})s
                             AND engine = %({self.EmbeddingColumns.ENGINE})s
                             AND model = %({self.EmbeddingColumns.MODEL})s
+                            AND text_segment = %({self.EmbeddingColumns.TEXT_SEGMENT})s
                             AND embedding = cast(%({self.EmbeddingColumns.EMBEDDING})s as vector(1536))
                     """
         self.sql_insert_dataframe(self.embeddingsDF, None, insertSQL, existsSQL, fetch=False)

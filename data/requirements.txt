@@ -1,5 +1,6 @@
-pandas
 ipykernel
+pylint
+pandas
 psycopg[binary]
 datadotworld
 openai

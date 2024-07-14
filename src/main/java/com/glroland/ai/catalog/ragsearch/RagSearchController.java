@@ -14,13 +14,23 @@ import com.glroland.ai.catalog.product.Product;
 import com.glroland.ai.catalog.product.ProductDAO;
 
 import dev.langchain4j.data.document.Document;
+import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.document.splitter.DocumentBySentenceSplitter;
+import dev.langchain4j.data.embedding.Embedding;
+import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.output.FinishReason;
+import dev.langchain4j.model.output.Response;
+import dev.langchain4j.rag.AugmentationRequest;
+import dev.langchain4j.rag.AugmentationResult;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
+import dev.langchain4j.rag.content.injector.ContentInjector;
+import dev.langchain4j.rag.content.injector.DefaultContentInjector;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.rag.query.transformer.CompressingQueryTransformer;
@@ -28,11 +38,14 @@ import dev.langchain4j.rag.query.transformer.QueryTransformer;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
+import dev.langchain4j.rag.query.router.DefaultQueryRouter;
 
 @RestController
 public class RagSearchController 
 {
     private static final Log log = LogFactory.getLog(RagSearchController.class);
+
+    private static final int LIMIT = 5;
 
     @Autowired
     private ChatLanguageModelFactory chatLanguageModelFactory;
@@ -45,52 +58,72 @@ public class RagSearchController
     {
         EmbeddingModel embeddingModel = chatLanguageModelFactory.createOpenAiEmbeddingModel();
 
-        InMemoryEmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
-        EmbeddingStoreIngestor ingester = EmbeddingStoreIngestor.builder()
-            .documentTransformer(document -> {
-                document.metadata().put("userId", "12345");
-                return document;
-            })
-            .documentSplitter(new DocumentBySentenceSplitter(1000, 0))
-            .textSegmentTransformer(textSegment -> TextSegment.from(
-                textSegment.metadata("file_name") + "\n" + textSegment.text(),
-                textSegment.metadata()
-            ))
-            .embeddingModel(embeddingModel)
-            .embeddingStore(embeddingStore)
-            .build();
-
-        ArrayList<Document> documents = new ArrayList<Document>();
-        List<Product> products = productDAO.search(null, null, "CJ1646-600", null, null);
-        if (products != null)
+        // Encode user message
+        Response<Embedding> embeddingResponse = embeddingModel.embed(userMessage);
+        if (embeddingResponse == null)
         {
-            for (Product product : products)
+            String message = "Unable to create embedding for userMessage due to null response: " + userMessage;
+            log.error(message);
+            throw new RuntimeException(message);
+        }
+        Embedding userMessageEmbedding = embeddingResponse.content();
+        if (userMessageEmbedding == null)
+        {
+            String message = "Unable to create embedding for userMessage due to empty embedding in response: " + userMessage;
+            log.error(message);
+            throw new RuntimeException(message);
+        }
+
+        // Find and store related embeddings
+        InMemoryEmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
+        List<Product> similarProducts = productDAO.similaritySearch(userMessageEmbedding.vector(), LIMIT);
+        if (similarProducts != null)
+        {
+            for (Product product : similarProducts)
             {
-                Document document = new Document(product.getProductDescription());
-                ingester.ingest(document);
-                documents.add(document);
+                List <ProductEmbedding> productEmbeddings = productDAO.getEmbeddingsForProduct(product.getProductId());
+                if (productEmbeddings != null)
+                {
+                    for (ProductEmbedding productEmbedding : productEmbeddings)
+                    {
+                        Embedding e = new Embedding(productEmbedding.getEmbedding());
+                        Metadata md = new Metadata();
+                        TextSegment ts = new TextSegment(productEmbedding.getTextSegment(), md);
+                        embeddingStore.add(e, ts);
+                    }
+                }
             }
         }
+
+        // Send related embeddings to LLM for inclusion in user message
+        ChatLanguageModel chatLanguageModel = chatLanguageModelFactory.createOpenAi();
+
+//        ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
+//                .embeddingStore(embeddingStore)
+//                .embeddingModel(embeddingModel)
+//                .build();
 
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
                 .embeddingStore(embeddingStore)
                 .embeddingModel(embeddingModel)
-                .maxResults(2)
-                .minScore(0.6)
+//                .maxResults(2)
+//                .minScore(0.6)
                 .build();
+
+        
+                DefaultQueryRouter queryRouter = new DefaultQueryRouter(contentRetriever);
+
                 
-        ChatLanguageModel chatLanguageModel = chatLanguageModelFactory.createOpenAi();
-
-        QueryTransformer queryTransformer = new CompressingQueryTransformer(chatLanguageModel);
-
-        RetrievalAugmentor retrievalAugmentor = DefaultRetrievalAugmentor.builder()
-                .queryTransformer(queryTransformer)
-                .contentRetriever(contentRetriever)
+                RetrievalAugmentor retrievalAugmentor = DefaultRetrievalAugmentor.builder()
+                //                .contentRetriever(contentRetriever)
+                .queryRouter(queryRouter)
                 .build();
+                                
 
         RagEnabledChatAgent agent = AiServices.builder(RagEnabledChatAgent.class)
                 .chatLanguageModel(chatLanguageModel)
                 .retrievalAugmentor(retrievalAugmentor)
+//                .contentRetriever(contentRetriever)
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .build();
         
