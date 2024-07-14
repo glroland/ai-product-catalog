@@ -1,4 +1,4 @@
-package com.glroland.ai.catalog.ragsearch;
+package com.glroland.ai.catalog.ragagent;
 
 import dev.langchain4j.service.SystemMessage;
 

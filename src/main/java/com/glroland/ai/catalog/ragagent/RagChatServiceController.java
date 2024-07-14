@@ -1,4 +1,4 @@
-package com.glroland.ai.catalog.ragsearch;
+package com.glroland.ai.catalog.ragagent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +41,9 @@ import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import dev.langchain4j.rag.query.router.DefaultQueryRouter;
 
 @RestController
-public class RagSearchController 
+public class RagChatServiceController 
 {
-    private static final Log log = LogFactory.getLog(RagSearchController.class);
+    private static final Log log = LogFactory.getLog(RagChatServiceController.class);
 
     private static final int LIMIT = 5;
 
@@ -53,8 +53,8 @@ public class RagSearchController
     @Autowired
     private ProductDAO productDAO;
 
-    @PostMapping("/ragsearch")
-    public String searchWithRag(String userMessage)
+    @PostMapping("/ragchat")
+    public String chatWithRag(String userMessage)
     {
         EmbeddingModel embeddingModel = chatLanguageModelFactory.createOpenAiEmbeddingModel();
 

@@ -1,4 +1,4 @@
-package com.glroland.ai.catalog.ragsearch;
+package com.glroland.ai.catalog.ragagent;
 
 import java.sql.Array;
 import java.sql.SQLException;
