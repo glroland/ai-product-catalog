@@ -1,0 +1,13 @@
+name: ai-product-catalog
+channels:
+  - defaults
+dependencies:
+  - python
+  - jupyter
+  - ipykernel
+  - pylint
+  - pandas
+  - openai
+  - pip:
+      - datadotworld
+      - psycopg[binary]
