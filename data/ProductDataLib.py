@@ -38,13 +38,9 @@ class ProductDataSet:
         """Enumeration of Embedding-Entity (Product-Embedding) Data Frame
         """
         PRODUCT_ID = "Product_ID"
-        ENGINE = "Engine"
         MODEL = "Model"
         TEXT_SEGMENT = "Text_Segment"
         EMBEDDING = "Embedding"
-
-    PROVIDER_OPENAI = "openai"
-    PROVIDER_OPENAI_EMBEDDINGS_MODEL = "text-embedding-ada-002"
 
     data_source_description = None
     target_database_conn_str = None
@@ -54,10 +50,15 @@ class ProductDataSet:
     categories_df = None
     embeddings_df = None
     openai_client = None
+    openai_model_name = None
     embeddings_counter = 0
 
-    def __init__(self, data_source_description, target_database_conn_str,
-                            max_embeddings_allowed = -1):
+    def __init__(self,
+                 data_source_description,
+                 target_database_conn_str,
+                 openai_api_url,
+                 openai_model_name,
+                 max_embeddings_allowed = -1):
         """Initialize the product data set processing library.
 
         Keyword arguments:
@@ -69,11 +70,15 @@ class ProductDataSet:
         self.data_source_description = data_source_description
         self.target_database_conn_str = target_database_conn_str
         self.max_embeddings_allowed = max_embeddings_allowed
+        self.openai_model_name = openai_model_name
 
         if self.target_database_conn_str is None or len(self.target_database_conn_str) == 0:
             raise RuntimeError("Database Connection String for Destination DB is required!")
 
         self.openai_client = openai.OpenAI()
+        if openai_api_url not in (None, ""):
+            print ("Overriding OpenAI Base URL:", openai_api_url)
+            openai.base_url = openai_api_url
 
 
     def import_df(self, input_df, mapping):
@@ -315,7 +320,6 @@ class ProductDataSet:
         """
         select_sql = """
                         SELECT  product_id,
-                                engine,
                                 model,
                                 text_segment,
                                 embedding
@@ -323,7 +327,6 @@ class ProductDataSet:
                     """
         rows = self.sql_execute(select_sql, {}, True)
         self.embeddings_df = pd.DataFrame(columns=(self.EmbeddingColumns.PRODUCT_ID,
-                                                  self.EmbeddingColumns.ENGINE,
                                                   self.EmbeddingColumns.MODEL,
                                                   self.EmbeddingColumns.TEXT_SEGMENT,
                                                   self.EmbeddingColumns.EMBEDDING))
@@ -347,8 +350,7 @@ class ProductDataSet:
         row -- product record
         """
         product_id = row[self.ProductColumns.ID]
-        engine = self.PROVIDER_OPENAI
-        model = self.PROVIDER_OPENAI_EMBEDDINGS_MODEL
+        model = self.openai_model_name
 
         embedded_text = f"""'{row[self.ProductColumns.NAME]}',
                             '{row[self.ProductColumns.SKU]}',
@@ -358,14 +360,11 @@ class ProductDataSet:
         embedded_text = embedded_text.replace("\n", " ")
 
         print ("Preparing to create embedding....  Product_ID:", product_id,
-                                                  "Engine:", engine,
                                                   "Model:", model,
                                                   "Text:\"", embedded_text, "\"")
 
         matching_df = self.embeddings_df[(self.embeddings_df[self.EmbeddingColumns.PRODUCT_ID]
                                                                 == product_id) &
-                                       (self.embeddings_df[self.EmbeddingColumns.ENGINE]
-                                                                == engine) &
                                        (self.embeddings_df[self.EmbeddingColumns.MODEL]
                                                                 == model) &
                                        (self.embeddings_df[self.EmbeddingColumns.TEXT_SEGMENT]
@@ -387,7 +386,7 @@ class ProductDataSet:
                                                         model=model).data[0].embedding
         print ("CREATED Embedding for ....  Text:", embedded_text)
 
-        new_row = [ product_id, engine, model, embedded_text, embedding ]
+        new_row = [ product_id, model, embedded_text, embedding ]
         self.embeddings_df.loc[len(self.embeddings_df)] = new_row
         return new_row
 
@@ -400,7 +399,6 @@ class ProductDataSet:
                         INSERT INTO product_embeddings
                         (
                             product_id,
-                            engine,
                             model,
                             text_segment,
                             embedding
@@ -408,17 +406,15 @@ class ProductDataSet:
                         VALUES
                         (
                             %({self.EmbeddingColumns.PRODUCT_ID})s,
-                            %({self.EmbeddingColumns.ENGINE})s,
                             %({self.EmbeddingColumns.MODEL})s,
                             %({self.EmbeddingColumns.TEXT_SEGMENT})s,
                             %({self.EmbeddingColumns.EMBEDDING})s
                         )
                     """
         exists_sql = f"""
-                        SELECT product_id, engine, model, text_segment, embedding
+                        SELECT product_id, model, text_segment, embedding
                         FROM product_embeddings 
                         WHERE   product_id = %({self.EmbeddingColumns.PRODUCT_ID})s
-                            AND engine = %({self.EmbeddingColumns.ENGINE})s
                             AND model = %({self.EmbeddingColumns.MODEL})s
                             AND text_segment = %({self.EmbeddingColumns.TEXT_SEGMENT})s
                             AND embedding = cast(%({self.EmbeddingColumns.EMBEDDING})s
@@ -453,7 +449,8 @@ if __name__ == "__main__":
                                 user=ai_product_catalog
                                 password=ai_product_catalog123"""
 
-    productDataSet = ProductDataSet("test_data", DB_CONNECTION_STRING)
+    productDataSet = ProductDataSet("test_data", DB_CONNECTION_STRING,
+                                    None, "text-embedding-ada-001")
     resultDF = productDataSet.import_df(test_df,
                         {
                             "test_sku": productDataSet.ProductColumns.SKU,
