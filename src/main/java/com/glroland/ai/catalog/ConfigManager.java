@@ -21,7 +21,8 @@ public class ConfigManager
     public static final String CONFIG_ENTRY_ENDPOINT = "inference-endpoint";
     public static final String CONFIG_ENTRY_APIKEY = "api-key";
     public static final String CONFIG_ENTRY_AGENT_MODEL_NAME = "agent-model-name";
-    public static final String CONFIG_ENTRY_EMBEDDING_MODEL_NAME = "embedding-model-name";
+    public static final String CONFIG_ENTRY_EMBEDDING_MODEL_NAME = "hf-embedding-model";
+    public static final String CONFIG_ENTRY_HF_API_KEY = "hf-api-key";
     public static final String CONFIG_ENTRY_MAX_TOKENS = "max-tokens";
     public static final String CONFIG_ENTRY_TIMEOUT = "timeout-seconds";
     public static final String CONFIG_ENTRY_TEMP = "temperature";
@@ -93,6 +94,16 @@ public class ConfigManager
     public String getEmbeddingModelName(String chatModel)
     {
         return getValue(chatModel, CONFIG_ENTRY_EMBEDDING_MODEL_NAME);
+    }
+
+    public String getHuggingFaceApiKey()
+    {
+        return getHuggingFaceApiKey("");
+    }
+
+    public String getHuggingFaceApiKey(String chatModel)
+    {
+        return getValue(chatModel, CONFIG_ENTRY_HF_API_KEY);
     }
 
     public Integer getMaxTokens()

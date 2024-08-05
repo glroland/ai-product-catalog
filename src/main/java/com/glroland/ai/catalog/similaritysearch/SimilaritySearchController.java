@@ -14,6 +14,7 @@ import com.glroland.ai.catalog.product.Product;
 import com.glroland.ai.catalog.product.ProductDAO;
 
 import dev.langchain4j.data.embedding.Embedding;
+import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.model.output.Response;
 
@@ -37,7 +38,7 @@ public class SimilaritySearchController
         log.info("Performing similarity search.  UserMessage='" + userMessage + "' Limit=" + limit);
 
         // encode the user message
-        OpenAiEmbeddingModel model = chatLanguageModelFactory.createOpenAiEmbeddingModel();
+        EmbeddingModel model = this.chatLanguageModelFactory.createHuggingFaceEmbeddingModel();
         Response<Embedding> response = model.embed(userMessage);
         Embedding embedding = response.content();
         log.debug("Embedding for text.  Text='" + userMessage + "' Embedding=" + embedding + " Vector=" + embedding.vector());

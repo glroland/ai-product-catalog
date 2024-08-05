@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.huggingface.HuggingFaceEmbeddingModel;
+import dev.langchain4j.model.huggingface.HuggingFaceEmbeddingModel.HuggingFaceEmbeddingModelBuilder;
 import dev.langchain4j.model.localai.LocalAiChatModel;
 import dev.langchain4j.model.localai.LocalAiChatModel.LocalAiChatModelBuilder;
 import dev.langchain4j.model.localai.LocalAiEmbeddingModel;
@@ -319,5 +321,20 @@ public class ChatLanguageModelFactory
         String msg = "Unknown Chat Model Type Requested: " + defaultModel + ".  Cannot provide embedding model.";
         log.error(msg);
         throw new RuntimeException(msg);
+    }
+
+    public HuggingFaceEmbeddingModel createHuggingFaceEmbeddingModel()
+    {
+        HuggingFaceEmbeddingModelBuilder builder = HuggingFaceEmbeddingModel.builder()
+                .modelId(configManager.getEmbeddingModelName())
+                .waitForModel(true)
+                .timeout(Duration.ofSeconds(configManager.getInferenceTimeout()));
+
+        if (StringUtils.isNotEmpty(configManager.getHuggingFaceApiKey()))
+        {
+            builder.accessToken(configManager.getHuggingFaceApiKey());
+        }
+
+        return builder.build();
     }
 }
