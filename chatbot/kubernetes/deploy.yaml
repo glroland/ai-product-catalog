@@ -1,0 +1,72 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: ${{values.artifact_id}}-svc
+  labels:
+    app.kubernetes.io/name: ${{values.artifact_id}}-svc
+    app.kubernetes.io/part-of: ${{values.artifact_id}}-app
+  annotations:
+    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"${{values.artifact_id}}-deploy"}]'
+spec:
+  ports:
+    - name: http-8080
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: ${{values.artifact_id}}-app
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ${{values.artifact_id}}-deploy
+  labels:
+    app.kubernetes.io/name: ${{values.artifact_id}}-deploy
+    app.kubernetes.io/part-of: ${{values.artifact_id}}-app
+  annotations:
+    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"${{values.artifact_id}}-deploy"}]'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${{values.artifact_id}}-app
+  template:
+    metadata:
+      labels:
+        app: ${{values.artifact_id}}-app
+    spec:
+      containers:
+        - name: ${{values.artifact_id}}
+          image: registry.home.glroland.com/ai/${{values.artifact_id}}:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              memory: "50Mi"
+              cpu: "10m"
+            limits:
+              memory: "100Mi"
+              cpu: "100m"
+      imagePullSecrets:
+        - name: glroland-registry-pull-secret
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: ${{values.artifact_id}}
+  labels:
+    app.kubernetes.io/name: ${{values.artifact_id}}
+    app.kubernetes.io/part-of: ${{values.artifact_id}}-app
+  annotations:
+    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"${{values.artifact_id}}-deploy"}]'
+spec:
+  to:
+    kind: Service
+    name: ${{values.artifact_id}}-svc
+    weight: 100
+  port:
+    targetPort: http-8080
+  wildcardPolicy: None
