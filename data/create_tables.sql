@@ -37,12 +37,14 @@ create table if not exists product_embeddings
   product_id integer not null,
   model varchar(75) not null,
   text_segment varchar(5000) not null,
-  embedding vector(1536) not null,
+  embedding vector(4096) not null,
   
   CONSTRAINT fk_product
       FOREIGN KEY(product_id) 
         REFERENCES products(product_id)
 );
 
-CREATE INDEX idx_product_embeddings 
-          ON product_embeddings USING hnsw (embedding vector_l2_ops);
+--CREATE INDEX ON items USING ivfflat (embedding vector_cosine_ops) WITH (lists = 1000)
+
+-- CREATE INDEX idx_product_embeddings 
+--          ON product_embeddings USING hnsw (embedding vector_l2_ops);

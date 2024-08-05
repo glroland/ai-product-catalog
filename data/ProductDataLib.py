@@ -78,7 +78,7 @@ class ProductDataSet:
         self.openai_client = openai.OpenAI()
         if openai_api_url not in (None, ""):
             print ("Overriding OpenAI Base URL:", openai_api_url)
-            openai.base_url = openai_api_url
+            self.openai_client.base_url = openai_api_url
 
 
     def import_df(self, input_df, mapping):
@@ -418,7 +418,7 @@ class ProductDataSet:
                             AND model = %({self.EmbeddingColumns.MODEL})s
                             AND text_segment = %({self.EmbeddingColumns.TEXT_SEGMENT})s
                             AND embedding = cast(%({self.EmbeddingColumns.EMBEDDING})s
-                                        as vector(1536))
+                                        as vector)
                     """
         self.sql_insert_dataframe(self.embeddings_df, None, insert_sql, exists_sql, fetch=False)
 
