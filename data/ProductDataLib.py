@@ -51,25 +51,31 @@ class ProductDataSet:
     categories_df = None
     embeddings_df = None
     embeddings_counter = 0
+    model_name = None
 
     def __init__(self,
                  data_source_description,
                  target_database_conn_str,
+                 model_name,
                  max_embeddings_allowed = -1):
         """Initialize the product data set processing library.
 
         Keyword arguments:
         data_source_description -- short form description of the data source
         target_database_conn_str -- destination database connection string
+        model_name -- name of the sentence transformers model to use for embeddings
         max_embeddings_allowed -- optional limit for the number of embeddings processed by the load.  
                                 useful for managing costs during development and testing.
         """
         self.data_source_description = data_source_description
         self.target_database_conn_str = target_database_conn_str
         self.max_embeddings_allowed = max_embeddings_allowed
+        self.model_name = model_name
 
         if self.target_database_conn_str is None or len(self.target_database_conn_str) == 0:
             raise RuntimeError("Database Connection String for Destination DB is required!")
+
+        self.model = SentenceTransformer(self.model_name)
 
 
     def import_df(self, input_df, mapping):
@@ -349,15 +355,14 @@ class ProductDataSet:
                             '{row[self.ProductColumns.DESC]}'"""
         embedded_text = embedded_text.replace("\n", " ")
 
-        model_name = 'sentence-transformers/all-MiniLM-L6-v2'
         print ("Preparing to create embedding....  Product_ID:", product_id,
-                                                  "Model:", model_name,
+                                                  "Model:", self.model_name,
                                                   "Text:\"", embedded_text, "\"")
 
         matching_df = self.embeddings_df[(self.embeddings_df[self.EmbeddingColumns.PRODUCT_ID]
                                                                 == product_id) &
                                        (self.embeddings_df[self.EmbeddingColumns.MODEL]
-                                                                == model_name) &
+                                                                == self.model_name) &
                                        (self.embeddings_df[self.EmbeddingColumns.TEXT_SEGMENT]
                                                                 == embedded_text)]
 
@@ -373,14 +378,13 @@ class ProductDataSet:
                   "Limit:", self.max_embeddings_allowed, "Counter:", self.embeddings_counter)
             return None
 
-        model = SentenceTransformer(model_name)
-        embedding_raw = model.encode([embedded_text])
+        embedding_raw = self.model.encode([embedded_text])
         if len(embedding_raw) > 1:
             print ("WARNING: Embedding has more dimensions than expected!  Data likely being lost", embedding_raw.shape)            
         embedding = embedding_raw[0].tolist()
         print ("CREATED Embedding for ....  Text:", embedded_text)
 
-        new_row = [ product_id, model_name, embedded_text, embedding ]
+        new_row = [ product_id, self.model_name, embedded_text, embedding ]
         self.embeddings_df.loc[len(self.embeddings_df)] = new_row
         return new_row
 
