@@ -1,3 +1,6 @@
+install:
+	cd data && pip install -r requirements.txt
+
 localdb:
 	psql -h localhost -p 5432 -w -f data/drop_db.sql
 	psql -h localhost -p 5432 -w -f data/create_db.sql
