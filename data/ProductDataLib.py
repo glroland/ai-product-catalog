@@ -2,7 +2,8 @@
 """
 import pandas as pd
 import psycopg
-import openai
+import numpy as np
+from sentence_transformers import SentenceTransformer
 
 class ProductDataSet:
     """Self contained class for managing the process associated with importing product data
@@ -49,15 +50,11 @@ class ProductDataSet:
     brands_df = None
     categories_df = None
     embeddings_df = None
-    openai_client = None
-    openai_model_name = None
     embeddings_counter = 0
 
     def __init__(self,
                  data_source_description,
                  target_database_conn_str,
-                 openai_api_url,
-                 openai_model_name,
                  max_embeddings_allowed = -1):
         """Initialize the product data set processing library.
 
@@ -70,15 +67,9 @@ class ProductDataSet:
         self.data_source_description = data_source_description
         self.target_database_conn_str = target_database_conn_str
         self.max_embeddings_allowed = max_embeddings_allowed
-        self.openai_model_name = openai_model_name
 
         if self.target_database_conn_str is None or len(self.target_database_conn_str) == 0:
             raise RuntimeError("Database Connection String for Destination DB is required!")
-
-        self.openai_client = openai.OpenAI()
-        if openai_api_url not in (None, ""):
-            print ("Overriding OpenAI Base URL:", openai_api_url)
-            self.openai_client.base_url = openai_api_url
 
 
     def import_df(self, input_df, mapping):
@@ -350,7 +341,6 @@ class ProductDataSet:
         row -- product record
         """
         product_id = row[self.ProductColumns.ID]
-        model = self.openai_model_name
 
         embedded_text = f"""'{row[self.ProductColumns.NAME]}',
                             '{row[self.ProductColumns.SKU]}',
@@ -359,14 +349,15 @@ class ProductDataSet:
                             '{row[self.ProductColumns.DESC]}'"""
         embedded_text = embedded_text.replace("\n", " ")
 
+        model_name = 'sentence-transformers/all-MiniLM-L6-v2'
         print ("Preparing to create embedding....  Product_ID:", product_id,
-                                                  "Model:", model,
+                                                  "Model:", model_name,
                                                   "Text:\"", embedded_text, "\"")
 
         matching_df = self.embeddings_df[(self.embeddings_df[self.EmbeddingColumns.PRODUCT_ID]
                                                                 == product_id) &
                                        (self.embeddings_df[self.EmbeddingColumns.MODEL]
-                                                                == model) &
+                                                                == model_name) &
                                        (self.embeddings_df[self.EmbeddingColumns.TEXT_SEGMENT]
                                                                 == embedded_text)]
 
@@ -382,11 +373,14 @@ class ProductDataSet:
                   "Limit:", self.max_embeddings_allowed, "Counter:", self.embeddings_counter)
             return None
 
-        embedding = self.openai_client.embeddings.create(input = [embedded_text],
-                                                        model=model).data[0].embedding
+        model = SentenceTransformer(model_name)
+        embedding_raw = model.encode([embedded_text])
+        if len(embedding_raw) > 1:
+            print ("WARNING: Embedding has more dimensions than expected!  Data likely being lost", embedding_raw.shape)            
+        embedding = embedding_raw[0].tolist()
         print ("CREATED Embedding for ....  Text:", embedded_text)
 
-        new_row = [ product_id, model, embedded_text, embedding ]
+        new_row = [ product_id, model_name, embedded_text, embedding ]
         self.embeddings_df.loc[len(self.embeddings_df)] = new_row
         return new_row
 
@@ -420,8 +414,8 @@ class ProductDataSet:
                             AND embedding = cast(%({self.EmbeddingColumns.EMBEDDING})s
                                         as vector)
                     """
-        self.sql_insert_dataframe(self.embeddings_df, None, insert_sql, exists_sql, fetch=False)
 
+        self.sql_insert_dataframe(self.embeddings_df, None, insert_sql, exists_sql, fetch=False)
 
 
 if __name__ == "__main__":

@@ -3,4 +3,4 @@ pylint
 pandas
 psycopg[binary]
 datadotworld
-openai
+sentence-transformers
