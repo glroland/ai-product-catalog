@@ -1,0 +1,102 @@
+schemaVersion: 2.2.2
+metadata:
+  name: ai-product-catalog
+  displayName: ai-product-catalog
+  description: "AI-enabled product catalog application"
+  icon: https://raw.githubusercontent.com/devfile-samples/devfile-stack-icons/main/spring.svg
+  tags:
+    - Java
+    - Maven
+    - Spring
+    - AI
+  projectType: springboot
+  language: Java
+  version: 3.1.0
+attributes:
+  controller.devfile.io/storage-type: per-workspace
+components:
+  - name: projects
+    volume:
+      size: 10Gi
+  - name: py
+    attributes:
+      container-overrides: 
+        securityContext:
+          privileged: true
+    container:
+      image: registry.home.glroland.com/paas/tools-nested-generic:20240801-2
+      memoryRequest: 1000Mi
+      memoryLimit: 4Gi
+      cpuRequest: 1000m
+      cpuLimit: 4000m
+      mountSources: true
+      endpoints:
+        - name: http-ai-product-catalog
+          targetPort: 8080
+          protocol: http
+        - exposure: none
+          name: debug
+          targetPort: 5858
+      env:
+        - name: DEBUG_PORT
+          value: '5858'
+        - name: SHELL
+          value: "/bin/zsh"
+        - name: DOCKER_CMD
+          value: podman
+        - name: VSCODE_DEFAULT_WORKSPACE
+          value: "/java.code-workspace"
+  - name: build
+    image:
+      imageName: registry.home.glroland.com/ai-product-catalog:latest
+      dockerfile:
+        uri: Dockerfile
+        buildContext: .
+        rootRequired: false
+  - name: deploy
+    kubernetes:
+      uri: kubernetes/deploy.yaml
+      endpoints:
+      - name: http-8080
+        targetPort: 8080
+        protocol: http
+commands:
+  - id: build
+    exec:
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: 'mvn clean -Dmaven.repo.local=/home/user/.m2/repository package -Dmaven.test.skip=true'
+      group:
+        kind: build
+        isDefault: true
+  - id: run
+    exec:
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: 'mvn -Dmaven.repo.local=/home/user/.m2/repository spring-boot:run'
+      group:
+        kind: run
+        isDefault: true
+  - id: debug
+    exec:
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: 'java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=${DEBUG_PORT},suspend=n -jar target/*.jar'
+      group:
+        kind: debug
+        isDefault: true
+  - id: build-image
+    apply:
+      component: build
+  - id: deployk8s
+    apply:
+      component: deploy
+  - id: deploy
+    composite:
+      commands:
+        - build-image
+        - deployk8s
+      group:
+        kind: deploy
+        isDefault: true
+  
