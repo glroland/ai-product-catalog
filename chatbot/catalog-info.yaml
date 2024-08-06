@@ -8,6 +8,8 @@ metadata:
     app.kubernetes.io/part-of: ai-product-catalog-app
   annotations:
     app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"ai-product-catalog-chatbot-deploy"}]'
+    argocd/app-selector: 'glroland-argocd=ai-product-catalog-chatbot-app'
+    argocd/instance-name: 'argoInstance'
 
   links:
     - url: 'https://devspaces.apps.ocpprod.home.glroland.com/dashboard/#/load-factory?url=https://github.com/${{values.destination.owner + "/" + values.destination.repo}}.git'
