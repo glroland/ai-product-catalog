@@ -31,7 +31,7 @@ components:
       cpuLimit: 4000m
       mountSources: true
       endpoints:
-        - name: http-8080
+        - name: http-run
           targetPort: 8080
           protocol: http
         - exposure: none
@@ -57,7 +57,7 @@ components:
     kubernetes:
       uri: kubernetes/deploy.yaml
       endpoints:
-      - name: http-8080
+      - name: http-deploy
         targetPort: 8080
         protocol: http
 commands:
