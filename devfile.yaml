@@ -31,7 +31,7 @@ components:
       cpuLimit: 4000m
       mountSources: true
       endpoints:
-        - name: http-ai-product-catalog
+        - name: http-8080
           targetPort: 8080
           protocol: http
         - exposure: none
