@@ -1,9 +1,9 @@
-db_host ?= 127.0.0.1
+db_host ?= tools.home.glroland.com
 db_port ?= 5432
 db_user ?= ai_product_catalog
 db_password ?= ai_product_catalog123
 db_dba_user ?= postgres
-db_dba_password ?=
+db_dba_password ?= r3dh@t123
 
 install:
 	cd data && pip install -r requirements.txt
