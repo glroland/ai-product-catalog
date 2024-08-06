@@ -12,7 +12,7 @@ metadata:
     argocd/instance-name: 'argoInstance'
 
   links:
-    - url: 'https://devspaces.apps.ocpprod.home.glroland.com/dashboard/#/load-factory?url=https://github.com/${{values.destination.owner + "/" + values.destination.repo}}.git'
+    - url: 'https://devspaces.apps.ocpprod.home.glroland.com/dashboard/#/load-factory?url=https://github.com/glroland/ai-product-catalog.git'
       title: 'Code in DevSpaces'
       icon: catalog
       type: ide
