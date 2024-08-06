@@ -1,0 +1,25 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ai-product-catalog-chatbot
+  description: "Simple chatbot for the AI Product Catalog"
+  labels:
+    app.kubernetes.io/name: ai-product-catalog-chatbot-component
+    app.kubernetes.io/part-of: ai-product-catalog-app
+  annotations:
+    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"ai-product-catalog-chatbot-deploy"}]'
+
+  links:
+    - url: 'https://devspaces.apps.ocpprod.home.glroland.com/dashboard/#/load-factory?url=https://github.com/${{values.destination.owner + "/" + values.destination.repo}}.git'
+      title: 'Code in DevSpaces'
+      icon: catalog
+      type: ide
+  tags:
+    - python
+    - ai
+    - llm
+spec:
+  type: service
+  lifecycle: experimental
+  owner: glroland
+  system: aiml
