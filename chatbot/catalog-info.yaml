@@ -22,6 +22,6 @@ metadata:
     - llm
 spec:
   type: service
-  lifecycle: experimental
-  owner: glroland
+  lifecycle: production
+  owner: user1
   system: aiml
