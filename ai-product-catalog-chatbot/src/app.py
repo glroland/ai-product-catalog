@@ -2,23 +2,19 @@
 
 ${{values.description}}
 """
+import os
 import streamlit as st
-from openai import OpenAI
-
-OPENAI_API_URL="http://envision:8000/v1"
-OPENAI_MODEL_NAME="llama3.1"
-OPENAI_TEMPERATURE=0.8
-OPENAI_MAX_TOKENS=1000
-
-SYSTEM_PROMPT="You are a helpful sales agent for a shoe store." \
-              "Only talk about selling shoes." \
-              "Do not participate in hateful or abusive conversations."
+import requests
 
 GREETING="Thank you for visiting our store.  How may we help you?"
 
-st.title("💬 Nike Shoe Store")
+CAPABILITY="simple" # simple or tool
 
-client = OpenAI(base_url=OPENAI_API_URL, api_key="api-key")
+URL = "http://localhost:8080"
+if "AI_PRODUCT_CATALOG_SVC_URL" in os.environ:
+    URL = os.environ["AI_PRODUCT_CATALOG_SVC_URL"]
+
+st.title("💬 Let's GOOOOO!!!! Shoe Store")
 
 messages = st.container(height=300)
 
@@ -33,15 +29,17 @@ if prompt := st.chat_input():
     st.session_state.messages.append({"role": "user", "content": prompt})
     messages.chat_message("user").write(prompt)
 
-    openai_messages = [{"role": "assistant", "content": SYSTEM_PROMPT}] + st.session_state.messages
-    print ("openai_messages", openai_messages)
     print ("st.session_state.messages", st.session_state.messages)
+    chat_url = URL + "/chat"
+    print ("chat_url:", chat_url)
+    response = requests.post(chat_url,
+                        params={"type": CAPABILITY,
+                                "userMessage": str(st.session_state.messages)},
+                        timeout=30)
 
-    response = client.chat.completions.create(model=OPENAI_MODEL_NAME,
-                                              messages=openai_messages,
-                                              max_tokens=OPENAI_MAX_TOKENS,
-                                              temperature=OPENAI_TEMPERATURE)
-    msg = response.choices[0].message.content
+    print("response.content:", response.content)
+    msg = response.content.decode('UTF-8')
+    print("msg", msg)
 
     st.session_state.messages.append({"role": "assistant", "content": msg})
     messages.chat_message("assistant").write(msg)

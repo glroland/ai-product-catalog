@@ -30,7 +30,7 @@ chatbot.install:
 	cd ai-product-catalog-chatbot && pip install -r requirements.txt
 
 chatbot.run:
-	cd ai-product-catalog-chatbot/src && streamlit run ui.py --server.headless true --server.address 0.0.0.0 --server.port 8081
+	cd ai-product-catalog-chatbot/src && streamlit run app.py --server.headless true --server.address 0.0.0.0 --server.port 8081
 
 chatbot.build: chatbot.lint
 	cd ai-product-catalog-chatbot && podman build -t registry.home.glroland.com/ai-product-catalog/chatbot:latest . --platform linux/amd64

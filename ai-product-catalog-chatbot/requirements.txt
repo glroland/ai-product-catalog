@@ -1,8 +1,5 @@
 ipykernel
 pylint
-openai
 streamlit
 watchdog
-langgraph
-langsmith
-langchain_openai
+requests
