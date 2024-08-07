@@ -5,7 +5,7 @@ metadata:
 spec:
   destination:
     name: ''
-    namespace: ai-product-catalog
+    namespace: aij
     server: 'https://api.ocpprod.home.glroland.com:6443'
   source:
     path: helm/ai-product-catalog
@@ -16,4 +16,3 @@ spec:
         - values.yaml
   sources: []
   project: default
-
