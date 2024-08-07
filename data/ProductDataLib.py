@@ -1,9 +1,24 @@
 """Library for importing product data from third party sources.
 """
+import os
 import pandas as pd
 import psycopg
 import numpy as np
 from sentence_transformers import SentenceTransformer
+
+
+def get_config_value(key, default):
+    """Utility function to simplify getting configuration from juptyer notebooks that consume
+       the apis in this library.
+       
+       key - Environment Variable Name
+       default - Default Value
+    """
+    value = default
+    if key in os.environ:
+        value = os.environ[key]
+    return value
+
 
 class ProductDataSet:
     """Self contained class for managing the process associated with importing product data
