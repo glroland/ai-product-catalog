@@ -14,10 +14,9 @@ def get_config_value(key, default):
        key - Environment Variable Name
        default - Default Value
     """
-    value = default
     if key in os.environ:
-        value = os.environ[key]
-    return value
+        return os.environ[key]
+    return default
 
 
 class ProductDataSet:
