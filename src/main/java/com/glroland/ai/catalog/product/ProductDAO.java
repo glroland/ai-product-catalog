@@ -165,7 +165,6 @@ public class ProductDAO {
     {
         StringBuffer sql = new StringBuffer();
         sql.append("SELECT product_id, "
-                        + "engine, "
                         + "model, " 
                         + "text_segment, "
                         + "embedding "
@@ -175,7 +174,6 @@ public class ProductDAO {
         List<ProductEmbedding> productEmbeddings = (List<ProductEmbedding>)jdbcTemplate.query(
             sql.toString(),
             (rs, rowNum) -> new ProductEmbedding(rs.getInt("product_id"), 
-                                                 rs.getString("engine"), 
                                                  rs.getString("model"), 
                                                  rs.getString("text_segment"), 
                                                  rs.getString("embedding")),
