@@ -45,10 +45,6 @@ spec:
               value: '-Dlogging.level.root=INFO'
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
-          volumeMounts:
-          - mountPath: /deployments/config
-            name: application-properties
-            readOnly: true
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
