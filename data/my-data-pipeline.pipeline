@@ -33,8 +33,8 @@
             "ui_data": {
               "label": "Drop DB",
               "image": "/notebook/ai-product-catalog/my-workbench/static/elyra/python.svg",
-              "x_pos": 60,
-              "y_pos": 72,
+              "x_pos": 86,
+              "y_pos": 145,
               "description": "Run Python script"
             }
           },
@@ -99,8 +99,8 @@
             "ui_data": {
               "label": "Create DB",
               "image": "/notebook/ai-product-catalog/my-workbench/static/elyra/python.svg",
-              "x_pos": 163,
-              "y_pos": 194,
+              "x_pos": 87,
+              "y_pos": 267,
               "description": "Run Python script"
             }
           },
@@ -165,8 +165,8 @@
             "ui_data": {
               "label": "Create Tables",
               "image": "/notebook/ai-product-catalog/my-workbench/static/elyra/python.svg",
-              "x_pos": 238,
-              "y_pos": 333,
+              "x_pos": 88,
+              "y_pos": 371,
               "description": "Run Python script"
             }
           },
@@ -243,12 +243,12 @@
               "memory": 4,
               "gpu": 0
             },
-            "label": "",
+            "label": "Ingest Data Set",
             "ui_data": {
-              "label": "ingest_dataworld_nike_dataset.ipynb",
+              "label": "Ingest Data Set",
               "image": "/notebook/ai-product-catalog/my-workbench/static/elyra/notebook.svg",
-              "x_pos": 353,
-              "y_pos": 473,
+              "x_pos": 92,
+              "y_pos": 471,
               "description": "Run notebook file"
             }
           },
@@ -304,14 +304,17 @@
               "kubernetes_shared_mem_size": {},
               "kubernetes_tolerations": [],
               "mounted_volumes": [],
-              "filename": "init.py"
+              "filename": "init.py",
+              "cpu": 1,
+              "memory": 1,
+              "gpu": 0
             },
-            "label": "Initialize Pipeline",
+            "label": "Initialize",
             "ui_data": {
-              "label": "Initialize Pipeline",
+              "label": "Initialize",
               "image": "/notebook/ai-product-catalog/my-workbench/static/elyra/python.svg",
-              "x_pos": -40,
-              "y_pos": -37,
+              "x_pos": 83,
+              "y_pos": 39,
               "description": "Run Python script"
             }
           },
@@ -354,12 +357,11 @@
           "name": "my-data-pipeline",
           "runtime": "Generic",
           "pipeline_defaults": {
+            "kubernetes_shared_mem_size": {},
+            "kubernetes_pod_labels": [],
             "mounted_volumes": [],
             "kubernetes_tolerations": [],
             "kubernetes_pod_annotations": [],
-            "kubernetes_shared_mem_size": {},
-            "kubernetes_pod_labels": [],
-            "kubernetes_secrets": [],
             "env_vars": [
               {
                 "env_var": "DB_HOST",
@@ -390,6 +392,7 @@
                 "value": "r3dh@t123"
               }
             ],
+            "kubernetes_secrets": [],
             "runtime_image": "continuumio/anaconda3@sha256:a2816acd3acda208d92e0bf6c11eb41fda9009ea20f24e123dbf84bb4bd4c4b8"
           }
         }
