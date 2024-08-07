@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ai-product-catalog.fullname" . }}
+  labels:
+    {{- include "ai-product-catalog.labels" . | nindent 4 }}
+data:
+  application.properties: |-
+    spring.application.name=ai-product-catalog
+
+    # Default Chat Model
+    ai-product-catalog.default-chat-model=openai
+
+    # Default Model Values (applied to all)
+    ai-product-catalog.max-tokens=100
+    ai-product-catalog.temperature=0.1
+    ai-product-catalog.top-p=1.0
+    ai-product-catalog.timeout-seconds=300
+
+    # Agent w/Tool Assist Model Configuration 
+    ai-product-catalog.openai.inference-endpoint=http://envision:8000/v1
+    ai-product-catalog.openai.api-key=no-key-needed
+    ai-product-catalog.openai.agent-model-name=llama3.1
+    ai-product-catalog.openai.embedding-model-name=llama3.1
+    #ai-product-catalog.openai.embeddings-dimensions=384
+
+    # Database Configuration
+    spring.datasource.driver-class-name=org.postgresql.Driver
+    spring.datasource.username=ai_product_catalog
+    spring.datasource.password=ai_product_catalog123
+    spring.datasource.url=jdbc:postgresql://tools.home.glroland.com:5432/ai_product_catalog
+
+    # Logging Configuration
+    logging.level.com.glroland=DEBUG
+    langchain4j.open-ai.chat-model.log-requests=true
+    langchain4j.open-ai.chat-model.log-responses=true
+    logging.level.dev.langchain4j=INFO
+    #logging.level.dev.ai4j.openai4j=INFO
+    #logging.level.dev.ai4j.mistral=DEBUG

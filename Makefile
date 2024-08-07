@@ -34,6 +34,7 @@ chatbot.run:
 
 service.build:
 	mvn clean package
+	podman build -t registry.home.glroland.com/ai-product-catalog/svc:latest . --platform linux/amd64
 
 service.run:
 	mvn spring-boot:run

@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ai-product-catalog
+spec:
+  destination:
+    name: ''
+    namespace: ai-product-catalog
+    server: 'https://api.ocpprod.home.glroland.com:6443'
+  source:
+    path: helm/ai-product-catalog
+    repoURL: 'https://github.com/glroland/ai-product-catalog.git'
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values.yaml
+  sources: []
+  project: default
+
