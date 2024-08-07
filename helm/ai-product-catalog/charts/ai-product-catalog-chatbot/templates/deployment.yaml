@@ -74,14 +74,6 @@ spec:
             failureThreshold: 3
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      volumes:
-      - configMap:
-          defaultMode: 511
-          items:
-          - key: application.properties
-            path: application.properties
-          name: {{ include "ai-product-catalog.fullname" . }}
-        name: application-properties
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
