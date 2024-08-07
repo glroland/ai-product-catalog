@@ -56,18 +56,18 @@ public class RagChatServiceController
     @PostMapping("/ragchat")
     public String chatWithRag(String userMessage)
     {
-        EmbeddingModel embeddingModel = chatLanguageModelFactory.createOpenAiEmbeddingModel();
+        EmbeddingModel hfEmbeddingModel = chatLanguageModelFactory.createHuggingFaceEmbeddingModel();
 
         // Encode user message
-        Response<Embedding> embeddingResponse = embeddingModel.embed(userMessage);
-        if (embeddingResponse == null)
+        Response<Embedding> hfUserMessageEmbeddingResponse = hfEmbeddingModel.embed(userMessage);
+        if (hfUserMessageEmbeddingResponse == null)
         {
             String message = "Unable to create embedding for userMessage due to null response: " + userMessage;
             log.error(message);
             throw new RuntimeException(message);
         }
-        Embedding userMessageEmbedding = embeddingResponse.content();
-        if (userMessageEmbedding == null)
+        Embedding hfUserMessageEmbedding = hfUserMessageEmbeddingResponse.content();
+        if (hfUserMessageEmbedding == null)
         {
             String message = "Unable to create embedding for userMessage due to empty embedding in response: " + userMessage;
             log.error(message);
@@ -75,47 +75,45 @@ public class RagChatServiceController
         }
 
         // Find and store related embeddings
+        List<Product> similarProducts = productDAO.similaritySearch(hfUserMessageEmbedding.vector(), LIMIT);
+
+        EmbeddingModel openaiEmbeddingModel = chatLanguageModelFactory.createOpenAiEmbeddingModel();
+
+        // process matches
         InMemoryEmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
-        List<Product> similarProducts = productDAO.similaritySearch(userMessageEmbedding.vector(), LIMIT);
         if (similarProducts != null)
         {
             for (Product product : similarProducts)
             {
-                List <ProductEmbedding> productEmbeddings = productDAO.getEmbeddingsForProduct(product.getProductId());
-                if (productEmbeddings != null)
+                String text = product.getProductName() + " " + product.getProductDescription();
+                Response<Embedding> productEmbeddingResponse = openaiEmbeddingModel.embed(text);
+                if (productEmbeddingResponse == null)
                 {
-                    for (ProductEmbedding productEmbedding : productEmbeddings)
-                    {
-                        Embedding e = new Embedding(productEmbedding.getEmbedding());
-                        Metadata md = new Metadata();
-                        TextSegment ts = new TextSegment(productEmbedding.getTextSegment(), md);
-                        embeddingStore.add(e, ts);
-                    }
+                    String message = "Unable to create embedding for product text segment due to null response: " + text;
+                    log.error(message);
+                    throw new RuntimeException(message);
                 }
+                Embedding e = productEmbeddingResponse.content();
+
+                Metadata md = new Metadata();
+                TextSegment ts = new TextSegment(text, md);
+                embeddingStore.add(e, ts);
             }
         }
 
         // Send related embeddings to LLM for inclusion in user message
         ChatLanguageModel chatLanguageModel = chatLanguageModelFactory.createOpenAi();
 
-//        ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
-//                .embeddingStore(embeddingStore)
-//                .embeddingModel(embeddingModel)
-//                .build();
-
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
                 .embeddingStore(embeddingStore)
-                .embeddingModel(embeddingModel)
+                .embeddingModel(openaiEmbeddingModel)
 //                .maxResults(2)
 //                .minScore(0.6)
                 .build();
-
         
                 DefaultQueryRouter queryRouter = new DefaultQueryRouter(contentRetriever);
-
                 
                 RetrievalAugmentor retrievalAugmentor = DefaultRetrievalAugmentor.builder()
-                //                .contentRetriever(contentRetriever)
                 .queryRouter(queryRouter)
                 .build();
                                 
@@ -123,7 +121,6 @@ public class RagChatServiceController
         RagEnabledChatAgent agent = AiServices.builder(RagEnabledChatAgent.class)
                 .chatLanguageModel(chatLanguageModel)
                 .retrievalAugmentor(retrievalAugmentor)
-//                .contentRetriever(contentRetriever)
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .build();
         

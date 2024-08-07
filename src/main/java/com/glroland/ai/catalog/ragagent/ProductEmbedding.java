@@ -8,14 +8,12 @@ import org.apache.commons.lang3.StringUtils;
 public class ProductEmbedding 
 {
     private int productId;
-    private String engine;
     private String model;
     private String textSegment;
     private float [] embedding;
     
-    public ProductEmbedding(int productId, String engine, String model, String textSegment, String embeddingStr) {
+    public ProductEmbedding(int productId, String model, String textSegment, String embeddingStr) {
         this.productId = productId;
-        this.engine = engine;
         this.model = model;
         this.textSegment = textSegment;
 
@@ -27,12 +25,6 @@ public class ProductEmbedding
     }
     public void setProductId(int productId) {
         this.productId = productId;
-    }
-    public String getEngine() {
-        return engine;
-    }
-    public void setEngine(String engine) {
-        this.engine = engine;
     }
     public String getModel() {
         return model;
