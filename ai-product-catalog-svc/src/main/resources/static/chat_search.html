@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html>
+<head> 
+    <title>AI Product Catalog - Chat-Based Search</title> 
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        function onSendButtonClicked(buttonRef) 
+        {
+            url =  window.location.protocol + "//" + window.location.host + "/chat";
+            console.log("Chat URL: " + url);
+
+            agentType = document.getElementById("toolType").value;
+            console.log("Chat Agent Type: " + agentType);
+
+            userMessage =  document.getElementById("userMessage").value;
+            data = { 
+                userMessage: userMessage,
+                type: agentType
+                   };
+
+            document.getElementById("userMessage").disabled = true;
+            buttonRef.disabled = true;
+
+            appendHistory("Question", userMessage);
+
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: data,
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+
+                success: function (data) 
+                {
+                    console.log("Successfully retrieved chat result: data = " + data);
+                    document.getElementById("userMessage").value = "";
+                    document.getElementById("userMessage").disabled = false;
+                    buttonRef.disabled = false;
+
+                    appendHistory("Answer", data);
+                },
+
+                error: function (request, status, error) 
+                {
+                    console.log("Chat failed with the following error: " + request.responseText);
+                    alert(`Error ${request.responseText}`);
+                    document.getElementById("userMessage").disabled = false;
+                    buttonRef.disabled = false;
+                }
+            });
+        }
+
+        function appendHistory(messageType, message) 
+        {
+            let chatTable = document.getElementById("chat_table");
+            let chatTableDivider = document.getElementById("chat_table_divider");
+
+            let tr = document.createElement("tr");    
+            let tdLeft = document.createElement("td");
+            tdLeft.align = "right";
+            tdLeft.style = "vertical-align: top;";
+            tr.appendChild(tdLeft);
+            tdLeft.innerText = messageType + ":";
+            let tdRight = document.createElement("td");
+            tr.appendChild(tdRight);
+            tdRight.innerText = message;
+            chatTable.append(tr);
+        }
+    </script>
+</head>
+<body>
+    <h1 align="center">Chat-Based Product Search</h1>
+    <br/>
+    <p>
+        <table align="center" border="0" width="70%" id="chat_table">
+            <tr>
+                <td align="right" style="vertical-align: top;" width="25">User:</td>
+                <td><textarea name="userMessage" id="userMessage" style="width: 100%" rows="3"></textarea></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td align="center"><input type="submit" value="Send" style="width: 80%" onclick="onSendButtonClicked(this) " /><select id="toolType"><option value="simple">General</option><option value="tool" selected>General w/Tool</option></select>
+            </tr>
+            <tr id="chat_table_divider"><td colspan="2"></td></tr>
+        </table>
+    </p>
+    <p align="center">
+        <a href="index.html">Back</a>
+    </p>
+</body>
+
+</html>
