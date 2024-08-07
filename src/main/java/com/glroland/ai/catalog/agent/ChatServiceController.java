@@ -10,8 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.glroland.ai.catalog.ChatLanguageModelFactory;
 import com.glroland.ai.catalog.ConfigManager;
 
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
+import dev.langchain4j.memory.chat.TokenWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.openai.OpenAiTokenizer;
 import dev.langchain4j.service.AiServices;
 import io.micrometer.common.util.StringUtils;
 
@@ -80,4 +84,26 @@ public class ChatServiceController
 
         return answer;
     }
+
+/*     private void buildChatMemroy()
+    {
+https://github.com/langchain4j/langchain4j-examples/blob/main/other-examples/src/main/java/ChatMemoryExamples.java
+@RequestBody 
+        ChatMemory chatMemory = TokenWindowChatMemory.withMaxTokens(300, new OpenAiTokenizer());
+
+        // You have full control over the chat memory.
+        // You can decide if you want to add a particular message to the memory
+        // (e.g. you might not want to store few-shot examples to save on tokens).
+        // You can process/modify the message before saving if required.
+
+        chatMemory.add(userMessage("Hello, my name is Klaus"));
+        AiMessage answer = model.generate(chatMemory.messages()).content();
+        System.out.println(answer.text()); // Hello Klaus! How can I assist you today?
+        chatMemory.add(answer);
+
+        chatMemory.add(userMessage("What is my name?"));
+        AiMessage answerWithName = model.generate(chatMemory.messages()).content();
+        System.out.println(answerWithName.text()); // Your name is Klaus.
+        chatMemory.add(answerWithName);        
+    }*/
 }
