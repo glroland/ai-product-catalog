@@ -41,8 +41,8 @@ spec:
           ports:
           - containerPort: {{ .Values.image.port }}
           env:
-            - name: JAVA_OPTS_APPEND
-              value: '-Dlogging.level.root=INFO'
+            - name: AI_PRODUCT_CATALOG_SVC_URL
+              value: http://{{ .Release.Name }}-svc:8080
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           readinessProbe:
