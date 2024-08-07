@@ -6,7 +6,7 @@ import streamlit as st
 from openai import OpenAI
 
 OPENAI_API_URL="http://envision:8000/v1"
-OPENAI_MODEL_NAME="meta-llama/Meta-Llama-3.1-8B-Instruct"
+OPENAI_MODEL_NAME="llama3.1"
 OPENAI_TEMPERATURE=0.8
 OPENAI_MAX_TOKENS=1000
 
