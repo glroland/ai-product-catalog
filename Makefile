@@ -43,6 +43,9 @@ service.build:
 	cd ai-product-catalog-svc && mvn clean package
 	cd ai-product-catalog-svc && podman build -t registry.home.glroland.com/ai-product-catalog/svc:latest . --platform linux/amd64
 
+
+build: service.build chatbot.build
+
 publish:
 	podman push registry.home.glroland.com/ai-product-catalog/svc:latest --tls-verify=false
 	podman push registry.home.glroland.com/ai-product-catalog/chatbot:latest --tls-verify=false
