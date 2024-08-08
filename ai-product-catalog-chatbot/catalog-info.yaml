@@ -20,6 +20,8 @@ metadata:
     - python
     - ai
     - llm
+  consumesApis:
+    - ai-product-catalog-api
 spec:
   type: service
   lifecycle: production
