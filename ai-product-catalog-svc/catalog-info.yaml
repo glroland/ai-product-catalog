@@ -1,0 +1,66 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ai-product-catalog-svc
+  labels:
+    app.kubernetes.io/name: ai-product-catalog-chatbot-component
+    app.kubernetes.io/part-of: ai-product-catalog-app
+  annotations:
+    argocd/app-name: ai-product-catalog-svc-app
+    backstage.io/kubernetes-id: ai-product-catalog-svc-app
+    backstage.io/kubernetes-namespace: ai
+    backstage.io/techdocs-ref: url:https://gitlab-gitlab.apps.cluster-qg55v.sandbox670.opentlc.com/development/poi-backend
+    backstage.io/source-location: url:https://gitlab-gitlab.apps.cluster-qg55v.sandbox670.opentlc.com/development/poi-backend
+    janus-idp.io/tekton:  ai-product-catalog-svc-app
+    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"ai-product-catalog-svc-deploy"}]'
+    argocd/app-selector: 'glroland-argocd=ai-product-catalog-svc-app'
+    argocd/instance-name: 'argoInstance'
+  tags:
+    - java
+    - maven
+  links:
+    - url: hhttps://console-openshift-console.apps.ocpprod.home.glroland.com/k8s/ns/aij/deployments/ai-product-catalog-svc
+      title: Deployment
+      icon: web
+    - url: 'https://devspaces.apps.ocpprod.home.glroland.com/dashboard/#/load-factory?url=https://github.com/glroland/ai-product-catalog.git'
+      title: 'Code in DevSpaces'
+      icon: catalog
+      type: ide
+spec:
+  type: service
+  lifecycle: production
+  owner: "glroland"
+  system: ai-product-catalog-system
+  providesApis:
+    - ai-product-catalog-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: ai-product-catalog-system
+  tags:
+    - backstage
+    - openshift
+spec:
+  owner: "glroland"
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: ai-product-catalog-api
+  description: API surface used for AI-enabled product search and customer chat capabilities
+  links:
+    - url: https://backstage-developer-hub-rhdh-operator.apps.ocpprod.home.glroland.com/swagger-ui/index.html
+      title: Swagger UI
+      icon: web
+    - url: https://raw.githubusercontent.com/glroland/ai-product-catalog/main/ai-product-catalog-svc/openapi.yaml
+      title: API Spec
+      icon: code
+spec:
+  type: openapi
+  lifecycle: production
+  owner: "glroland"
+  system: ai-product-catalog-system
+  definition:
+    $text: https://raw.githubusercontent.com/glroland/ai-product-catalog/main/ai-product-catalog-svc/openapi.yaml
+
