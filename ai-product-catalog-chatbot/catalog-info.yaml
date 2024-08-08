@@ -21,7 +21,7 @@ metadata:
     - ai
     - llm
   dependsOn:
-    - ai-product-catalog-svc
+    - component:ai-product-catalog-svc
   consumesApis:
     - ai-product-catalog-api
 spec:
