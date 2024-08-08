@@ -7,10 +7,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.glroland.ai.catalog.ChatLanguageModelFactory;
 import com.glroland.ai.catalog.product.Product;
+import com.glroland.ai.catalog.product.SimilarProduct;
 import com.glroland.ai.catalog.product.ProductDAO;
 
 import dev.langchain4j.data.document.Document;
@@ -54,7 +56,7 @@ public class RagChatServiceController
     private ProductDAO productDAO;
 
     @PostMapping("/ragchat")
-    public String chatWithRag(String userMessage)
+    public String chatWithRag(@RequestParam(value = "userMessage") String userMessage)
     {
         EmbeddingModel hfEmbeddingModel = chatLanguageModelFactory.createHuggingFaceEmbeddingModel();
 
@@ -75,7 +77,7 @@ public class RagChatServiceController
         }
 
         // Find and store related embeddings
-        List<Product> similarProducts = productDAO.similaritySearch(hfUserMessageEmbedding.vector(), LIMIT);
+        List<SimilarProduct> similarProducts = productDAO.similaritySearch(hfUserMessageEmbedding.vector(), LIMIT);
 
         EmbeddingModel openaiEmbeddingModel = chatLanguageModelFactory.createOpenAiEmbeddingModel();
 

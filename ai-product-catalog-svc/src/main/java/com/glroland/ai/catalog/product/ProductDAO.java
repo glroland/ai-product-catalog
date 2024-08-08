@@ -128,7 +128,7 @@ public class ProductDAO {
             );
     }
 
-    public List<Product> similaritySearch(float [] embedding, int limit)
+    public List<SimilarProduct> similaritySearch(float [] embedding, int limit)
     {
         StringBuffer sql = new StringBuffer();
         sql.append("SELECT products.product_id, "
@@ -138,7 +138,10 @@ public class ProductDAO {
                         + "product_desc, "
                         + "size, "
                         + "msrp, "
-                        + "products.category_id as category_id "
+                        + "products.category_id as category_id, "
+                        + "embedding <-> CAST(? as vector) as distance, "
+                        + "1 - (embedding <=> CAST(? as vector)) as cosign_similarity, "
+                        + "(embedding <#> CAST(? as vector)) * -1 AS inner_product "
                  + "FROM products, categories, brands, product_embeddings " 
                  + "WHERE products.category_id = categories.category_id "
                  + "AND products.brand_id = brands.brand_id "
@@ -146,17 +149,21 @@ public class ProductDAO {
                  + "ORDER BY embedding <-> CAST(? as vector) "
                  + "LIMIT ?");
 
-        List<Product> products = (List<Product>)jdbcTemplate.query(
+        List<SimilarProduct> products = (List<SimilarProduct>)jdbcTemplate.query(
             sql.toString(),
-            (rs, rowNum) -> new Product(rs.getInt("product_id"), 
+            (rs, rowNum) -> new SimilarProduct(
+                                        rs.getInt("product_id"), 
                                         rs.getString("sku"), 
                                         rs.getInt("brand_id"), 
                                         rs.getString("product_name"), 
                                         rs.getString("product_desc"), 
                                         rs.getString("size"), 
                                         rs.getDouble("msrp"), 
-                                        rs.getInt("category_id")),
-            new Object[] { embedding, limit });
+                                        rs.getInt("category_id"),
+                                        rs.getDouble("distance"),
+                                        rs.getDouble("cosign_similarity"),
+                                        rs.getDouble("inner_product")),
+            new Object[] { embedding, embedding, embedding, embedding, limit });
 
         return products;
     }

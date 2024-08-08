@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.glroland.ai.catalog.ChatLanguageModelFactory;
 import com.glroland.ai.catalog.product.Product;
+import com.glroland.ai.catalog.product.SimilarProduct;
 import com.glroland.ai.catalog.product.ProductDAO;
 
 import dev.langchain4j.data.embedding.Embedding;
@@ -30,7 +31,7 @@ public class SimilaritySearchController
     private ProductDAO productDAO;
 
     @PostMapping("/similaritysearch")
-    public List<Product> similaritySearch(@RequestParam(value = "userMessage", defaultValue = "Nike Shoes") 
+    public List<SimilarProduct> similaritySearch(@RequestParam(value = "userMessage", defaultValue = "Nike Shoes") 
                         String userMessage,
                         @RequestParam(value = "limit", defaultValue = "5") 
                         int limit)

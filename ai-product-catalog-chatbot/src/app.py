@@ -8,7 +8,7 @@ import requests
 
 GREETING="Thank you for visiting our store.  How may we help you?"
 
-CAPABILITY="simple" # simple or tool
+CAPABILITY="simple" # simple, tool, or rag
 
 URL = "http://localhost:8080"
 if "AI_PRODUCT_CATALOG_SVC_URL" in os.environ:
@@ -30,11 +30,17 @@ if prompt := st.chat_input():
     messages.chat_message("user").write(prompt)
 
     print ("st.session_state.messages", st.session_state.messages)
-    chat_url = URL + "/chat"
-    print ("chat_url:", chat_url)
+    if CAPABILITY == "rag":
+        chat_url = URL + "/ragchat"
+        chat_params = {"userMessage": str(st.session_state.messages)}
+    else:
+        chat_url = URL + "/chat"
+        chat_params = {"type": CAPABILITY,
+                       "userMessage": str(st.session_state.messages)}
+
+    print ("chat_url:", chat_url, "chat_params:", chat_params)
     response = requests.post(chat_url,
-                        params={"type": CAPABILITY,
-                                "userMessage": str(st.session_state.messages)},
+                        params=chat_params,
                         timeout=30)
 
     print("response.content:", response.content)
