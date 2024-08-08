@@ -1,0 +1,209 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /upload:
+    post:
+      tags:
+      - pdf-service-controller
+      operationId: upload
+      parameters:
+      - name: textSegmentPrompt
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: summarizationPrompt
+        in: query
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - file
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /similaritysearch:
+    post:
+      tags:
+      - similarity-search-controller
+      operationId: similaritySearch
+      parameters:
+      - name: userMessage
+        in: query
+        required: false
+        schema:
+          type: string
+          default: Nike Shoes
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 5
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+  /search:
+    post:
+      tags:
+      - product-service-controller
+      operationId: search
+      parameters:
+      - name: category
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: brand
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: sku
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: nameDesc
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+  /ragchat:
+    post:
+      tags:
+      - rag-chat-service-controller
+      operationId: chatWithRag
+      parameters:
+      - name: userMessage
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /chat:
+    post:
+      tags:
+      - chat-service-controller
+      operationId: chat
+      parameters:
+      - name: userMessage
+        in: query
+        required: false
+        schema:
+          type: string
+          default: What is the current date and time?
+      - name: type
+        in: query
+        required: false
+        schema:
+          type: string
+          default: simple
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /product/{id}:
+    get:
+      tags:
+      - product-service-controller
+      operationId: getProduct
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Product"
+  /greeting:
+    get:
+      tags:
+      - product-service-controller
+      operationId: greeting
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        productId:
+          type: integer
+          format: int32
+        sku:
+          type: string
+        brandId:
+          type: integer
+          format: int32
+        productName:
+          type: string
+        productDescription:
+          type: string
+        size:
+          type: string
+        msrp:
+          type: number
+          format: double
+        categoryId:
+          type: integer
+          format: int32
