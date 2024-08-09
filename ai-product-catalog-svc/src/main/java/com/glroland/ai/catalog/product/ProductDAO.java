@@ -59,7 +59,7 @@ public class ProductDAO {
                           + "msrp, "
                           + "category_id "
                     + "FROM products "
-                    + "WHERE sku = ?";
+                    + "WHERE UPPER(sku) = UPPER(?)";
 
         List<Product> products = (List<Product>)jdbcTemplate.query(
             sql,
@@ -98,20 +98,20 @@ public class ProductDAO {
                  + "AND products.brand_id = brands.brand_id ");
         if ((category != null) && (category.length() > 0))
         {
-            sql.append("AND categories.category_desc LIKE '%").append(category).append("%' ");
+            sql.append("AND UPPER(categories.category_desc) LIKE UPPER('%").append(category).append("%') ");
         }
         if ((brand != null) && (brand.length() > 0))
         {
-            sql.append("AND brand_desc LIKE '%").append(brand).append("%' ");
+            sql.append("AND UPPER(brand_desc) LIKE UPPER('%").append(brand).append("%') ");
         }
         if ((sku != null) && (sku.length() > 0))
         {
-            sql.append("AND UPPER(sku) LIKE '%").append(sku.toUpperCase()).append("%' ");
+            sql.append("AND UPPER(sku) LIKE UPPER('%").append(sku.toUpperCase()).append("%') ");
         }
         if ((nameDesc != null) && (nameDesc.length() > 0))
         {
-            sql.append("AND UPPER(product_name) LIKE '%").append(nameDesc.toUpperCase()).append("%' OR ");
-            sql.append("UPPER(product_desc) LIKE '%").append(nameDesc.toUpperCase()).append("%' ");
+            sql.append("AND UPPER(product_name) LIKE UPPER('%").append(nameDesc.toUpperCase()).append("%') OR ");
+            sql.append("UPPER(product_desc) LIKE UPPER('%").append(nameDesc.toUpperCase()).append("%') ");
         }
 
         return (List<Product>)jdbcTemplate.query(
