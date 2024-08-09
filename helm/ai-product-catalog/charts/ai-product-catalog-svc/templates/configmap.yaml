@@ -18,14 +18,14 @@ data:
     ai-product-catalog.timeout-seconds=300
 
     # Embedding Model Configuration
-    ai-product-catalog.hf-embedding-model=sentence-transformers/all-mpnet-base-v2
+    ai-product-catalog.embedding-model=sentence-transformers/all-mpnet-base-v2
     ai-product-catalog.hf-api-key=${HF_TOKEN}
 
     # Agent w/Tool Assist Model Configuration 
     ai-product-catalog.openai.inference-endpoint=http://envision:8000/v1
     ai-product-catalog.openai.api-key=no-key-needed
     ai-product-catalog.openai.agent-model-name=llama3.1
-    ai-product-catalog.openai.embedding-model-name=llama3.1
+    ai-product-catalog.openai.embedding-model=llama3.1
     #ai-product-catalog.openai.embeddings-dimensions=384
 
     # Database Configuration

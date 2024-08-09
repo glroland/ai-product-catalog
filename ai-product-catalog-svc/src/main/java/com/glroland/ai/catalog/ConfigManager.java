@@ -21,7 +21,7 @@ public class ConfigManager
     public static final String CONFIG_ENTRY_ENDPOINT = "inference-endpoint";
     public static final String CONFIG_ENTRY_APIKEY = "api-key";
     public static final String CONFIG_ENTRY_AGENT_MODEL_NAME = "agent-model-name";
-    public static final String CONFIG_ENTRY_EMBEDDING_MODEL_NAME = "hf-embedding-model";
+    public static final String CONFIG_ENTRY_EMBEDDING_MODEL_NAME = "embedding-model";
     public static final String CONFIG_ENTRY_HF_API_KEY = "hf-api-key";
     public static final String CONFIG_ENTRY_MAX_TOKENS = "max-tokens";
     public static final String CONFIG_ENTRY_TIMEOUT = "timeout-seconds";
