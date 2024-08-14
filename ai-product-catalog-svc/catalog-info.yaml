@@ -20,17 +20,17 @@ metadata:
     - java
     - maven
   links:
-    - url: hhttps://console-openshift-console.apps.ocpprod.home.glroland.com/k8s/ns/aij/deployments/ai-product-catalog-svc
+    - url: hhttps://console-openshift-console.apps.ocpbm.home.glroland.com/k8s/ns/aij/deployments/ai-product-catalog-svc
       title: Deployment
       icon: web
-    - url: 'https://devspaces.apps.ocpprod.home.glroland.com/dashboard/#/load-factory?url=https://github.com/glroland/ai-product-catalog.git'
+    - url: 'https://devspaces.apps.ocpbm.home.glroland.com/dashboard/#/load-factory?url=https://github.com/glroland/ai-product-catalog.git'
       title: 'Code in DevSpaces'
       icon: catalog
       type: ide
 spec:
   type: service
   lifecycle: production
-  owner: "glroland"
+  owner: user:default/glroland
   system: ai-product-catalog-system
   providesApis:
     - ai-product-catalog-api
@@ -43,7 +43,7 @@ metadata:
     - backstage
     - openshift
 spec:
-  owner: "glroland"
+  owner: user:default/glroland
 ---
 apiVersion: backstage.io/v1alpha1
 kind: API
@@ -51,7 +51,7 @@ metadata:
   name: ai-product-catalog-api
   description: API surface used for AI-enabled product search and customer chat capabilities
   links:
-    - url: https://backstage-developer-hub-rhdh-operator.apps.ocpprod.home.glroland.com/swagger-ui/index.html
+    - url: https://backstage-developer-hub-rhdh-operator.apps.ocpbm.home.glroland.com/swagger-ui/index.html
       title: Swagger UI
       icon: web
     - url: https://raw.githubusercontent.com/glroland/ai-product-catalog/main/ai-product-catalog-svc/openapi.yaml
@@ -60,7 +60,7 @@ metadata:
 spec:
   type: openapi
   lifecycle: production
-  owner: "glroland"
+  owner: user:default/glroland
   system: ai-product-catalog-system
   definition:
     $text: https://github.com/glroland/ai-product-catalog/blob/main/ai-product-catalog-svc/openapi.yaml

@@ -27,5 +27,5 @@ metadata:
 spec:
   type: service
   lifecycle: production
-  owner: user1
+  owner: user:default/glroland
   system: aiml
