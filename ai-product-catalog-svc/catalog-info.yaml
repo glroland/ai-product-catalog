@@ -13,7 +13,6 @@ metadata:
     backstage.io/source-location: url:https://gitlab-gitlab.apps.cluster-qg55v.sandbox670.opentlc.com/development/poi-backend
     janus-idp.io/tekton:  ai-product-catalog-svc-app
     app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"ai-product-catalog-svc-deploy"}]'
-    argocd/app-selector: 'glroland-argocd=ai-product-catalog-svc-app'
     argocd/instance-name: 'argoInstance'
     quay.io/repository-slug: 'ai-product-catalog/svc'
   tags:
