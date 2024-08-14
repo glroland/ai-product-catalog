@@ -1,0 +1,7 @@
+site_name: 'ai-product-catalog-docs'
+
+nav:
+  - Home: README.md
+
+plugins:
+  - techdocs-core
