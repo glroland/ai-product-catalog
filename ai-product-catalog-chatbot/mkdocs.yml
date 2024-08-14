@@ -1,0 +1,7 @@
+site_name: 'ai-product-catalog-chatbot-docs'
+
+nav:
+  - Home: index.md
+
+plugins:
+  - techdocs-core

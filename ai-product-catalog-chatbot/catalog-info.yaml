@@ -11,6 +11,7 @@ metadata:
     argocd/app-selector: 'glroland-argocd=ai-product-catalog-chatbot-app'
     argocd/instance-name: 'argoInstance'
     quay.io/repository-slug: 'ai-product-catalog/chatbot'
+    backstage.io/techdocs-ref: dir:.
   links:
     - url: 'https://devspaces.apps.ocpprod.home.glroland.com/dashboard/#/load-factory?url=https://github.com/glroland/ai-product-catalog.git'
       title: 'Code in DevSpaces'
