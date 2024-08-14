@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/name: ai-product-catalog-chatbot-component
     app.kubernetes.io/part-of: ai-product-catalog-app
   annotations:
-    argocd/app-name: ai-product-catalog-svc-app
+    argocd/app-name: ai-product-catalog
     backstage.io/kubernetes-id: ai-product-catalog-svc-app
     backstage.io/kubernetes-namespace: ai
     backstage.io/techdocs-ref: url:https://gitlab-gitlab.apps.cluster-qg55v.sandbox670.opentlc.com/development/poi-backend
