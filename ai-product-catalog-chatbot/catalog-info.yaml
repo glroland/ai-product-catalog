@@ -7,8 +7,8 @@ metadata:
     app.kubernetes.io/name: ai-product-catalog-chatbot-component
     app.kubernetes.io/part-of: ai-product-catalog-app
   annotations:
+    argocd/app-name: ai-product-catalog
     app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"ai-product-catalog-chatbot-deploy"}]'
-    argocd/app-selector: 'glroland-argocd=ai-product-catalog-chatbot-app'
     argocd/instance-name: 'argoInstance'
     quay.io/repository-slug: 'ai-product-catalog/chatbot'
     backstage.io/techdocs-ref: dir:.
