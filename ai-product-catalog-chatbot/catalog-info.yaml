@@ -28,4 +28,4 @@ spec:
   type: service
   lifecycle: production
   owner: user:default/glroland
-  system: aiml
+  system: ai-product-catalog-system
