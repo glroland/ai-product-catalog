@@ -8,6 +8,8 @@ db_password ?= ai_product_catalog123
 db_dba_user ?= postgres
 db_dba_password ?= r3dh@t123
 run_chatbot_port ?= 8080
+run_storefront_port ?= 8081
+run_greeter_port ?= 8082
 
 
 #
@@ -40,11 +42,27 @@ chatbot.lint:
 chatbot.install:
 	cd customer-chatbot && pip install -r requirements.txt
 
-chatbot.run:
+chatbot.run: chatbot.lint
 	cd customer-chatbot/src && streamlit run app.py --server.headless true --server.address 0.0.0.0 --server.port $(run_chatbot_port)
 
 chatbot.build: chatbot.lint
 	cd customer-chatbot && podman build -t registry.home.glroland.com/ai-product-catalog/chatbot:latest . --platform linux/amd64
+
+
+#
+# Storefront API Lifecycle Actions
+#
+storefront.lint:
+	cd storefront-svc && pylint src/*.py
+
+storefront.install:
+	cd storefront-svc && pip install -r requirements.txt
+
+storefront.run: storefront.lint
+	cd storefront-svc/src && PORT=$(run_storefront_port) python app.py
+
+storefront.build: storefront.lint
+	cd storefront-svc && podman build -t registry.home.glroland.com/ai-product-catalog/storefront:latest . --platform linux/amd64
 
 
 #
@@ -57,7 +75,7 @@ customer-greeter-agent.install:
 	cd customer-greeter-agent && pip install -r requirements.txt
 
 customer-greeter-agent.run:
-	cd customer-greeter-agent/src && python app.py
+	cd customer-greeter-agent/src && PORT=$(run_greeter_port) python app.py
 
 customer-greeter-agent.build: customer-greeter-agent.lint
 	cd customer-greeter-agent && podman build -t registry.home.glroland.com/ai-product-catalog/customer-greeter-agent:latest . --platform linux/amd64
@@ -77,11 +95,12 @@ service.build:
 #
 # Full Application Lifecycle Actions
 #
-build: service.build chatbot.build customer-greeter-agent.build
+build: service.build chatbot.build customer-greeter-agent.build storefront.build
 
 publish:
 	podman push registry.home.glroland.com/ai-product-catalog/svc:latest --tls-verify=false
-	podman push registry.home.glroland.com/ai-product-catalog/customer-greeter-agent:latest --tls-verify=false
 	podman push registry.home.glroland.com/ai-product-catalog/chatbot:latest --tls-verify=false
+	podman push registry.home.glroland.com/ai-product-catalog/storefront:latest --tls-verify=false
+	podman push registry.home.glroland.com/ai-product-catalog/customer-greeter-agent:latest --tls-verify=false
 
-install: data.install chatbot.install customer-greeter-agent.install
+install: data.install chatbot.install customer-greeter-agent.install storefront.build

@@ -7,6 +7,15 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
+def main():
+    """Main Method
+    """
+    port = 8080
+    if "PORT" in os.environ:
+        port = int(os.environ["PORT"])
+    print ("Starting Customer Greeter Agent on Port", port)
+    uvicorn.run(app, host="0.0.0.0", port=port)
+
 @app.get("/")
 def default_response():
     """Provide a simple textual response to the root url to verify the application is working.
@@ -24,4 +33,4 @@ def hello(name: str = ""):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    main()
