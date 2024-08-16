@@ -24,7 +24,7 @@
               "kubernetes_shared_mem_size": {},
               "kubernetes_tolerations": [],
               "mounted_volumes": [],
-              "filename": "drop_db.py",
+              "filename": "python_ddl/drop_db.py",
               "cpu": 1,
               "memory": 1,
               "gpu": 0
@@ -90,7 +90,7 @@
               "kubernetes_shared_mem_size": {},
               "kubernetes_tolerations": [],
               "mounted_volumes": [],
-              "filename": "create_db.py",
+              "filename": "python_ddl/create_db.py",
               "cpu": 1,
               "memory": 1,
               "gpu": 0
@@ -156,7 +156,7 @@
               "kubernetes_shared_mem_size": {},
               "kubernetes_tolerations": [],
               "mounted_volumes": [],
-              "filename": "create_tables.py",
+              "filename": "python_ddl/create_tables.py",
               "cpu": 1,
               "memory": 1,
               "gpu": 0
@@ -304,7 +304,7 @@
               "kubernetes_shared_mem_size": {},
               "kubernetes_tolerations": [],
               "mounted_volumes": [],
-              "filename": "init.py",
+              "filename": "python_ddl/init.py",
               "cpu": 1,
               "memory": 1,
               "gpu": 0

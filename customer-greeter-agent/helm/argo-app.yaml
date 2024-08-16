@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: customer-greeter-agent
+spec:
+  destination:
+    name: ''
+    namespace: devhub
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: 'customer-greeter-agent/helm'
+    repoURL: 'https://github.com/glroland/ai-product-catalog.git'
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values.yaml
+  sources: []
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false

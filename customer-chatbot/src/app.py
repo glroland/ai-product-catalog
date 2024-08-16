@@ -1,6 +1,7 @@
-"""${{values.artifact_id}}
+"""customer-chatbot
 
-${{values.description}}
+Chatbot emulating the customer experience for intereacting with a virtual
+retail store.
 """
 import os
 import streamlit as st

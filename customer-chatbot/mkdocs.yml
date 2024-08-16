@@ -1,4 +1,4 @@
-site_name: 'ai-product-catalog-chatbot-docs'
+site_name: 'customer-chatbot-docs'
 
 nav:
   - Home: index.md

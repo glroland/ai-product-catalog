@@ -1,0 +1,189 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ include "customer-greeter-agent.fullname" . }}-home
+data:
+  data.json: |-
+    [
+    {
+        "title": "AI Practice",
+        "isExpanded": true,
+        "links": [
+        {
+            "iconUrl": "/homepage/icons/icons8/github.png",
+            "label": "Getting Started",
+            "url": "https://github.com/glroland"
+        },
+        {
+            "iconUrl": "/homepage/icons/icons8/github.png",
+            "label": "AI Best Practices",
+            "url": "https://github.com/glroland"
+        },
+        {
+            "iconUrl": "/homepage/icons/icons8/slack-new.png",
+            "label": "AI Practice Organizational Contacts",
+            "url": "https://redhat.enterprise.slack.com/"
+        },
+        {
+            "iconUrl": "/homepage/icons/icons8/tear-off-calendar.png",
+            "label": "Shared Calendar",
+            "url": "https://calendar.google.com"
+        },
+        {
+            "iconUrl": "/homepage/icons/icons8/github.png",
+            "label": "AI Roles and Responsibilities",
+            "url": "https://huggingface.co/"
+        },
+        {
+            "iconUrl": "/homepage/icons/icons8/tear-off-calendar.png",
+            "label": "Shared Calendar",
+            "url": "https://calendar.google.com"
+        },
+        {
+            "iconUrl": "/homepage/icons/icons8/youtube-play.png",
+            "label": "Policies and Ethical Use",
+            "url": "chat.google.com"
+        }
+        ]
+    },
+    {
+        "title": "COLLABORATE",
+        "isExpanded": true,
+        "links": [
+        {
+            "iconUrl": "/homepage/icons/icons8/github.png",
+            "label": "GitHub",
+            "url": "https://github.com/glroland"
+        },
+        {
+            "iconUrl": "/homepage/icons/icons8/github.png",
+            "label": "GitHub",
+            "url": "https://github.com/glroland"
+        },
+        {
+            "iconUrl": "/homepage/icons/icons8/github.png",
+            "label": "Hugging Face",
+            "url": "https://huggingface.co/"
+        },
+        {
+            "iconUrl": "/homepage/icons/icons8/slack-new.png",
+            "label": "Slack",
+            "url": "https://redhat.enterprise.slack.com/"
+        },
+        {
+            "iconUrl": "/homepage/icons/icons8/youtube-play.png",
+            "label": "Google Chat",
+            "url": "chat.google.com"
+        },
+        {
+            "iconUrl": "/homepage/icons/icons8/tear-off-calendar.png",
+            "label": "Calendar",
+            "url": "https://calendar.google.com"
+        }
+        ]
+    },
+    {
+        "title": "FOUNDATIONS",
+        "isExpanded": true,
+        "links": [
+        {
+            "iconUrl": "/homepage/icons/podman_logo.svg",
+            "label": "Granite Instruct",
+            "url": "https://podman-desktop.io"
+        },
+        {
+            "iconUrl": "/homepage/icons/podman_logo.svg",
+            "label": "Granite Code",
+            "url": "https://podman-desktop.io"
+        },
+        {
+            "iconUrl": "/homepage/icons/podman_logo.svg",
+            "label": "Llama 3",
+            "url": "https://podman-desktop.io"
+        },
+        {
+            "iconUrl": "/homepage/icons/podman_logo.svg",
+            "label": "Mixtrel",
+            "url": "https://podman-desktop.io"
+        },
+        {
+            "iconUrl": "/homepage/icons/podman_logo.svg",
+            "label": "OpenAI",
+            "url": "https://podman-desktop.io"
+        }
+        ]
+    },
+    {
+        "title": "BUILD",
+        "isExpanded": true,
+        "links": [
+        {
+            "iconUrl": "/homepage/icons/podman_logo.svg",
+            "label": "Cloud IDE",
+            "url": "https://devspaces.apps.ocpbm.home.glroland.com/dashboard/#/workspaces"
+        },
+        {
+            "iconUrl": "/homepage/icons/podman_logo.svg",
+            "label": "AI Workbech",
+            "url": "https://rhods-dashboard-redhat-ods-applications.apps.ocpbm.home.glroland.com/notebookController"
+        },
+        {
+            "iconUrl": "/homepage/icons/podman_logo.svg",
+            "label": "Podman Desktop w/AI Lab",
+            "url": "https://podman-desktop.io"
+        },
+        {
+            "iconUrl": "/homepage/icons/podman_logo.svg",
+            "label": "InstructLab",
+            "url": "https://github.com/instructlab"
+        }
+        ]
+    },
+    {
+        "title": "RUN",
+        "isExpanded": true,
+        "links": [
+        {
+            "iconUrl": "/homepage/icons/icons8/openshift.png",
+            "label": "OpenShift",
+            "url": "https://console-openshift-console.apps.ocpbm.home.glroland.com/topology/ns/devhub?view=graph"
+        },
+        {
+            "iconUrl": "/homepage/icons/argo-icon-color.svg",
+            "label": "ArgoCD",
+            "url": "https://openshift-gitops-server-openshift-gitops.apps.ocpbm.home.glroland.com/applications"
+        },
+        {
+            "iconUrl": "/homepage/icons/argo-icon-color.svg",
+            "label": "Jenkins",
+            "url": "https://build.home.glroland.com"
+        },
+        {
+            "iconUrl": "/homepage/icons/quay.svg",
+            "label": "Quay",
+            "url": "https://registry.home.glroland.com"
+        }
+        ]
+    },
+    {
+        "title": "PLATFORM",
+        "isExpanded": false,
+        "links": [
+        {
+            "iconUrl": "/homepage/icons/icons8/openshift.png",
+            "label": "OpenShift (BM)",
+            "url": "https://console-openshift-console.apps.ocpbm.home.glroland.com"
+        },
+        {
+            "iconUrl": "/homepage/icons/icons8/openshift.png",
+            "label": "OpenShift (Prod)",
+            "url": "https://console-openshift-console.apps.ocpprod.home.glroland.com"
+        },
+        {
+            "iconUrl": "/homepage/icons/icons8/openshift.png",
+            "label": "OpenShift (Hub)",
+            "url": "https://console-openshift-console.apps.ocphub.home.glroland.com"
+        }
+        ]
+    }
+    ]

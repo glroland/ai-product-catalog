@@ -1,0 +1,106 @@
+schemaVersion: 2.2.2
+metadata:
+  name: customer-greeter-agent
+  displayName: customer-greeter-agent
+  description: "AI agent acting as a customer greeter in a retail store"
+  icon: https://raw.githubusercontent.com/devfile-samples/devfile-stack-icons/main/python.svg
+  tags:
+    - Python
+    - AI
+    - REST
+  projectType: Python
+  language: Python
+  version: 3.1.0
+attributes:
+  controller.devfile.io/storage-type: per-workspace
+components:
+  - name: projects
+    volume:
+      size: 20Gi
+  - name: py
+    attributes:
+      container-overrides: 
+        securityContext:
+          privileged: true
+    container:
+      image: registry.home.glroland.com/paas/tools-nested-generic:20240801-2
+      memoryRequest: 4Gi
+      memoryLimit: 32Gi
+      cpuLimit: 4000m
+      cpuRequest: 1000m
+      mountSources: true
+      endpoints:
+        - name: http-app
+          targetPort: 8080
+          protocol: http
+        - exposure: none
+          name: debug
+          targetPort: 5858
+      env:
+        - name: DEBUG_PORT
+          value: '5858'
+        - name: SHELL
+          value: "/bin/zsh"
+        - name: DOCKER_CMD
+          value: podman
+        - name: VSCODE_DEFAULT_WORKSPACE
+          value: "/python.code-workspace"
+  - name: build
+    image:
+      imageName: registry.home.glroland.com/customer-greeter-agent:latest
+      dockerfile:
+        uri: Dockerfile
+        buildContext: .
+        rootRequired: false
+  - name: deploy
+    kubernetes:
+      uri: kubernetes/deploy.yaml
+      endpoints:
+      - name: http-8080
+        targetPort: 8080
+        protocol: http
+commands:
+  - id: pip-install-requirements
+    exec:
+      commandLine: pip install -r requirements.txt
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: build
+        isDefault: true
+      component: py
+  - id: lint
+    exec:
+      commandLine: 'pylint src/*'
+      workingDir: ${PROJECT_SOURCE}
+      component: py
+      group:
+        kind: build
+  - id: run-app
+    exec:
+      commandLine: 'python src/app.py'
+      workingDir: ${PROJECT_SOURCE}
+      component: py
+      group:
+        kind: run
+        isDefault: true
+  - id: debug-py
+    exec:
+      commandLine: 'pip install debugpy && python -m debugpy --listen 0.0.0.0:${DEBUG_PORT} src/app.py'
+      workingDir: ${PROJECT_SOURCE}
+      component: py
+      group:
+        kind: debug
+  - id: build-image
+    apply:
+      component: build
+  - id: deployk8s
+    apply:
+      component: deploy
+  - id: deploy
+    composite:
+      commands:
+        - build-image
+        - deployk8s
+      group:
+        kind: deploy
+        isDefault: true

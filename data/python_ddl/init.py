@@ -6,6 +6,6 @@ def install(package):
 
 def main():
     install("psycopg[binary]")
-    
+
 if __name__ == "__main__":
     main()

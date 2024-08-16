@@ -1,0 +1,29 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: customer-greeter-agent
+  description: "AI agent acting as a customer greeter in a retail store"
+  labels:
+    app.kubernetes.io/name: customer-greeter-agent-component
+    app.kubernetes.io/part-of: customer-greeter-agent-app
+  annotations:
+    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"customer-greeter-agent-deploy"}]'
+
+  links:
+    - url: 'https://devspaces.apps.ocpbm.home.glroland.com/dashboard/#/load-factory?url=https://github.com/${{values.destination.owner + "/" + values.destination.repo}}.git'
+      title: 'Code in DevSpaces'
+      icon: catalog
+      type: ide
+    - title: OpenShift AI
+      icon: chat
+      url: https://rhods-dashboard-redhat-ods-applications.apps.ocpbm.home.glroland.com/projects
+  tags:
+    - python
+    - ai
+    - llm
+    - rest
+spec:
+  type: service
+  lifecycle: experimental
+  owner: ${{values.owner | dump}}
+  system: aiml

@@ -1,14 +1,14 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: ai-product-catalog-chatbot
+  name: customer-chatbot
   description: "Simple chatbot for the AI Product Catalog"
   labels:
-    app.kubernetes.io/name: ai-product-catalog-chatbot-component
+    app.kubernetes.io/name: customer-chatbot-component
     app.kubernetes.io/part-of: ai-product-catalog-app
   annotations:
     argocd/app-name: ai-product-catalog
-    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"ai-product-catalog-chatbot-deploy"}]'
+    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"customer-chatbot-deploy"}]'
     argocd/instance-name: 'argoInstance'
     quay.io/repository-slug: 'ai-product-catalog/chatbot'
     backstage.io/techdocs-ref: dir:.

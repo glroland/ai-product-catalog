@@ -3,7 +3,6 @@
 import os
 import pandas as pd
 import psycopg
-import numpy as np
 from sentence_transformers import SentenceTransformer
 
 
@@ -19,7 +18,7 @@ def get_config_value(key, default):
     return default
 
 
-class ProductDataSet:
+class ProductDataset:
     """Self contained class for managing the process associated with importing product data
     from third party sources.
     """
@@ -394,7 +393,8 @@ class ProductDataSet:
 
         embedding_raw = self.model.encode([embedded_text])
         if len(embedding_raw) > 1:
-            print ("WARNING: Embedding has more dimensions than expected!  Data likely being lost", embedding_raw.shape)            
+            print ("WARNING: Embedding has more dimensions than expected!  Data likely being lost",
+                   embedding_raw.shape)
         embedding = embedding_raw[0].tolist()
         print ("CREATED Embedding for ....  Text:", embedded_text)
 
@@ -461,21 +461,21 @@ if __name__ == "__main__":
                                 user=ai_product_catalog
                                 password=ai_product_catalog123"""
 
-    productDataSet = ProductDataSet("test_data", DB_CONNECTION_STRING,
+    productDataset = ProductDataset("test_data", DB_CONNECTION_STRING,
                                     None, "text-embedding-ada-001")
-    resultDF = productDataSet.import_df(test_df,
+    resultDF = productDataset.import_df(test_df,
                         {
-                            "test_sku": productDataSet.ProductColumns.SKU,
-                            "test_price": productDataSet.ProductColumns.PRICE,
-                            "test_brand": productDataSet.ProductColumns.BRAND_DESC,
-                            "test_category": productDataSet.ProductColumns.CATEGORY_DESC,
-                            "test_name": productDataSet.ProductColumns.NAME,
-                            "test_desc": productDataSet.ProductColumns.DESC
+                            "test_sku": productDataset.ProductColumns.SKU,
+                            "test_price": productDataset.ProductColumns.PRICE,
+                            "test_brand": productDataset.ProductColumns.BRAND_DESC,
+                            "test_category": productDataset.ProductColumns.CATEGORY_DESC,
+                            "test_name": productDataset.ProductColumns.NAME,
+                            "test_desc": productDataset.ProductColumns.DESC
                         }
                     )
-    productDataSet.persist()
-    productDataSet.load_embeddings()
-    productDataSet.refresh_embeddings()
-    productDataSet.persist_embeddings()
+    productDataset.persist()
+    productDataset.load_embeddings()
+    productDataset.refresh_embeddings()
+    productDataset.persist_embeddings()
 
     print(resultDF.head())
