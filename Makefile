@@ -61,6 +61,9 @@ storefront.install:
 storefront.run: storefront.lint
 	cd storefront-svc/src && PORT=$(run_storefront_port) python app.py
 
+storefront.test:
+	cd storefront-svc/src && pytest
+
 storefront.build: storefront.lint
 	cd storefront-svc && podman build -t registry.home.glroland.com/ai-product-catalog/storefront:latest . --platform linux/amd64
 
@@ -103,4 +106,4 @@ publish:
 	podman push registry.home.glroland.com/ai-product-catalog/storefront:latest --tls-verify=false
 	podman push registry.home.glroland.com/ai-product-catalog/customer-greeter-agent:latest --tls-verify=false
 
-install: data.install chatbot.install customer-greeter-agent.install storefront.build
+install: data.install chatbot.install customer-greeter-agent.install storefront.install

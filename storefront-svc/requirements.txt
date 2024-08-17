@@ -3,3 +3,5 @@ pylint
 fastapi
 uvicorn
 requests
+langgraph
+pytest

@@ -35,6 +35,5 @@ def chat(user_message: str, msg_history = None):
     """
     return {"message": "Hello: " + user_message + msg_history}
 
-
 if __name__ == "__main__":
     main()
