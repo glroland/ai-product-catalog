@@ -5,6 +5,7 @@ inquiries and deferral to other agents.
 """
 import logging
 import uuid
+import sys
 from operator import add
 from typing import List, TypedDict, Optional, Annotated, Literal, TypedDict
 from langgraph.checkpoint.memory import MemorySaver
@@ -113,20 +114,42 @@ def inquiry_by_new_customer(user_input, client_id=str(uuid.uuid4())):
 if __name__ == "__main__":
     print ("Entering Interactive Chat Mode...")
     print ("")
+
+    show_options = False
+    if (len(sys.argv) > 1) and sys.argv[1].lower() == "--show-options":
+        show_options = True
+
     print ("Storefront>  Hello!  Thank you for visiting out shoe store.  How may we help you?")
     print ()
 
     graph = build_customer_visit_graph()
     config = {"configurable": {"thread_id": "interactive_chat_mode"}}
 
+    option1 = "I'm looking for tennis shoes for my teenage son who is starting high school next week."
+    option2 = "Do you have any collectable Jordan basketball shoes?"
+    option3 = "What running shoes do you have?"
+
     while True:
+        if show_options:
+            print ("1 - ", option1)
+            print ("2 - ", option2)
+            print ("3 - ", option3)
+            print ()
+
         user_input = input("Customer>  ")
         if user_input.lower() in ["quit", "exit", "q"]:
             print("Goodbye!")
             break
+        if show_options:
+            if (user_input.startswith("1")):
+                user_input = option1
+            elif user_input.startswith("2"):
+                user_input = option2
+            elif user_input.startswith("3"):
+                user_input = option3
 
         print ("")
-        
+
         last_step = None
         for step in graph.stream({"messages": ("user", user_input)}, config, stream_mode="values"):
             last_step = step

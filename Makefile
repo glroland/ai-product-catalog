@@ -61,6 +61,9 @@ storefront.install:
 storefront.run: storefront.lint
 	cd storefront-svc/src && PORT=$(run_storefront_port) python app.py
 
+storefront.run.supervisor:
+	cd storefront-svc/src && python supervisor.py --show-options
+
 storefront.test:
 	cd storefront-svc/src && pytest -o log_cli=true --log-cli-level=INFO
 
