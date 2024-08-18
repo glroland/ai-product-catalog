@@ -31,6 +31,7 @@ class CustomerVisitState(TypedDict):
     """
     messages: Annotated[list, add_messages]
     qualified_customer: str
+    most_recent_ai_response: str
     #customer_interactions: List[CustomerInteractionLogEntry]
 
 
@@ -62,12 +63,16 @@ def should_continue(state: CustomerVisitState) -> Literal["clarify_customer_requ
 
 
 def clarify_customer_requirements(state):
+    logger.debug("clarify_customer_requirements")
+
     logger.debug("State=" + str(state))
     userMessage = state["messages"][0].content.strip()
     logger.info("User Message = " + userMessage)
 
     response = clarify_customer_requirements_action(userMessage)
     state["messages"].append(response)
+    state["most_recent_ai_response"] = response
+
     return state
 
 
@@ -103,3 +108,29 @@ def inquiry_by_new_customer(user_input, client_id=str(uuid.uuid4())):
             )
     
     return final_state
+
+
+if __name__ == "__main__":
+    print ("Entering Interactive Chat Mode...")
+    print ("")
+    print ("Storefront>  Hello!  Thank you for visiting out shoe store.  How may we help you?")
+    print ()
+
+    graph = build_customer_visit_graph()
+    config = {"configurable": {"thread_id": "interactive_chat_mode"}}
+
+    while True:
+        user_input = input("Customer>  ")
+        if user_input.lower() in ["quit", "exit", "q"]:
+            print("Goodbye!")
+            break
+
+        print ("")
+        
+        last_step = None
+        for step in graph.stream({"messages": ("user", user_input)}, config, stream_mode="values"):
+            last_step = step
+        aiMessage = last_step["most_recent_ai_response"].content
+        
+        print("Storefront>  ", aiMessage)
+        print ("")
