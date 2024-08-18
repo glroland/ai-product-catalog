@@ -26,7 +26,7 @@ def test_reject_due_to_unrelated_products():
 
     user_input = "What kind of video games do you sell?"
 
-    final_state = s.inquiry_by_new_customer(user_input)
+    final_state = s.inquiry_by_new_customer(user_input, "test_reject_due_to_unrelated_products")
     assert final_state != None
 
     logger.info ("Final State:" + str(final_state))
@@ -39,7 +39,7 @@ def test_reject_due_to_unrelated_to_retail_store():
 
     user_input = "Who was the first person to walk on the moon?"
 
-    final_state = s.inquiry_by_new_customer(user_input)
+    final_state = s.inquiry_by_new_customer(user_input, "test_reject_due_to_unrelated_to_retail_store")
     assert final_state != None
 
     logger.info ("Final State:" + str(final_state))
@@ -52,8 +52,9 @@ def test_accept_interested_in_nike_shoes():
 
     user_input = "I need a new pair of tennis shoes for my teenage son starting school next week."
 
-    final_state = s.inquiry_by_new_customer(user_input)
+    final_state = s.inquiry_by_new_customer(user_input, "test_accept_interested_in_nike_shoes")
     assert final_state != None
 
     logger.info ("Final State:" + str(final_state))
     assert(final_state["qualified_customer"] == "YES")
+    assert(len(final_state["messages"]) == 2)

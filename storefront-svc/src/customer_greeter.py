@@ -1,4 +1,4 @@
-""" Customer Qualification Action
+""" Customer Greeter Agent
 
 Analyzes a new customer inquiry to determine if its a qualified opportunity or not.
 """
@@ -55,3 +55,4 @@ def qualify_customer_action(userMessage):
     msg = "Unexpected response from LLM: " + responseMessage
     logger.fatal(msg)
     raise msg
+
