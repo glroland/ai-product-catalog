@@ -3,6 +3,7 @@
 Virtual Storefront API
 """
 import os
+import logging
 import uvicorn
 from fastapi import FastAPI
 
@@ -11,6 +12,8 @@ app = FastAPI()
 def main():
     """Main Method
     """
+    logging.basicConfig(filename='storefront-svc.log', level=logging.INFO)
+
     port = 8080
     if "PORT" in os.environ:
         port = int(os.environ["PORT"])

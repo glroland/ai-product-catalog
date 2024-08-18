@@ -62,7 +62,7 @@ storefront.run: storefront.lint
 	cd storefront-svc/src && PORT=$(run_storefront_port) python app.py
 
 storefront.test:
-	cd storefront-svc/src && pytest
+	cd storefront-svc/src && pytest -o log_cli=true --log-cli-level=INFO
 
 storefront.build: storefront.lint
 	cd storefront-svc && podman build -t registry.home.glroland.com/ai-product-catalog/storefront:latest . --platform linux/amd64
