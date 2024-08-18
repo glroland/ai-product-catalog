@@ -5,8 +5,10 @@ enhancemnets.
 """
 import time
 import logging
-from IPython.display import Image, display
+from IPython.display import Image
 import supervisor as s
+
+logger = logging.getLogger(__name__)
 
 def test_graph_compilation_and_visualization():
     """ Ensure that the graph compiles and supports graph visualization """
@@ -14,30 +16,44 @@ def test_graph_compilation_and_visualization():
 
     # Build the storefront agent experience graph
     graph = s.build_customer_visit_graph()
+    assert graph != None
     assert Image(graph.get_graph(xray=1).draw_mermaid_png()) != None
 
 
-def test_wrong_store():
+def test_reject_due_to_unrelated_products():
     """ Attempt to buy something other than shoes at the shoe store """
-    print ("test_wrong_store()")
+    logger.debug("test_reject_due_to_unrelated_products()")
 
     user_input = "What kind of video games do you sell?"
-    graph = s.build_customer_visit_graph()
 
-    #inputs = {"question": "Hello, how are you?"}
-    result = graph.invoke(
-        {"messages": [("user", user_input)]}
-    )
-    #print ("Result:", result)
- 
-    #event = graph.stream({"messages": ("user", user_input)})
-    #assert event != None
-    #print ("Event:", event)
-    #assert event.values() != None
-    #assert len(event.values()) == 1
+    final_state = s.inquiry_by_new_customer(user_input)
+    assert final_state != None
+
+    logger.info ("Final State:" + str(final_state))
+    assert(final_state["qualified_customer"] == "NO")
 
 
-    #    for value in event.values():
-    #        print("Assistant:", value["messages"][-1].content)
+def test_reject_due_to_unrelated_to_retail_store():
+    """ Ask question about something completely unrelated to retail """
+    logger.debug("test_reject_due_to_unrelated_to_retail_store()")
 
-    assert True
+    user_input = "Who was the first person to walk on the moon?"
+
+    final_state = s.inquiry_by_new_customer(user_input)
+    assert final_state != None
+
+    logger.info ("Final State:" + str(final_state))
+    assert(final_state["qualified_customer"] == "NO")
+
+
+def test_accept_interested_in_nike_shoes():
+    """ Ensure customer is qualified positively """
+    logger.debug("test_accept_interested_in_nike_shoes()")
+
+    user_input = "I need a new pair of tennis shoes for my teenage son starting school next week."
+
+    final_state = s.inquiry_by_new_customer(user_input)
+    assert final_state != None
+
+    logger.info ("Final State:" + str(final_state))
+    assert(final_state["qualified_customer"] == "YES")
