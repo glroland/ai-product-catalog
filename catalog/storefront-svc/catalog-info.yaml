@@ -25,5 +25,5 @@ metadata:
 spec:
   type: service
   lifecycle: experimental
-  owner: glroland
+  owner: user:default/glroland
   system: aiml
