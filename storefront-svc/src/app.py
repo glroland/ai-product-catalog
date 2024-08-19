@@ -38,5 +38,10 @@ def chat(user_message: str, msg_history = None):
     """
     return {"message": "Hello: " + user_message + msg_history}
 
+@app.get("/health")
+def health_check():
+    """ Provide a basic response indicating the app is available for consumption. """
+    return "OK"
+
 if __name__ == "__main__":
     main()
