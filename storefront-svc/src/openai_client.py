@@ -1,3 +1,8 @@
+""" Utility module for making client invocations to OpenAI compliant server.
+
+Connect to OpenAI servers consistently from the product catalog application without
+replicating the openai configuration everywhere.
+"""
 import logging
 import httpx
 from langchain_openai import ChatOpenAI
@@ -6,6 +11,12 @@ from openai import APIConnectionError
 logger = logging.getLogger(__name__)
 
 def openai_invoke(messages, max_tokens=100, temperature=0.8):
+    """ Invoke an OpenAI completion inquiry.
+    
+        messages - message and history
+        max_tokens - maximum number of tokens in response
+        temperature - temperature for llm invocation
+    """
     logger.debug("openai_invoke() - " + str(messages))
 
     try:
@@ -21,6 +32,6 @@ def openai_invoke(messages, max_tokens=100, temperature=0.8):
     except APIConnectionError as e:
         msg = "Unable to connect to OpenAI Server: " + e
         logger.fatal(msg)
-        raise msg
+        raise msg from e
 
     return response
