@@ -26,4 +26,3 @@ spec:
   type: service
   lifecycle: experimental
   owner: user:default/glroland
-  system: aiml
