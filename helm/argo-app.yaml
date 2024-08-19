@@ -5,8 +5,8 @@ metadata:
 spec:
   destination:
     name: ''
-    namespace: aij
-    server: 'https://api.ocpprod.home.glroland.com:6443'
+    namespace: ai-product-catalog-prod
+    server: 'https://kubernetes.default.svc'
   source:
     path: helm/ai-product-catalog
     repoURL: 'https://github.com/glroland/ai-product-catalog.git'
@@ -16,3 +16,5 @@ spec:
         - values.yaml
   sources: []
   project: default
+  syncPolicy:
+    automated: {}

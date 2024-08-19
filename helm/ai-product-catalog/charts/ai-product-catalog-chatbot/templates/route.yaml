@@ -16,4 +16,8 @@ spec:
   to:
     kind: Service
     name: {{ include "ai-product-catalog.fullname" . }}
-
+    weight: 100
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+  wildcardPolicy: None
