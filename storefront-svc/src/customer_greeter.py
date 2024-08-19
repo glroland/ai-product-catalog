@@ -7,6 +7,7 @@ import logging
 from langchain_openai import ChatOpenAI
 from openai import APIConnectionError
 from langchain_core.messages import HumanMessage, SystemMessage
+from openai_client import openai_invoke
 
 logger = logging.getLogger(__name__)
 
@@ -30,22 +31,9 @@ def qualify_customer_action(userMessage):
         HumanMessage(content=userMessage),
     ]
 
-    try:
-        llm = ChatOpenAI(model_name="llama3.1",
-                     base_url="http://ocpbmwork:11434/v1",
-                     api_key="nokey",
-                     timeout = httpx.Timeout(timeout=30),
-                     http_client=httpx.Client(verify=False),
-                     max_tokens=10,
-                     temperature=0)
-
-        response = llm.invoke(messages)
-    except APIConnectionError as e:
-        msg = "Unable to connect to OpenAI Server: " + e
-        logger.fatal(msg)
-        raise msg
-
+    response = openai_invoke(messages, max_tokens=10, temperature=0)
     responseMessage = response.content
+
     logger.info("Response: " + responseMessage)
     if "ACCEPT" in responseMessage.upper():
         return True

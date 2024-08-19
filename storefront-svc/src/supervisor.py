@@ -113,11 +113,13 @@ def inquiry_by_new_customer(user_input, client_id=str(uuid.uuid4())):
 
 if __name__ == "__main__":
     print ("Entering Interactive Chat Mode...")
-    print ("")
+    print ()
 
     show_options = False
     if (len(sys.argv) > 1) and sys.argv[1].lower() == "--show-options":
         show_options = True
+        print ("Enabling support for pre-loaded options.")
+        print ()
 
     print ("Storefront>  Hello!  Thank you for visiting out shoe store.  How may we help you?")
     print ()
@@ -148,7 +150,7 @@ if __name__ == "__main__":
             elif user_input.startswith("3"):
                 user_input = option3
 
-        print ("")
+        print ()
 
         last_step = None
         for step in graph.stream({"messages": ("user", user_input)}, config, stream_mode="values"):
@@ -156,4 +158,4 @@ if __name__ == "__main__":
         aiMessage = last_step["most_recent_ai_response"].content
         
         print("Storefront>  ", aiMessage)
-        print ("")
+        print ()
