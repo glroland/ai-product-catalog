@@ -8,7 +8,7 @@ spec:
     namespace: ai-product-catalog-prod
     server: 'https://kubernetes.default.svc'
   source:
-    path: helm/ai-product-catalog
+    path: deploy/ai-product-catalog
     repoURL: 'https://github.com/glroland/ai-product-catalog.git'
     targetRevision: HEAD
     helm:
