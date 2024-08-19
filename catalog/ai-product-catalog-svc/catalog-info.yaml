@@ -61,5 +61,5 @@ spec:
   owner: user:default/glroland
   system: ai-product-catalog-system
   definition:
-    $text: https://github.com/glroland/ai-product-catalog/blob/main/ai-product-catalog-svc/openapi.yaml
+    $text: https://github.com/glroland/ai-product-catalog/blob/main/catalog/ai-product-catalog-svc/openapi.yaml
 
