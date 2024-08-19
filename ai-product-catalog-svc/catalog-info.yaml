@@ -15,7 +15,10 @@ metadata:
     - java
     - maven
   links:
-    - url: hhttps://console-openshift-console.apps.ocpbm.home.glroland.com/k8s/ns/aij/deployments/ai-product-catalog-svc
+    - url: https://ai-product-catalog-svc-ai-product-catalog-prod.apps.ocpbm.home.glroland.com/
+      title: Prod
+      icon: web
+    - url: https://console-openshift-console.apps.ocpbm.home.glroland.com/k8s/ns/aij/deployments/ai-product-catalog-svc
       title: Deployment
       icon: web
     - url: 'https://devspaces.apps.ocpbm.home.glroland.com/dashboard/#/load-factory?url=https://github.com/glroland/ai-product-catalog.git'

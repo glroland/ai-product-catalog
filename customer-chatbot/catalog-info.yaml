@@ -13,6 +13,9 @@ metadata:
     quay.io/repository-slug: 'ai-product-catalog/chatbot'
     backstage.io/techdocs-ref: dir:.
   links:
+    - url: https://ai-product-catalog-chatbot-ai-product-catalog-prod.apps.ocpbm.home.glroland.com/
+      title: Prod
+      icon: web
     - url: 'https://devspaces.apps.ocpprod.home.glroland.com/dashboard/#/load-factory?url=https://github.com/glroland/ai-product-catalog.git'
       title: 'Code in DevSpaces'
       icon: catalog
