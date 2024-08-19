@@ -16,7 +16,7 @@ def clarify_customer_requirements_action(user_message):
     """
     logger.info("clarify_customer_requirements_action()")
 
-    logger.info("User Message = " + user_message)
+    logger.info("User Message = %s", user_message)
 
     messages = [
         SystemMessage(content="""
@@ -36,6 +36,6 @@ def clarify_customer_requirements_action(user_message):
     response = openai_invoke(messages, max_tokens=150, temperature=0.8)
 
     response_message = response.content
-    logger.info("Response: " + response_message)
+    logger.info("Response: %s", response_message)
 
     return response

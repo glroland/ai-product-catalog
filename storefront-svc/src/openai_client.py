@@ -17,7 +17,7 @@ def openai_invoke(messages, max_tokens=100, temperature=0.8):
         max_tokens - maximum number of tokens in response
         temperature - temperature for llm invocation
     """
-    logger.debug("openai_invoke() - " + str(messages))
+    logger.debug("openai_invoke() - %s", messages)
 
     try:
         llm = ChatOpenAI(model_name="llama3.1",

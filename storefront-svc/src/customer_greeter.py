@@ -16,7 +16,7 @@ def qualify_customer_action(user_message):
     """
     logger.info("qualify_customer_action()")
 
-    logger.info("User Message = " + user_message)
+    logger.info("User Message = %s", user_message)
 
     messages = [
         SystemMessage(content="You are a retail store manager for a Nike shoe store. " +
@@ -32,7 +32,7 @@ def qualify_customer_action(user_message):
     response = openai_invoke(messages, max_tokens=10, temperature=0)
     response_message = response.content
 
-    logger.info("Response: " + response_message)
+    logger.info("Response: %s", response_message)
     if "ACCEPT" in response_message.upper():
         return True
     if "REJECT" in response_message.upper():
