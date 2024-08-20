@@ -76,7 +76,7 @@ def clarify_customer_requirements(state):
     user_message = state["messages"][0].content.strip()
     logger.info("User Message = %s", user_message)
 
-    print ("Before...", state["messages"])
+    logger.debug ("Message History and Latest User Message prior to LLM>>  %s", state["messages"])
 
     response = clarify_customer_requirements_action(state["messages"])
     state["messages"].append(response)

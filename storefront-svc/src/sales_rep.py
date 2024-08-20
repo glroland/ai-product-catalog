@@ -4,7 +4,7 @@ Agent specializing in taking a qualified customer through the journey of finding
 shoes they want to buy.
 """
 import logging
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import SystemMessage
 from openai_client import openai_invoke
 
 logger = logging.getLogger(__name__)
