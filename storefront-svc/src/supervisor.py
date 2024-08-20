@@ -76,7 +76,9 @@ def clarify_customer_requirements(state):
     user_message = state["messages"][0].content.strip()
     logger.info("User Message = %s", user_message)
 
-    response = clarify_customer_requirements_action(user_message)
+    print ("Before...", state["messages"])
+
+    response = clarify_customer_requirements_action(state["messages"])
     state["messages"].append(response)
     state["most_recent_ai_response"] = response
 
