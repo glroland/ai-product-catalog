@@ -26,7 +26,7 @@ def clarify_customer_requirements_action(message_with_history):
 
             You are friendly and only give concise answers to questions.
             
-            Your response must be in JSON format, with three fields and no text before or after the JSON data structure.  The first is called "Response" and is your response to the customer.  The second is called "Attributes" and are the key characteristics for the shoes the customer is looking for.  The third is called "Confirmed" and is a boolean where true means the customer requirements are sufficiently confirmed.
+            Your response must be in JSON format with field names and values enclosed indouble quotes, with three fields and no text before or after the JSON data structure.  The first is called "Response" and is your response to the customer.  The second is called "Attributes" and are the key characteristics for the shoes the customer is looking for.  The third is called "Confirmed" and is a boolean where true means the customer requirements are sufficiently confirmed.
                       
             Here are example responses:
         

@@ -4,6 +4,7 @@ Agent that manages the virtual storefront by coordinating responses to customer
 inquiries and deferral to other agents.
 """
 import logging
+import json
 import uuid
 import sys
 from typing import TypedDict, Annotated, Literal
@@ -18,20 +19,14 @@ logger = logging.getLogger(__name__)
 
 memory = MemorySaver()
 
-class CustomerInteractionLogEntry(TypedDict):
-    """ Data structure representing a single customer interaction and its results.
-    """
-    timestamp:float
-    question:str
-    answer:str
-
-
 class CustomerVisitState(TypedDict):
     """ State structure used throughout the storefront agent process.
     """
     messages: Annotated[list, add_messages]
     qualified_customer: str
     most_recent_ai_response: str
+    product_attributes: str
+    attributes_confirmed: str
 
 
 def qualify_customer(state):
@@ -54,13 +49,37 @@ def qualify_customer(state):
     return state
 
 
-def should_continue(state: CustomerVisitState) -> Literal["clarify_customer_requirements", END]:
+def is_customer_qualified(state: CustomerVisitState) -> \
+                Literal["check_attributes", END]:
     """ Determine whether the graph should proceed to clarify customer requirements or end.
 
         state - langgraph state
     """
     if state["qualified_customer"] != "YES":
         return END
+
+    return "check_attributes"
+
+def check_attributes(state: CustomerVisitState):
+    """ Qualified customer and now check to see if attributes are complete and confirmed. 
+    
+        state - langgraph state
+    """
+    if isinstance(state["attributes_confirmed"], bool) and state["attributes_confirmed"]:
+        if len(state["product_attributes"].strip()) == 0:
+            state["attributes_confirmed"] = False
+
+    return state
+
+def is_attributes_confirmed(state: CustomerVisitState) -> \
+        Literal["clarify_customer_requirements", "match_attributes_to_product"]:
+    """ Determine whether the graph should continue to clarify customer requirements or 
+        proceed onto matching possible products to their requests.
+
+        state - langgraph state
+    """
+    if isinstance(state["attributes_confirmed"], bool) and state["attributes_confirmed"]:
+        return "match_attributes_to_product"
 
     return "clarify_customer_requirements"
 
@@ -82,6 +101,26 @@ def clarify_customer_requirements(state):
     state["messages"].append(response)
     state["most_recent_ai_response"] = response
 
+    try:
+        response_json = json.loads(response.content)
+        state["product_attributes"] = response_json["Attributes"]
+        state["attributes_confirmed"] = response_json["Confirmed"]
+    except Exception as e:
+        logger.error("LLM produced unexpected response.  Exception=%s Response=%s",
+                     e, response.content)
+        state["product_attributes"] = ""
+        state["attributes_confirmed"] = ""
+        print()
+
+    return state
+
+
+def match_attributes_to_product(state):
+    """ Take the shoe attributes gathered from the customer and attempt to
+        match available products to them.  """
+    logger.debug("match_attributes_to_product")
+    logger.INFO("<<<<<  MATCHING ATTRIBUTES TO PRODUCTS >>>>> ")
+    print("MATCHING")
     return state
 
 
@@ -92,10 +131,13 @@ def build_customer_visit_graph():
     store_builder = StateGraph(CustomerVisitState)
 
     store_builder.add_node("qualify_customer", qualify_customer)
+    store_builder.add_node("check_attributes", check_attributes)
     store_builder.add_node("clarify_customer_requirements", clarify_customer_requirements)
+    store_builder.add_node("match_attributes_to_product", match_attributes_to_product)
     store_builder.add_edge(START, "qualify_customer")
-    store_builder.add_conditional_edges("qualify_customer", should_continue)
-    #store_builder.add_edge("qualify_customer", END)
+    store_builder.add_conditional_edges("qualify_customer", is_customer_qualified)
+    store_builder.add_conditional_edges("check_attributes", is_attributes_confirmed)
+    store_builder.add_edge("match_attributes_to_product", END)
 
     return store_builder.compile(checkpointer=memory)
 
@@ -143,9 +185,9 @@ def supervisor_main():
     graph = build_customer_visit_graph()
     config = {"configurable": {"thread_id": "interactive_chat_mode"}}
 
-    option_1 = "I'm looking for tennis shoes for my teenage son who is starting high " + \
+    option_1 = "I would like a pair of Air Jordans by Nike that have a retro look and are high tops.  I'm planning to use these for aggressive weekend pickup games with my friends.  I do not have a color preference."
+    option_2 = "I'm looking for tennis shoes for my teenage son who is starting high " + \
                "school next week."
-    option_2 = "Do you have any collectable Jordan basketball shoes?"
     option_3 = "What running shoes do you have?"
 
     while True:

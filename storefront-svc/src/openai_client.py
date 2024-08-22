@@ -30,8 +30,8 @@ def openai_invoke(messages, max_tokens=100, temperature=0.8):
 
         response = llm.invoke(messages)
     except APIConnectionError as e:
-        msg = "Unable to connect to OpenAI Server: " + e
+        msg = "Unable to connect to OpenAI Server: " + str(e)
         logger.fatal(msg)
-        raise msg from e
+        raise e
 
     return response
