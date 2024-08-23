@@ -10,6 +10,7 @@ db_dba_password ?= r3dh@t123
 run_chatbot_port ?= 8080
 run_storefront_port ?= 8081
 run_greeter_port ?= 8082
+run_service_port ?= 8083
 
 
 #
@@ -43,7 +44,7 @@ chatbot.install:
 	cd customer-chatbot && pip install -r requirements.txt
 
 chatbot.run: chatbot.lint
-	cd customer-chatbot/src && streamlit run app.py --server.headless true --server.address 0.0.0.0 --server.port $(run_chatbot_port)
+	cd customer-chatbot/src && AI_PRODUCT_CATALOG_SVC_URL=http://localhost:$(run_service_port) streamlit run app.py --server.headless true --server.address 0.0.0.0 --server.port $(run_chatbot_port)
 
 chatbot.build: chatbot.lint
 	cd customer-chatbot && podman build -t registry.home.glroland.com/ai-product-catalog/chatbot:latest . --platform linux/amd64
@@ -91,7 +92,7 @@ customer-greeter-agent.build: customer-greeter-agent.lint
 # AI Product Catalog Service Lifecycle Actions
 #
 service.run:
-	cd ai-product-catalog-svc && mvn spring-boot:run
+	cd ai-product-catalog-svc && mvn spring-boot:run -Dspring-boot.run.jvmArguments="-Dserver.port=$(run_service_port)"
 
 service.build:
 	cd ai-product-catalog-svc && mvn clean package
