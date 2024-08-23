@@ -17,6 +17,18 @@ if "AI_PRODUCT_CATALOG_SVC_URL" in os.environ:
 
 st.title("💬 Let's GOOOOO!!!! Shoe Store")
 
+st.markdown("""
+    <style>
+        .reportview-container {
+            margin-top: -2em;
+        }
+        #MainMenu {visibility: hidden;}
+        .stDeployButton {display:none;}
+        footer {visibility: hidden;}
+        #stDecoration {display:none;}
+    </style>
+""", unsafe_allow_html=True)
+
 messages = st.container(height=300)
 
 if "messages" not in st.session_state:
