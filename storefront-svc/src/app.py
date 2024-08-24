@@ -37,7 +37,7 @@ def default_response():
     return {"message": msg}
 
 @app.post("/chat")
-def chat(user_message: str = "Hello", prior_state = None):
+def chat(user_message: str, prior_state = None):
     """Virtual Store entry point for textual interaction with the customer.
 
     Keyword arguments:
