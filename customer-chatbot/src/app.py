@@ -4,16 +4,17 @@ Chatbot emulating the customer experience for intereacting with a virtual
 retail store.
 """
 import os
+import json
 import streamlit as st
 import requests
 
+ENV_AI_BACKEND_ENDPOINT = "AI_BACKEND_ENDPOINT"
+
 GREETING="Thank you for visiting our store.  How may we help you?"
 
-CAPABILITY="simple" # simple, tool, or rag
-
 URL = "http://localhost:8080"
-if "AI_PRODUCT_CATALOG_SVC_URL" in os.environ:
-    URL = os.environ["AI_PRODUCT_CATALOG_SVC_URL"]
+if ENV_AI_BACKEND_ENDPOINT in os.environ:
+    URL = os.environ[ENV_AI_BACKEND_ENDPOINT]
 
 st.title("💬 Let's GOOOOO!!!! Shoe Store")
 
@@ -43,13 +44,8 @@ if prompt := st.chat_input():
     messages.chat_message("user").write(prompt)
 
     print ("st.session_state.messages", st.session_state.messages)
-    if CAPABILITY == "rag":
-        chat_url = URL + "/ragchat"
-        chat_params = {"userMessage": str(st.session_state.messages)}
-    else:
-        chat_url = URL + "/chat"
-        chat_params = {"type": CAPABILITY,
-                       "userMessage": str(st.session_state.messages)}
+    chat_url = URL + "/chat"
+    chat_params = {"user_message": str(st.session_state.messages)}
 
     print ("chat_url:", chat_url, "chat_params:", chat_params)
     response = requests.post(chat_url,
@@ -60,5 +56,17 @@ if prompt := st.chat_input():
     msg = response.content.decode('UTF-8')
     print("msg", msg)
 
-    st.session_state.messages.append({"role": "assistant", "content": msg})
-    messages.chat_message("assistant").write(msg)
+    msgJson = json.loads(msg)
+    print()
+    print ("DATA:::::")
+    print()
+    print (msgJson)
+    print()
+
+    ai_response = msgJson["most_recent_ai_response"]["content"]
+    ai_response_json = json.loads(ai_response)
+    ai_response_str = ai_response_json["Response"]
+
+    st.session_state.messages.append({"role": "assistant",
+                                      "content": ai_response_str})
+    messages.chat_message("assistant").write(ai_response_str)
