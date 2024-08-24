@@ -26,7 +26,7 @@ def main():
 
     uvicorn.run(app, host="0.0.0.0", port=port)
 
-@app.get("/TODO")
+@app.get("/")
 def default_response():
     """Provide a simple textual response to the root url to verify the application is working.
     """
@@ -36,8 +36,7 @@ def default_response():
           "Please see the Swagger API for usage guidance."
     return {"message": msg}
 
-#@app.post("/")
-@app.get("/")
+@app.post("/chat")
 def chat(user_message: str = "Hello", prior_state = None):
     """Virtual Store entry point for textual interaction with the customer.
 
