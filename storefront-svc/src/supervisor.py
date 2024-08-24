@@ -14,6 +14,7 @@ from langgraph.graph.message import add_messages
 from IPython.display import Image
 from customer_greeter import qualify_customer_action
 from sales_rep import clarify_customer_requirements_action
+from service_adapter import product_semantic_search, Product
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ class CustomerVisitState(TypedDict):
     most_recent_ai_response: str
     product_attributes: str
     attributes_confirmed: str
+    matching_products: list[Product]
 
 
 def qualify_customer(state):
@@ -100,6 +102,9 @@ def clarify_customer_requirements(state):
 
     logger.debug ("Message History and Latest User Message prior to LLM>>  %s", state["messages"])
 
+    if state["matching_products"] != None:
+        state["matching_products"].clear()
+
     response = clarify_customer_requirements_action(state["messages"])
     state["messages"].append(response)
     state["most_recent_ai_response"] = response
@@ -112,6 +117,9 @@ def clarify_customer_requirements(state):
                      e, response.content)
         state["product_attributes"] = ""
         state["attributes_confirmed"] = ""
+        if state["matching_products"] != None:
+            state["matching_products"].clear()
+
         print()
 
     if is_sufficient_attributes(state["product_attributes"]):
@@ -142,8 +150,12 @@ def match_attributes_to_product(state):
     if state["attributes_confirmed"] != True:
         return state
 
-    logger.info("<<<<<  MATCHING ATTRIBUTES TO PRODUCTS >>>>> ")
-    print("MATCHING")
+    attributes = state["product_attributes"]
+    logger.debug("Matching Attributes to Products via Semantic Search: %s", attributes)
+
+    products = product_semantic_search(attributes, 3)
+    logger.info("Matched Products!  Attributes=%s  Matching_Products=%s", attributes, products)
+    state["matching_products"] = products
 
     return state
 
@@ -243,6 +255,16 @@ def supervisor_main():
 
         print("Storefront>  ", ai_message)
         print ()
+
+        if last_step["matching_products"] is not None and len(last_step["matching_products"]) > 0:
+            print()
+            print ("Matching Products:")
+            print()
+            matchingProducts = last_step["matching_products"]
+            for p in matchingProducts:
+                print ("SKU:", p["sku"], "\tName:", p["product_name"], "\tMSRP:", (p["msrp"] / 100.00), "\tCosign Similarity:", p["cosign_similarity"])
+            print()
+
 
 if __name__ == "__main__":
     supervisor_main()

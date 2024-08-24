@@ -63,7 +63,10 @@ storefront.run: storefront.lint
 	cd storefront-svc/src && PORT=$(run_storefront_port) python app.py
 
 storefront.run.supervisor:
-	cd storefront-svc/src && python supervisor.py --show-options
+	cd storefront-svc/src && ENV_PRODUCT_SERVICE_ADDRESS=http://localhost:8083 python supervisor.py --show-options
+
+storefront.run.adapter:
+	cd storefront-svc/src && ENV_PRODUCT_SERVICE_ADDRESS=http://localhost:8083 python service_adapter.py
 
 storefront.test:
 	cd storefront-svc/src && pytest -o log_cli=true --log-cli-level=INFO
