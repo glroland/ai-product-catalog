@@ -47,3 +47,49 @@ def get_most_recent_ai_response(response_json):
     ai_response_str = ai_response_json["Response"]
     logger.debug("AI Message Response: %s", ai_response_str)
     return ai_response_str
+
+
+def get_most_recent_ai_attributes(response_json):
+    """ Get the Most Recent AI recommended attributes from the Provided State
+    
+    response_json - last state
+    """
+    ai_response = response_json["most_recent_ai_response"]["content"]
+    logger.debug("Most Recent AI Response: %s", ai_response)
+    print("Most Recent AI Response: " + str(ai_response))
+
+    try:
+        ai_response_json = json.loads(ai_response)
+    except json.decoder.JSONDecodeError as e:
+        msg = "Cannot decode AI Response: " + ai_response
+        print(msg, e)
+        logger.error(msg, e)
+        return ""
+
+    ai_attributes = ai_response_json["Attributes"]
+    logger.debug("AI Attributes: %s", ai_attributes)
+    return ai_attributes
+
+
+def get_matching_products(response_json):
+    """ Get matching products from the last LLM response.
+    
+    response_json - state
+    """
+    matching_products = response_json["matching_products"]
+    logger.debug("Matching Products: %s", matching_products)
+    return matching_products
+
+
+def comma_seperated_to_markdown(string_value):
+    """ Convert a comman delimitted list of strings to a markdown list of items.
+    
+    string_value - comma delimitted list
+    """
+    markdown = ""
+    if string_value is not None:
+        if len(string_value) > 0:
+            value_list = string_value.split(",")
+            for value in value_list:
+                markdown = markdown + "- " + value + "\n"
+    return markdown

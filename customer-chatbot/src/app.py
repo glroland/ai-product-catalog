@@ -5,15 +5,24 @@ retail store.
 """
 import streamlit as st
 from api_utils import invoke_chat_api
-from state_utils import get_most_recent_ai_response, is_qualified_customer
+from state_utils import get_most_recent_ai_response
+from state_utils import get_most_recent_ai_attributes
+from state_utils import is_qualified_customer
+from state_utils import comma_seperated_to_markdown
+from state_utils import get_matching_products
 
+# Initialize Streamlit State
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 if "last_state" not in st.session_state:
     st.session_state["last_state"] = ""
+if "identified_attributes" not in st.session_state:
+    st.session_state["identified_attributes"] = ""
+if "recommended_products" not in st.session_state:
+    st.session_state["recommended_products"] = ""
 
+# Initialize High Level Page Structure
 st.title("💬 Let's GOOOOO!!!! Shoe Store")
-
 st.markdown("""
     <style>
         .reportview-container {
@@ -26,33 +35,23 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Build Side Bar
 with st.sidebar:
+    # Additional Details
     st.subheader("Identified Attributes", divider=True)
-    st.markdown(
-        """
-        - Item 1
-        - Item 2
-        - Item 3
-        """
-        )
+    st.markdown(comma_seperated_to_markdown(st.session_state["identified_attributes"]))
+
     st.subheader("Product Recommendations", divider=True)
-    st.markdown(
-        """
-        - Item 1
-        - Item 2
-        - Item 3
-        """
-        )
+    st.markdown(comma_seperated_to_markdown(st.session_state["recommended_products"]))
 
+# Initialize Chat Box
 messages = st.container(height=300)
-
 messages.chat_message("assistant").write("Thank you for visiting our store.  How may we help you?")
-
 for msg in st.session_state.messages:
     messages.chat_message(msg["role"]).write(msg["content"])
 
+# Gather and log user prompt
 if prompt := st.chat_input():
-    # Gather and log user prompt
     print ("User Input: " + prompt)
     messages.chat_message("user").write(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -69,10 +68,25 @@ if prompt := st.chat_input():
             "I'm sorry, but this is a shoe store.  Please leave the " + \
                       "premises before I call the police."
         )
+
+        # Reset the state
+        st.session_state["messages"] = []
+        st.session_state["last_state"] = ""
+
     else:
         # Get AI Response to Latest Inquiry
         ai_response = get_most_recent_ai_response(state)
         print ("AI Response Message: " + ai_response)
+
+        # Get AI Product Attributes
+        st.session_state["identified_attributes"] = get_most_recent_ai_attributes(state)
+        if st.session_state["identified_attributes"] is not None:
+            print ("AI Product Attributes: ", st.session_state["identified_attributes"])
+
+        # Get Matching Products
+        st.session_state["recommended_products"] = get_matching_products(state)
+        if st.session_state["recommended_products"] is not None:
+            print ("Matching Products: " + st.session_state["recommended_products"])
 
         # Append AI Response to history
         st.session_state.messages.append({"role": "assistant",
