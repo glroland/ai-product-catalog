@@ -1,13 +1,18 @@
-import requests
+""" Product Service Gateway
+
+Used to access functionality in th product service.
+"""
 import os
 import logging
 from typing import TypedDict, List
+import requests
 
 
 logger = logging.getLogger(__name__)
 
 
 ENV_PRODUCT_SERVICE_ADDRESS = "ENV_PRODUCT_SERVICE_ADDRESS"
+DEFAULT_TIMEOUT = 30
 
 
 class Product(TypedDict):
@@ -34,31 +39,33 @@ def product_semantic_search(attributes, limit = 3):
         service_address = os.environ[ENV_PRODUCT_SERVICE_ADDRESS]
     logger.info("Using Product Service Address: %s", service_address)
 
-    userMessage = attributes
+    user_message = attributes
 
     url = service_address + "/similaritysearch"
-    logger.debug("Semantic Search URL: %s with the following data: %s", url, userMessage)
-    response = requests.post(url, data={"userMessage": userMessage, "limit": limit})
+    logger.debug("Semantic Search URL: %s with the following data: %s", url, user_message)
+    response = requests.post(url,
+                             data={"userMessage": user_message, "limit": limit},
+                             timeout=DEFAULT_TIMEOUT)
 
     if response.status_code != 200:
         msg = "Received Error Response from Products Service: " + str(response.status_code)
         logger.error(msg)
-        raise Exception(msg)
+        raise ConnectionError(msg)
 
     products = response.json()
     print ("Response:", products)
 
 
-    matchingProducts: List[Product] = []
+    matching_products: List[Product] = []
     for product in products:
         p: Product = {'sku': product["sku"],
                       'product_name': product["productName"],
                       'msrp': product["msrp"] * 100.00,
                       'cosign_similarity': product["cosignSimilarity"]}
-        matchingProducts.append(p)
+        matching_products.append(p)
 
-    logger.info("Matching Products: %s", matchingProducts)
-    return matchingProducts
+    logger.info("Matching Products: %s", matching_products)
+    return matching_products
 
 
 def service_adapter_main():
@@ -92,9 +99,12 @@ def service_adapter_main():
         elif user_input.startswith("3"):
             user_input = option_3
 
-        matchingProducts = product_semantic_search(user_input, 5)
-        for p in matchingProducts:
-            print ("SKU:", p["sku"], "\tName:", p["product_name"], "\tMSRP:", (p["msrp"] / 100.00), "\tCosign Similarity:", p["cosign_similarity"])
+        matching_products = product_semantic_search(user_input, 5)
+        for p in matching_products:
+            print ("SKU:", p["sku"],
+                   "\tName:", p["product_name"],
+                   "\tMSRP:", (p["msrp"] / 100.00),
+                   "\tCosign Similarity:", p["cosign_similarity"])
 
         print ()
 

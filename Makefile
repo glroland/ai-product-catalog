@@ -59,7 +59,7 @@ storefront.lint:
 storefront.install:
 	cd storefront-svc && pip install -r requirements.txt
 
-storefront.run: storefront.lint
+storefront.run: #storefront.lint
 	cd storefront-svc/src && PORT=$(run_storefront_port) python app.py
 
 storefront.run.supervisor:

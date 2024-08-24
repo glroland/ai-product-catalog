@@ -89,6 +89,7 @@ def is_attributes_confirmed(state: CustomerVisitState) -> \
     return "clarify_customer_requirements"
 
 
+# pylint disable=W0718
 def clarify_customer_requirements(state):
     """ Attempt to clarify customer purchasing needs node.
 
@@ -102,7 +103,7 @@ def clarify_customer_requirements(state):
 
     logger.debug ("Message History and Latest User Message prior to LLM>>  %s", state["messages"])
 
-    if state["matching_products"] != None:
+    if state["matching_products"] is not None:
         state["matching_products"].clear()
 
     response = clarify_customer_requirements_action(state["messages"])
@@ -117,7 +118,7 @@ def clarify_customer_requirements(state):
                      e, response.content)
         state["product_attributes"] = ""
         state["attributes_confirmed"] = ""
-        if state["matching_products"] != None:
+        if state["matching_products"] is not None:
             state["matching_products"].clear()
 
         print()
@@ -131,14 +132,19 @@ def clarify_customer_requirements(state):
 
 
 def is_sufficient_attributes(attributes):
-    if type(attributes) != str or len(attributes) == 0:
+    """ Check attributes to see if there is sufficient quanitity and quality to
+        proceed.
+
+        attributes - delimited string containing attribute data
+    """
+    if not isinstance(attributes, str) or len(attributes) == 0:
         return False
 
     alist = attributes.split(",")
 
     if len(alist) >= 2:
         return True
-    
+
     return False
 
 
@@ -146,8 +152,8 @@ def match_attributes_to_product(state):
     """ Take the shoe attributes gathered from the customer and attempt to
         match available products to them.  """
     logger.debug("match_attributes_to_product")
-    
-    if state["attributes_confirmed"] != True:
+
+    if state["attributes_confirmed"] is not True:
         return state
 
     attributes = state["product_attributes"]
@@ -222,7 +228,9 @@ def supervisor_main():
     graph = build_customer_visit_graph()
     config = {"configurable": {"thread_id": "interactive_chat_mode"}}
 
-    option_1 = "I would like a pair of Air Jordans by Nike that have a retro look and are high tops.  I'm planning to use these for aggressive weekend pickup games with my friends.  I do not have a color preference."
+    option_1 = "I would like a pair of Air Jordans by Nike that have a retro look and are " + \
+               "high tops.  I'm planning to use these for aggressive weekend pickup games " +\
+               "with my friends.  I do not have a color preference."
     option_2 = "I'm looking for tennis shoes for my teenage son who is starting high " + \
                "school next week."
     option_3 = "What running shoes do you have?"
@@ -260,9 +268,12 @@ def supervisor_main():
             print()
             print ("Matching Products:")
             print()
-            matchingProducts = last_step["matching_products"]
-            for p in matchingProducts:
-                print ("SKU:", p["sku"], "\tName:", p["product_name"], "\tMSRP:", (p["msrp"] / 100.00), "\tCosign Similarity:", p["cosign_similarity"])
+            matching_products = last_step["matching_products"]
+            for p in matching_products:
+                print ("SKU:", p["sku"],
+                       "\tName:", p["product_name"],
+                       "\tMSRP:", (p["msrp"] / 100.00),
+                       "\tCosign Similarity:", p["cosign_similarity"])
             print()
 
 
