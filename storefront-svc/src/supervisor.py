@@ -65,6 +65,9 @@ def check_attributes(state: CustomerVisitState):
     
         state - langgraph state
     """
+    print ("State>", state)
+    logger.info("State> %s", state)
+
     if isinstance(state["attributes_confirmed"], bool) and state["attributes_confirmed"]:
         if len(state["product_attributes"].strip()) == 0:
             state["attributes_confirmed"] = False
@@ -104,7 +107,6 @@ def clarify_customer_requirements(state):
     try:
         response_json = json.loads(response.content)
         state["product_attributes"] = response_json["Attributes"]
-        state["attributes_confirmed"] = response_json["Confirmed"]
     except Exception as e:
         logger.error("LLM produced unexpected response.  Exception=%s Response=%s",
                      e, response.content)
@@ -112,15 +114,37 @@ def clarify_customer_requirements(state):
         state["attributes_confirmed"] = ""
         print()
 
+    if is_sufficient_attributes(state["product_attributes"]):
+        state["attributes_confirmed"] = True
+    else:
+        state["attributes_confirmed"] = False
+
     return state
+
+
+def is_sufficient_attributes(attributes):
+    if type(attributes) != str or len(attributes) == 0:
+        return False
+
+    alist = attributes.split(",")
+
+    if len(alist) >= 2:
+        return True
+    
+    return False
 
 
 def match_attributes_to_product(state):
     """ Take the shoe attributes gathered from the customer and attempt to
         match available products to them.  """
     logger.debug("match_attributes_to_product")
-    logger.INFO("<<<<<  MATCHING ATTRIBUTES TO PRODUCTS >>>>> ")
+    
+    if state["attributes_confirmed"] != True:
+        return state
+
+    logger.info("<<<<<  MATCHING ATTRIBUTES TO PRODUCTS >>>>> ")
     print("MATCHING")
+
     return state
 
 
@@ -135,6 +159,7 @@ def build_customer_visit_graph():
     store_builder.add_node("clarify_customer_requirements", clarify_customer_requirements)
     store_builder.add_node("match_attributes_to_product", match_attributes_to_product)
     store_builder.add_edge(START, "qualify_customer")
+    store_builder.add_edge("clarify_customer_requirements", "match_attributes_to_product")
     store_builder.add_conditional_edges("qualify_customer", is_customer_qualified)
     store_builder.add_conditional_edges("check_attributes", is_attributes_confirmed)
     store_builder.add_edge("match_attributes_to_product", END)
