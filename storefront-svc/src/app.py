@@ -31,7 +31,7 @@ def main():
     # Setup Logging
     logging.basicConfig(level=logging.DEBUG,
         handlers=[
-            logging.FileHandler("storefront-svc.log"),
+            # no need from a docker container - logging.FileHandler("storefront-svc.log"),
             logging.StreamHandler()
         ])
 

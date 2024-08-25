@@ -14,7 +14,7 @@ from state_utils import get_matching_products
 
 logging.basicConfig(level=logging.DEBUG,
     handlers=[
-        logging.FileHandler("customer-chatbot.log"),
+        # no need from a docker container - logging.FileHandler("customer-chatbot.log"),
         logging.StreamHandler()
     ])
 
