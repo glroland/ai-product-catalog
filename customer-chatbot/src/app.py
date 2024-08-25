@@ -47,12 +47,15 @@ def process_user_message(prompt):
     # Was the customer qualified?
     if not is_qualified_customer(state):
         messages.chat_message("assistant").write(
-            "I'm sorry but this is a shoe store.  We are unable to help you with that."
+            "I'm sorry but this is a shoe store.  We are unable to help you with that question." +
+            "However, we would love to sell you a new pair of shoes!"
         )
 
         # Reset the state
         st.session_state["messages"] = []
         st.session_state["last_state"] = ""
+        st.session_state["identified_attributes"] = ""
+        st.session_state["recommended_products"] = ""
 
     else:
         # Get AI Response to Latest Inquiry
