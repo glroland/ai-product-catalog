@@ -5,7 +5,6 @@ inquiries and deferral to other agents.
 """
 import logging
 import json
-import uuid
 import sys
 from typing import TypedDict, Annotated, Literal
 from langgraph.checkpoint.memory import MemorySaver
@@ -214,7 +213,7 @@ def inquiry_by_customer(user_input, client_id):
                 config,
                 #debug=True
             )
-    
+
     logger.debug("State resulting from invoke: %s", final_state)
     return final_state
 

@@ -3,7 +3,6 @@
 Virtual Storefront API
 """
 import os
-import uuid
 import logging
 import uvicorn
 from fastapi import FastAPI, Request, status
