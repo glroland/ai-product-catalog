@@ -42,7 +42,7 @@ def get_most_recent_ai_response(response_json):
         print(msg, e)
         logger.error(msg, e)
 
-        return ai_response
+        return "DECODE_ERROR - " + str(ai_response)
 
     ai_response_str = ai_response_json["Response"]
     logger.debug("AI Message Response: %s", ai_response_str)
@@ -64,7 +64,7 @@ def get_most_recent_ai_attributes(response_json):
         msg = "Cannot decode AI Response: " + ai_response
         print(msg, e)
         logger.error(msg, e)
-        return ""
+        return "DECODE_ERROR"
 
     ai_attributes = ai_response_json["Attributes"]
     logger.debug("AI Attributes: %s", ai_attributes)
@@ -76,20 +76,30 @@ def get_matching_products(response_json):
     
     response_json - state
     """
-    matching_products = response_json["matching_products"]
+    matching_products = ""
+    if "matching_products" in response_json:
+        matching_products = response_json["matching_products"]
+    if matching_products is None:
+        matching_products = ""
     logger.debug("Matching Products: %s", matching_products)
     return matching_products
 
 
-def comma_seperated_to_markdown(string_value):
+def comma_seperated_to_markdown(value):
     """ Convert a comman delimitted list of strings to a markdown list of items.
     
-    string_value - comma delimitted list
+    value - comma delimitted list or list of strings
     """
     markdown = ""
-    if string_value is not None:
-        if len(string_value) > 0:
-            value_list = string_value.split(",")
-            for value in value_list:
-                markdown = markdown + "- " + value + "\n"
+    if value is not None:
+        if isinstance(value, list):
+            for v in value:
+                markdown = markdown + "- " + v + "\n"
+        elif isinstance(value, str):
+            if len(value) > 0:
+                value_list = value.split(",")
+                for value in value_list:
+                    markdown = markdown + "- " + value + "\n"        
+        else:
+            markdown = "UNKNOWN TYPE - " + str(value)
     return markdown
