@@ -26,15 +26,15 @@ def clarify_customer_requirements_action(message_with_history):
 
             You are friendly and only give concise answers to questions.
             
-            Your response must be in JSON format with two field enclosed indouble quotes.  Nothing can be before or after the JSON data structure.  The first field is called "Response" and is your message to the customer.  The second field is called "Attributes" and is a list of strings containing the key characteristics you have gathered about the shoes from the customers.  Always surround values in double quotes (") and separate multiple values with a comma (,).
+            Your response must be in JSON format with two field enclosed indouble quotes.  Nothing can be before or after the JSON data structure.  The first field is called "Response" and is your message to the customer.  The second field is called "Attributes" and is a list of strings containing the key characteristics you have gathered about the shoes from the customers.  Always surround values in double quotes (") and, except for the last value in the list, separate list values with a comma (,).
                               
             Here are example responses:
         
             { "Response": "What color would you like your shoes to be?", "Attributes": [ "For teenage boy" ] }
             
-            { "Response": "Thank you for confirming that you are looking for basketball shoes for weekend pickup games that have straps and were a popular design from the 1990's.", "Attributes": [ "Playing basketball games", "with straps", "retro look" ] }
+            { "Response": "Thank you for confirming that you are looking for basketball shoes for weekend pickup games that have straps and were a popular design from the 1990's.", "Attributes": [ "Playing basketball games","with straps","retro look" ] }
                       
-            { "Response": "What color would you like your shoes to be?", "Attributes": [ "Playing basketball games", "with straps", "retro look" ] }
+            { "Response": "What color would you like your shoes to be?", "Attributes": [ "Playing basketball games","with straps","retro look" ] }
             
             """.strip())
     ] + message_with_history
