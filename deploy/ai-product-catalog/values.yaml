@@ -7,9 +7,9 @@ serviceAccount:
 global:
 
   appconfig:
-    inference-url: http://ocpbmwork:11434
-    inference-engine: ollama
-    inference-model: llama3.1
+    inferenceUrl: http://ocpbmwork:11434
+    inferenceEngine: ollama
+    inferenceModel: llama3.1
 
   image:
     repository: registry.home.glroland.com/ai-product-catalog/

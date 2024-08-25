@@ -9,7 +9,7 @@ data:
     spring.application.name=ai-product-catalog
 
     # Default Chat Model
-    ai-product-catalog.default-chat-model={{ .Values.global.appconfig.inference-engine }}
+    ai-product-catalog.default-chat-model={{ .Values.global.appconfig.inferenceEngine }}
 
     # Default Model Values (applied to all)
     ai-product-catalog.max-tokens=100
@@ -22,11 +22,11 @@ data:
     ai-product-catalog.hf-api-key=${HF_TOKEN}
 
     # Agent w/Tool Assist Model Configuration 
-    ai-product-catalog.{{ .Values.global.appconfig.inference-engine }}.inference-endpoint={{ .Values.global.appconfig.inference-url }}
-    ai-product-catalog.{{ .Values.global.appconfig.inference-engine }}.api-key=no-key-needed
-    ai-product-catalog.{{ .Values.global.appconfig.inference-engine }}.agent-model-name={{ .Values.global.appconfig.inference-model }}
-    ai-product-catalog.{{ .Values.global.appconfig.inference-engine }}.embedding-model={{ .Values.global.appconfig.inference-model }}
-    #ai-product-catalog.{{ .Values.global.appconfig.inference-engine }}.embeddings-dimensions=384
+    ai-product-catalog.{{ .Values.global.appconfig.inferenceEngine }}.inference-endpoint={{ .Values.global.appconfig.inferenceUrl }}
+    ai-product-catalog.{{ .Values.global.appconfig.inferenceEngine }}.api-key=no-key-needed
+    ai-product-catalog.{{ .Values.global.appconfig.inferenceEngine }}.agent-model-name={{ .Values.global.appconfig.inferenceModel }}
+    ai-product-catalog.{{ .Values.global.appconfig.inferenceEngine }}.embedding-model={{ .Values.global.appconfig.inferenceModel }}
+    #ai-product-catalog.{{ .Values.global.appconfig.inferenceEngine }}.embeddings-dimensions=384
 
     # Database Configuration
     spring.datasource.driver-class-name=org.postgresql.Driver
