@@ -9,7 +9,7 @@ data:
     spring.application.name=ai-product-catalog
 
     # Default Chat Model
-    ai-product-catalog.default-chat-model=openai
+    ai-product-catalog.default-chat-model={{ .Values.global.appconfig.inference-engine }}
 
     # Default Model Values (applied to all)
     ai-product-catalog.max-tokens=100
@@ -22,11 +22,11 @@ data:
     ai-product-catalog.hf-api-key=${HF_TOKEN}
 
     # Agent w/Tool Assist Model Configuration 
-    ai-product-catalog.openai.inference-endpoint=http://ocpbmwork:11434/v1
-    ai-product-catalog.openai.api-key=no-key-needed
-    ai-product-catalog.openai.agent-model-name=llama3.1
-    ai-product-catalog.openai.embedding-model=llama3.1
-    #ai-product-catalog.openai.embeddings-dimensions=384
+    ai-product-catalog.{{ .Values.global.appconfig.inference-engine }}.inference-endpoint={{ .Values.global.appconfig.inference-url }}
+    ai-product-catalog.{{ .Values.global.appconfig.inference-engine }}.api-key=no-key-needed
+    ai-product-catalog.{{ .Values.global.appconfig.inference-engine }}.agent-model-name={{ .Values.global.appconfig.inference-model }}
+    ai-product-catalog.{{ .Values.global.appconfig.inference-engine }}.embedding-model={{ .Values.global.appconfig.inference-model }}
+    #ai-product-catalog.{{ .Values.global.appconfig.inference-engine }}.embeddings-dimensions=384
 
     # Database Configuration
     spring.datasource.driver-class-name=org.postgresql.Driver
@@ -38,6 +38,7 @@ data:
     spring.servlet.multipart.file-size-threshold=2KB
     spring.servlet.multipart.max-file-size=200MB
     spring.servlet.multipart.max-request-size=215MB
+    server.connection-timeout=5000
 
     # Logging Configuration
     logging.level.com.glroland=DEBUG

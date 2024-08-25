@@ -1,6 +1,5 @@
 package com.glroland.ai.catalog.ragagent;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -12,35 +11,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.glroland.ai.catalog.ChatLanguageModelFactory;
 import com.glroland.ai.catalog.product.Product;
-import com.glroland.ai.catalog.product.SimilarProduct;
 import com.glroland.ai.catalog.product.ProductDAO;
+import com.glroland.ai.catalog.product.SimilarProduct;
 
-import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.Metadata;
-import dev.langchain4j.data.document.splitter.DocumentBySentenceSplitter;
 import dev.langchain4j.data.embedding.Embedding;
-import dev.langchain4j.data.message.ChatMessage;
-import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.Response;
-import dev.langchain4j.rag.AugmentationRequest;
-import dev.langchain4j.rag.AugmentationResult;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
-import dev.langchain4j.rag.content.injector.ContentInjector;
-import dev.langchain4j.rag.content.injector.DefaultContentInjector;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
-import dev.langchain4j.rag.query.transformer.CompressingQueryTransformer;
-import dev.langchain4j.rag.query.transformer.QueryTransformer;
-import dev.langchain4j.service.AiServices;
-import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
-import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import dev.langchain4j.rag.query.router.DefaultQueryRouter;
+import dev.langchain4j.service.AiServices;
+import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 
 @RestController
 public class RagChatServiceController 
@@ -79,7 +66,7 @@ public class RagChatServiceController
         // Find and store related embeddings
         List<SimilarProduct> similarProducts = productDAO.similaritySearch(hfUserMessageEmbedding.vector(), LIMIT);
 
-        EmbeddingModel openaiEmbeddingModel = chatLanguageModelFactory.createOpenAiEmbeddingModel();
+        EmbeddingModel embeddingModel = chatLanguageModelFactory.createDefaultEmbeddingModel();
 
         // process matches
         InMemoryEmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
@@ -88,7 +75,7 @@ public class RagChatServiceController
             for (Product product : similarProducts)
             {
                 String text = product.getProductName() + " " + product.getProductDescription();
-                Response<Embedding> productEmbeddingResponse = openaiEmbeddingModel.embed(text);
+                Response<Embedding> productEmbeddingResponse = embeddingModel.embed(text);
                 if (productEmbeddingResponse == null)
                 {
                     String message = "Unable to create embedding for product text segment due to null response: " + text;
@@ -104,11 +91,11 @@ public class RagChatServiceController
         }
 
         // Send related embeddings to LLM for inclusion in user message
-        ChatLanguageModel chatLanguageModel = chatLanguageModelFactory.createOpenAi();
+        ChatLanguageModel chatLanguageModel = chatLanguageModelFactory.createDefault();
 
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
                 .embeddingStore(embeddingStore)
-                .embeddingModel(openaiEmbeddingModel)
+                .embeddingModel(embeddingModel)
 //                .maxResults(2)
 //                .minScore(0.6)
                 .build();

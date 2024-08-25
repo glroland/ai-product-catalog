@@ -2,10 +2,6 @@ package com.glroland.ai.catalog.pdf;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -19,12 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.glroland.ai.catalog.ChatLanguageModelFactory;
-import com.glroland.ai.catalog.ConfigManager;
-import com.glroland.ai.catalog.product.Product;
-import com.glroland.ai.catalog.ragagent.ProductEmbedding;
 
 import dev.langchain4j.data.document.Document;
-import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.document.parser.apache.pdfbox.ApachePdfBoxDocumentParser;
 import dev.langchain4j.data.document.splitter.DocumentByParagraphSplitter;
 import dev.langchain4j.data.embedding.Embedding;
@@ -128,7 +120,7 @@ public class PdfServiceController
 
     private String summarizeChunk(String prompt, TextSegment textSegment)
     {
-        EmbeddingModel embeddingModel = chatLanguageModelFactory.createOpenAiEmbeddingModel();
+        EmbeddingModel embeddingModel = chatLanguageModelFactory.createDefaultEmbeddingModel();
         Embedding promptEmbedding = createEmbedding(embeddingModel, prompt);
 
         // Encode text segment
@@ -137,7 +129,7 @@ public class PdfServiceController
         embeddingStore.add(textSegmentEmbedding, textSegment);
 
         // Send related embeddings to LLM for inclusion in user message
-        ChatLanguageModel chatLanguageModel = chatLanguageModelFactory.createOpenAi();
+        ChatLanguageModel chatLanguageModel = chatLanguageModelFactory.createDefault();
         
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
                 .embeddingStore(embeddingStore)

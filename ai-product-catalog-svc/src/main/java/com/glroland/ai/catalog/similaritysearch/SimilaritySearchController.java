@@ -10,13 +10,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.glroland.ai.catalog.ChatLanguageModelFactory;
-import com.glroland.ai.catalog.product.Product;
-import com.glroland.ai.catalog.product.SimilarProduct;
 import com.glroland.ai.catalog.product.ProductDAO;
+import com.glroland.ai.catalog.product.SimilarProduct;
 
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.model.output.Response;
 
 @RestController

@@ -6,9 +6,14 @@ serviceAccount:
 
 global:
 
+  appconfig:
+    inference-url: http://ocpbmwork:11434
+    inference-engine: ollama
+    inference-model: llama3.1
+
   image:
     repository: registry.home.glroland.com/ai-product-catalog/
-    tag: 6
+    tag: 7
     pullPolicy: IfNotPresent
     pullSecret: ai-product-catalog-ocp4-pull-secret
 

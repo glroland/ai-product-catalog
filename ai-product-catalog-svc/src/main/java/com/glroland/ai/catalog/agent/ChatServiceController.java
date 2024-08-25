@@ -10,12 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.glroland.ai.catalog.ChatLanguageModelFactory;
 import com.glroland.ai.catalog.ConfigManager;
 
-import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
-import dev.langchain4j.memory.chat.TokenWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.openai.OpenAiTokenizer;
 import dev.langchain4j.service.AiServices;
 import io.micrometer.common.util.StringUtils;
 
@@ -56,7 +52,7 @@ public class ChatServiceController
 
     private String chatWithTool(String userMessage)
     {
-        ChatLanguageModel chatLanguageModel = chatLanguageModelFactory.createOpenAi();
+        ChatLanguageModel chatLanguageModel = chatLanguageModelFactory.createDefault();
 
         ProductToolEnabledChatAgent agent = AiServices.builder(ProductToolEnabledChatAgent.class)
                 .chatLanguageModel(chatLanguageModel)
@@ -72,7 +68,7 @@ public class ChatServiceController
 
     private String simpleChat(String userMessage)
     {
-        ChatLanguageModel chatLanguageModel = chatLanguageModelFactory.createOpenAi();
+        ChatLanguageModel chatLanguageModel = chatLanguageModelFactory.createDefault();
 
         SimpleChatAgent agent = AiServices.builder(SimpleChatAgent.class)
                 .chatLanguageModel(chatLanguageModel)

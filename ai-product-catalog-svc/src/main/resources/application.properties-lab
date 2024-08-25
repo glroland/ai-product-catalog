@@ -1,7 +1,7 @@
 spring.application.name=ai-product-catalog
 
 # Default Chat Model
-ai-product-catalog.default-chat-model=openai
+ai-product-catalog.default-chat-model=ollama
 
 # Default Model Values (applied to all)
 ai-product-catalog.max-tokens=100
@@ -14,11 +14,11 @@ ai-product-catalog.embedding-model=sentence-transformers/all-mpnet-base-v2
 ai-product-catalog.hf-api-key=${HF_TOKEN}
 
 # Agent w/Tool Assist Model Configuration 
-ai-product-catalog.openai.inference-endpoint=http://envision:8000/v1
-ai-product-catalog.openai.api-key=no-key-needed
-ai-product-catalog.openai.agent-model-name=llama3.1
-ai-product-catalog.openai.embedding-model=llama3.1
-#ai-product-catalog.openai.embeddings-dimensions=384
+ai-product-catalog.ollama.inference-endpoint=http://ocpbmwork:11434
+ai-product-catalog.ollama.api-key=no-key-needed
+ai-product-catalog.ollama.agent-model-name=llama3.1
+ai-product-catalog.ollama.embedding-model=llama3.1
+#ai-product-catalog.ollama.embeddings-dimensions=384
 
 # Database Configuration
 spring.datasource.driver-class-name=org.postgresql.Driver
