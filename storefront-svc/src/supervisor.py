@@ -4,6 +4,7 @@ Agent that manages the virtual storefront by coordinating responses to customer
 inquiries and deferral to other agents.
 """
 import logging
+import json
 import uuid
 import sys
 from typing import TypedDict, Annotated, Literal
@@ -13,18 +14,11 @@ from langgraph.graph.message import add_messages
 from IPython.display import Image
 from customer_greeter import qualify_customer_action
 from sales_rep import clarify_customer_requirements_action
+from service_adapter import product_semantic_search, Product
 
 logger = logging.getLogger(__name__)
 
 memory = MemorySaver()
-
-class CustomerInteractionLogEntry(TypedDict):
-    """ Data structure representing a single customer interaction and its results.
-    """
-    timestamp:float
-    question:str
-    answer:str
-
 
 class CustomerVisitState(TypedDict):
     """ State structure used throughout the storefront agent process.
@@ -32,6 +26,9 @@ class CustomerVisitState(TypedDict):
     messages: Annotated[list, add_messages]
     qualified_customer: str
     most_recent_ai_response: str
+    product_attributes: str
+    attributes_confirmed: str
+    matching_products: list[Product]
 
 
 def qualify_customer(state):
@@ -54,7 +51,8 @@ def qualify_customer(state):
     return state
 
 
-def should_continue(state: CustomerVisitState) -> Literal["clarify_customer_requirements", END]:
+def is_customer_qualified(state: CustomerVisitState) -> \
+                Literal["check_attributes", END]:
     """ Determine whether the graph should proceed to clarify customer requirements or end.
 
         state - langgraph state
@@ -62,9 +60,36 @@ def should_continue(state: CustomerVisitState) -> Literal["clarify_customer_requ
     if state["qualified_customer"] != "YES":
         return END
 
+    return "check_attributes"
+
+def check_attributes(state: CustomerVisitState):
+    """ Qualified customer and now check to see if attributes are complete and confirmed. 
+    
+        state - langgraph state
+    """
+    print ("State>", state)
+    logger.info("State> %s", state)
+
+    if isinstance(state["attributes_confirmed"], bool) and state["attributes_confirmed"]:
+        if len(state["product_attributes"].strip()) == 0:
+            state["attributes_confirmed"] = False
+
+    return state
+
+def is_attributes_confirmed(state: CustomerVisitState) -> \
+        Literal["clarify_customer_requirements", "match_attributes_to_product"]:
+    """ Determine whether the graph should continue to clarify customer requirements or 
+        proceed onto matching possible products to their requests.
+
+        state - langgraph state
+    """
+    if isinstance(state["attributes_confirmed"], bool) and state["attributes_confirmed"]:
+        return "match_attributes_to_product"
+
     return "clarify_customer_requirements"
 
 
+# pylint disable=W0718
 def clarify_customer_requirements(state):
     """ Attempt to clarify customer purchasing needs node.
 
@@ -78,9 +103,65 @@ def clarify_customer_requirements(state):
 
     logger.debug ("Message History and Latest User Message prior to LLM>>  %s", state["messages"])
 
+    if state["matching_products"] is not None:
+        state["matching_products"].clear()
+
     response = clarify_customer_requirements_action(state["messages"])
     state["messages"].append(response)
     state["most_recent_ai_response"] = response
+
+    try:
+        response_json = json.loads(response.content)
+        state["product_attributes"] = response_json["Attributes"]
+    except Exception as e:
+        logger.error("LLM produced unexpected response.  Exception=%s Response=%s",
+                     e, response.content)
+        state["product_attributes"] = ""
+        state["attributes_confirmed"] = ""
+        if state["matching_products"] is not None:
+            state["matching_products"].clear()
+
+        print()
+
+    if is_sufficient_attributes(state["product_attributes"]):
+        state["attributes_confirmed"] = True
+    else:
+        state["attributes_confirmed"] = False
+
+    return state
+
+
+def is_sufficient_attributes(attributes):
+    """ Check attributes to see if there is sufficient quanitity and quality to
+        proceed.
+
+        attributes - delimited string containing attribute data
+    """
+    if not isinstance(attributes, str) or len(attributes) == 0:
+        return False
+
+    alist = attributes.split(",")
+
+    if len(alist) >= 2:
+        return True
+
+    return False
+
+
+def match_attributes_to_product(state):
+    """ Take the shoe attributes gathered from the customer and attempt to
+        match available products to them.  """
+    logger.debug("match_attributes_to_product")
+
+    if state["attributes_confirmed"] is not True:
+        return state
+
+    attributes = state["product_attributes"]
+    logger.debug("Matching Attributes to Products via Semantic Search: %s", attributes)
+
+    products = product_semantic_search(attributes, 3)
+    logger.info("Matched Products!  Attributes=%s  Matching_Products=%s", attributes, products)
+    state["matching_products"] = products
 
     return state
 
@@ -92,10 +173,14 @@ def build_customer_visit_graph():
     store_builder = StateGraph(CustomerVisitState)
 
     store_builder.add_node("qualify_customer", qualify_customer)
+    store_builder.add_node("check_attributes", check_attributes)
     store_builder.add_node("clarify_customer_requirements", clarify_customer_requirements)
+    store_builder.add_node("match_attributes_to_product", match_attributes_to_product)
     store_builder.add_edge(START, "qualify_customer")
-    store_builder.add_conditional_edges("qualify_customer", should_continue)
-    #store_builder.add_edge("qualify_customer", END)
+    store_builder.add_edge("clarify_customer_requirements", "match_attributes_to_product")
+    store_builder.add_conditional_edges("qualify_customer", is_customer_qualified)
+    store_builder.add_conditional_edges("check_attributes", is_attributes_confirmed)
+    store_builder.add_edge("match_attributes_to_product", END)
 
     return store_builder.compile(checkpointer=memory)
 
@@ -127,6 +212,13 @@ def inquiry_by_new_customer(user_input, client_id=str(uuid.uuid4())):
 
 def supervisor_main():
     """ Testing CLI for supervisor agent. """
+
+    # Setup Logging
+    logging.basicConfig(level=logging.DEBUG,
+        handlers=[
+            logging.StreamHandler()
+        ])
+
     print ("Entering Interactive Chat Mode...")
     print ()
 
@@ -143,9 +235,11 @@ def supervisor_main():
     graph = build_customer_visit_graph()
     config = {"configurable": {"thread_id": "interactive_chat_mode"}}
 
-    option_1 = "I'm looking for tennis shoes for my teenage son who is starting high " + \
+    option_1 = "I would like a pair of Air Jordans by Nike that have a retro look and are " + \
+               "high tops.  I'm planning to use these for aggressive weekend pickup games " +\
+               "with my friends.  I do not have a color preference."
+    option_2 = "I'm looking for tennis shoes for my teenage son who is starting high " + \
                "school next week."
-    option_2 = "Do you have any collectable Jordan basketball shoes?"
     option_3 = "What running shoes do you have?"
 
     while True:
@@ -176,6 +270,19 @@ def supervisor_main():
 
         print("Storefront>  ", ai_message)
         print ()
+
+        if last_step["matching_products"] is not None and len(last_step["matching_products"]) > 0:
+            print()
+            print ("Matching Products:")
+            print()
+            matching_products = last_step["matching_products"]
+            for p in matching_products:
+                print ("SKU:", p["sku"],
+                       "\tName:", p["product_name"],
+                       "\tMSRP:", (p["msrp"] / 100.00),
+                       "\tCosign Similarity:", p["cosign_similarity"])
+            print()
+
 
 if __name__ == "__main__":
     supervisor_main()

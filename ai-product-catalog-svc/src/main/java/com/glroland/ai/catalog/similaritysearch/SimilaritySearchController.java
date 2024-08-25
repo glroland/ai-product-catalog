@@ -31,7 +31,7 @@ public class SimilaritySearchController
     private ProductDAO productDAO;
 
     @PostMapping("/similaritysearch")
-    public List<SimilarProduct> similaritySearch(@RequestParam(value = "userMessage", defaultValue = "Nike Shoes") 
+    public List<SimilarProduct> similaritySearch(@RequestParam(value = "userMessage") 
                         String userMessage,
                         @RequestParam(value = "limit", defaultValue = "5") 
                         int limit)

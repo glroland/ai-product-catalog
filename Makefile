@@ -10,6 +10,7 @@ db_dba_password ?= r3dh@t123
 run_chatbot_port ?= 8080
 run_storefront_port ?= 8081
 run_greeter_port ?= 8082
+run_service_port ?= 8083
 
 
 #
@@ -42,8 +43,8 @@ chatbot.lint:
 chatbot.install:
 	cd customer-chatbot && pip install -r requirements.txt
 
-chatbot.run: chatbot.lint
-	cd customer-chatbot/src && streamlit run app.py --server.headless true --server.address 0.0.0.0 --server.port $(run_chatbot_port)
+chatbot.run: #chatbot.lint
+	cd customer-chatbot/src && AI_BACKEND_ENDPOINT=http://localhost:$(run_storefront_port) streamlit run app.py --server.headless true --server.address 0.0.0.0 --server.port $(run_chatbot_port)
 
 chatbot.build: chatbot.lint
 	cd customer-chatbot && podman build -t registry.home.glroland.com/ai-product-catalog/chatbot:latest . --platform linux/amd64
@@ -58,14 +59,17 @@ storefront.lint:
 storefront.install:
 	cd storefront-svc && pip install -r requirements.txt
 
-storefront.run: storefront.lint
+storefront.run: #storefront.lint
 	cd storefront-svc/src && PORT=$(run_storefront_port) python app.py
 
 storefront.run.supervisor:
-	cd storefront-svc/src && python supervisor.py --show-options
+	cd storefront-svc/src && ENV_PRODUCT_SERVICE_ADDRESS=http://localhost:8083 python supervisor.py --show-options
+
+storefront.run.adapter:
+	cd storefront-svc/src && ENV_PRODUCT_SERVICE_ADDRESS=http://localhost:8083 python service_adapter.py
 
 storefront.test:
-	cd storefront-svc/src && pytest -o log_cli=true --log-cli-level=INFO
+	cd storefront-svc && pytest -o log_cli=true --log-cli-level=INFO
 
 storefront.build: storefront.lint
 	cd storefront-svc && podman build -t registry.home.glroland.com/ai-product-catalog/storefront:latest . --platform linux/amd64
@@ -91,7 +95,7 @@ customer-greeter-agent.build: customer-greeter-agent.lint
 # AI Product Catalog Service Lifecycle Actions
 #
 service.run:
-	cd ai-product-catalog-svc && mvn spring-boot:run
+	cd ai-product-catalog-svc && mvn spring-boot:run -Dspring-boot.run.jvmArguments="-Dserver.port=$(run_service_port)"
 
 service.build:
 	cd ai-product-catalog-svc && mvn clean package
@@ -110,3 +114,5 @@ publish:
 	podman push registry.home.glroland.com/ai-product-catalog/customer-greeter-agent:latest --tls-verify=false
 
 install: data.install chatbot.install customer-greeter-agent.install storefront.install
+
+lint: chatbot.lint storefront.lint data.lint

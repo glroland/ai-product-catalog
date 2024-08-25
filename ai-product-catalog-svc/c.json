@@ -1,0 +1,22 @@
+{'messages': [
+        {'content': "[{'role': 'user', 'content': 'hello'}]", 'additional_kwargs': {}, 'response_metadata': {}, 'type': 'human', 'name': None, 'id': 'ca499c81-cc8e-41cb-9943-f620412f9e2d', 'example': False
+        },
+        {'content': '{
+                "Response": "Hi there! I\'m so glad you visited our shoe store. What brings you here today?",
+                "Attributes": ""
+            }', 'additional_kwargs': {'refusal': None
+            }, 'response_metadata': {'token_usage': {'completion_tokens': 30, 'prompt_tokens': 330, 'total_tokens': 360
+                }, 'model_name': 'llama3.1', 'system_fingerprint': 'fp_ollama', 'finish_reason': 'stop', 'logprobs': None
+            }, 'type': 'ai', 'name': None, 'id': 'run-2f4761a1-7761-4d0a-bee3-336324607ad2-0', 'example': False, 'tool_calls': [], 'invalid_tool_calls': [], 'usage_metadata': {'input_tokens': 330, 'output_tokens': 30, 'total_tokens': 360
+            }
+        }
+    ], 'qualified_customer': 'YES', 'most_recent_ai_response': {'content': '{
+            "Response": "Hi there! I\'m so glad you visited our shoe store. What brings you here today?",
+            "Attributes": ""
+        }', 'additional_kwargs': {'refusal': None
+        }, 'response_metadata': {'token_usage': {'completion_tokens': 30, 'prompt_tokens': 330, 'total_tokens': 360
+            }, 'model_name': 'llama3.1', 'system_fingerprint': 'fp_ollama', 'finish_reason': 'stop', 'logprobs': None
+        }, 'type': 'ai', 'name': None, 'id': 'run-2f4761a1-7761-4d0a-bee3-336324607ad2-0', 'example': False, 'tool_calls': [], 'invalid_tool_calls': [], 'usage_metadata': {'input_tokens': 330, 'output_tokens': 30, 'total_tokens': 360
+        }
+    }, 'product_attributes': '', 'attributes_confirmed': False, 'matching_products': None
+}
