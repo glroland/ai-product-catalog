@@ -37,10 +37,10 @@ def get_most_recent_ai_response(response_json):
 
     try:
         ai_response_json = json.loads(ai_response)
-    except json.decoder.JSONDecodeError as e:
+    except json.decoder.JSONDecodeError as exception:
         msg = "Cannot decode AI Response: " + ai_response
-        print(msg, e)
-        logger.error(msg, e)
+        print(msg, exception)
+        logger.error(msg, exception)
 
         return "DECODE_ERROR - " + str(ai_response)
 
@@ -60,10 +60,10 @@ def get_most_recent_ai_attributes(response_json):
 
     try:
         ai_response_json = json.loads(ai_response)
-    except json.decoder.JSONDecodeError as e:
+    except json.decoder.JSONDecodeError as exception:
         msg = "Cannot decode AI Response: " + ai_response
-        print(msg, e)
-        logger.error(msg, e)
+        print(msg, exception)
+        logger.error(msg, exception)
         return "DECODE_ERROR"
 
     ai_attributes = ai_response_json["Attributes"]
@@ -93,13 +93,13 @@ def comma_seperated_to_markdown(value):
     markdown = ""
     if value is not None:
         if isinstance(value, list):
-            for v in value:
-                markdown = markdown + "- " + v + "\n"
+            for value_entry in value:
+                markdown = markdown + "- " + value_entry + "\n"
         elif isinstance(value, str):
             if len(value) > 0:
                 value_list = value.split(",")
-                for value in value_list:
-                    markdown = markdown + "- " + value + "\n"        
+                for value_entry in value_list:
+                    markdown = markdown + "- " + value_entry + "\n"
         else:
             markdown = "UNKNOWN TYPE - " + str(value)
     return markdown

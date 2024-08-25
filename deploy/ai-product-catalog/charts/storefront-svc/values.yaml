@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  name: storefront-svc
+  name: storefront
   port: 8080
 
 nameOverride: ""

@@ -71,7 +71,7 @@ storefront.run.adapter:
 storefront.test:
 	cd storefront-svc && pytest -o log_cli=true --log-cli-level=INFO
 
-storefront.build: storefront.lint
+storefront.build: #storefront.lint
 	cd storefront-svc && podman build -t registry.home.glroland.com/ai-product-catalog/storefront:latest . --platform linux/amd64
 
 
@@ -105,13 +105,13 @@ service.build:
 #
 # Full Application Lifecycle Actions
 #
-build: service.build chatbot.build customer-greeter-agent.build storefront.build
+build: service.build chatbot.build storefront.build #customer-greeter-agent.build
 
 publish:
 	podman push registry.home.glroland.com/ai-product-catalog/svc:latest --tls-verify=false
 	podman push registry.home.glroland.com/ai-product-catalog/chatbot:latest --tls-verify=false
 	podman push registry.home.glroland.com/ai-product-catalog/storefront:latest --tls-verify=false
-	podman push registry.home.glroland.com/ai-product-catalog/customer-greeter-agent:latest --tls-verify=false
+	#podman push registry.home.glroland.com/ai-product-catalog/customer-greeter-agent:latest --tls-verify=false
 
 install: data.install chatbot.install customer-greeter-agent.install storefront.install
 
