@@ -4,6 +4,7 @@ Chatbot emulating the customer experience for intereacting with a virtual
 retail store.
 """
 import logging
+import uuid
 import streamlit as st
 from api_utils import invoke_chat_api
 from state_utils import get_most_recent_ai_response
@@ -19,6 +20,8 @@ logging.basicConfig(level=logging.DEBUG,
     ])
 
 # Initialize Streamlit State
+if "client_id" not in st.session_state:
+    st.session_state["client_id"] = str(uuid.uuid4())
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 if "last_state" not in st.session_state:
@@ -40,7 +43,7 @@ def process_user_message(prompt):
     print ("st.session_state.messages", st.session_state.messages)
 
     # Invoke Backend API
-    state = invoke_chat_api(prompt, st.session_state["last_state"])
+    state = invoke_chat_api(prompt, st.session_state["client_id"])
     print("State:", state)
     st.session_state["last_state"] = state
 

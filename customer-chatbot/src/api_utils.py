@@ -25,16 +25,16 @@ def get_ai_backend_endpoint():
     logger.debug("AI Backend Endpoint: %s", url)
     return url
 
-def invoke_chat_api(user_message, prior_state = ""):
+def invoke_chat_api(user_message, client_id):
     """ Invokes the backend chat API.
     
     user_message - user message (clean string)
-    prior_state - ongoing message state for langgraph
+    client_id - unique client id
     """
     chat_url = get_ai_backend_endpoint() + "/chat"
     chat_params = {
         "user_message": f"{user_message}",
-        "prior_state": f"{prior_state}"
+        "client_id": f"{client_id}"
     }
     logger.info ("invoke_chat_api() chat_url: %s  chat_params: %s", chat_url, chat_params)
     response = requests.post(chat_url,

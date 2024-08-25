@@ -18,8 +18,6 @@ from service_adapter import product_semantic_search, Product
 
 logger = logging.getLogger(__name__)
 
-memory = MemorySaver()
-
 class CustomerVisitState(TypedDict):
     """ State structure used throughout the storefront agent process.
     """
@@ -30,6 +28,7 @@ class CustomerVisitState(TypedDict):
     attributes_confirmed: str
     matching_products: list[Product]
 
+memory = MemorySaver()
 
 def qualify_customer(state):
     """ Qualify whether a new customer walking into the virtual store is interested in
@@ -166,6 +165,12 @@ def match_attributes_to_product(state):
     return state
 
 
+def generate_graph_image(graph_app):
+    """ Build the storefront agent experience graph
+    """
+    return Image(graph_app.get_graph(xray=1).draw_mermaid_png())
+
+
 def build_customer_visit_graph():
     """ Builds the langchain graph representing the virtual storefront experience
         that the customer will traverse while interacting with the agent via textual chat.
@@ -184,21 +189,24 @@ def build_customer_visit_graph():
 
     return store_builder.compile(checkpointer=memory)
 
-
-def generate_graph_image(graph_app):
-    """ Build the storefront agent experience graph
-    """
-    return Image(graph_app.get_graph(xray=1).draw_mermaid_png())
+graph = build_customer_visit_graph()
 
 
-def inquiry_by_new_customer(user_input, client_id=str(uuid.uuid4())):
+def inquiry_by_customer(user_input, client_id):
     """ Meet new customer node.
 
         user_input - their initial statement of purpose or question
         client_id - unique identifier of communication
     """
-    graph = build_customer_visit_graph()
+    #graph = build_customer_visit_graph()
 
+    # Validate client id parameter
+    if client_id is None or not isinstance(client_id, str) or len(client_id) == 0:
+        msg = "client_id is a required field and must be a string"
+        logger.error(msg)
+        raise ValueError(msg)
+
+    # Continue graph
     config = {"configurable": {"thread_id": client_id}}
     logger.info("Built new customer inquiry graph.  Invoking as Thread ID=%s", client_id)
     final_state = graph.invoke(
@@ -206,7 +214,8 @@ def inquiry_by_new_customer(user_input, client_id=str(uuid.uuid4())):
                 config,
                 #debug=True
             )
-
+    
+    logger.debug("State resulting from invoke: %s", final_state)
     return final_state
 
 
@@ -232,7 +241,7 @@ def supervisor_main():
     print ("Storefront>  Hello!  Thank you for visiting out shoe store.  How may we help you?")
     print ()
 
-    graph = build_customer_visit_graph()
+    #graph = build_customer_visit_graph()
     config = {"configurable": {"thread_id": "interactive_chat_mode"}}
 
     option_1 = "I would like a pair of Air Jordans by Nike that have a retro look and are " + \

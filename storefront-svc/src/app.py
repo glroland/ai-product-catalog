@@ -10,7 +10,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from supervisor import build_customer_visit_graph
+from supervisor import inquiry_by_customer
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ def default_response():
 class ChatRequest(BaseModel):
     """ Chat Request Input Structure """
     user_message: str
-    prior_state: str
+    client_id: str
 
 @app.post("/chat")
 def chat(chat_request: ChatRequest):
@@ -68,15 +68,13 @@ def chat(chat_request: ChatRequest):
     prior_state -- chat message history, if a conversation is occuring
     """
     user_message = chat_request.user_message
-    prior_state = chat_request.prior_state
-    logging.info("chat() User_Message: %s   Prior_State: %s", user_message, prior_state)
+    client_id = chat_request.client_id
+    logging.info("chat() User_Message: %s   Client_ID: %s", user_message, client_id)
 
     # Invoke LangGraph Agent
-    graph = build_customer_visit_graph()
-    config = {"configurable": {"thread_id": str(uuid.uuid4())}}
-    state = graph.invoke({"messages": ("user", user_message)}, config)
-
+    state = inquiry_by_customer(user_message, client_id)
     logger.info("Resulting State After Invoke: %s", state)
+
     return state
 
 @app.get("/health")
