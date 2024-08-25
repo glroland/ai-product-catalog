@@ -43,7 +43,7 @@ chatbot.lint:
 chatbot.install:
 	cd customer-chatbot && pip install -r requirements.txt
 
-chatbot.run: chatbot.lint
+chatbot.run: #chatbot.lint
 	cd customer-chatbot/src && AI_BACKEND_ENDPOINT=http://localhost:$(run_storefront_port) streamlit run app.py --server.headless true --server.address 0.0.0.0 --server.port $(run_chatbot_port)
 
 chatbot.build: chatbot.lint

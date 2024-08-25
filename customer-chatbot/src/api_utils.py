@@ -22,10 +22,10 @@ def get_ai_backend_endpoint():
     if ENV_AI_BACKEND_ENDPOINT in os.environ:
         url = os.environ[ENV_AI_BACKEND_ENDPOINT]
 
-    logger.info("AI Backend Endpoint: %s", url)
+    logger.debug("AI Backend Endpoint: %s", url)
     return url
 
-def invoke_chat_api(user_message, prior_state = None):
+def invoke_chat_api(user_message, prior_state = ""):
     """ Invokes the backend chat API.
     
     user_message - user message (clean string)
@@ -33,11 +33,13 @@ def invoke_chat_api(user_message, prior_state = None):
     """
     chat_url = get_ai_backend_endpoint() + "/chat"
     chat_params = {
-        "user_message": user_message,
-        "prior_state": prior_state
+        "user_message": f"{user_message}",
+        "prior_state": f"{prior_state}"
     }
+    logger.info ("invoke_chat_api() chat_url: %s  chat_params: %s", chat_url, chat_params)
     response = requests.post(chat_url,
-                        params=chat_params,
+                        json=chat_params,
+                        headers= { "content-type": "application/json" },
                         timeout=DEFAULT_TIMEOUT)
 
     if response.status_code != 200:
