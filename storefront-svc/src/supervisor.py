@@ -212,6 +212,13 @@ def inquiry_by_new_customer(user_input, client_id=str(uuid.uuid4())):
 
 def supervisor_main():
     """ Testing CLI for supervisor agent. """
+
+    # Setup Logging
+    logging.basicConfig(level=logging.DEBUG,
+        handlers=[
+            logging.StreamHandler()
+        ])
+
     print ("Entering Interactive Chat Mode...")
     print ()
 

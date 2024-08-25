@@ -18,26 +18,30 @@ app = FastAPI()
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-	exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
-	logging.error(f"{request}: {exc_str}")
-	content = {'status_code': 10422, 'message': exc_str, 'data': None}
-	return JSONResponse(content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+    """ Additional logging for getting extra detail about certain http binding errors. """
+    exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
+    logging.error("Request: %s - Exception: %s" , request, exc_str)
+    content = {'status_code': 10422, 'message': exc_str, 'data': None}
+    return JSONResponse(content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 def main():
     """Main Method
     """
+
+    # Setup Logging
     logging.basicConfig(level=logging.DEBUG,
         handlers=[
             logging.FileHandler("storefront-svc.log"),
             logging.StreamHandler()
         ])
 
+    # Setup Port
     port = 8080
     if "PORT" in os.environ:
         port = int(os.environ["PORT"])
-    print ("Starting Virtual Storefront on Port", port)
     logging.info("Starting Virtual Storefront on Port %s", port)
 
+    # Start Server
     uvicorn.run(app, host="0.0.0.0", port=port)
 
 @app.get("/")
@@ -51,6 +55,7 @@ def default_response():
     return {"message": msg}
 
 class ChatRequest(BaseModel):
+    """ Chat Request Input Structure """
     user_message: str
     prior_state: str
 
@@ -64,18 +69,14 @@ def chat(chat_request: ChatRequest):
     """
     user_message = chat_request.user_message
     prior_state = chat_request.prior_state
-    
     logging.info("chat() User_Message: %s   Prior_State: %s", user_message, prior_state)
-    print("Chat()   User_Message:", user_message, "Prior_State:", prior_state)
 
+    # Invoke LangGraph Agent
     graph = build_customer_visit_graph()
     config = {"configurable": {"thread_id": str(uuid.uuid4())}}
-
     state = graph.invoke({"messages": ("user", user_message)}, config)
 
-    logger.debug("Resulting State After Invoke: %s", state)
-    print ("Resulting State After Invoke>>> ", state)
-
+    logger.info("Resulting State After Invoke: %s", state)
     return state
 
 @app.get("/health")

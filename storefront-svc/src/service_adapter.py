@@ -7,13 +7,10 @@ import logging
 from typing import TypedDict, List
 import requests
 
-
 logger = logging.getLogger(__name__)
-
 
 ENV_PRODUCT_SERVICE_ADDRESS = "ENV_PRODUCT_SERVICE_ADDRESS"
 DEFAULT_TIMEOUT = 30
-
 
 class Product(TypedDict):
     """ State structure used throughout the storefront agent process.
@@ -22,7 +19,6 @@ class Product(TypedDict):
     product_name: str
     msrp: int
     cosign_similarity: float
-
 
 def product_semantic_search(attributes, limit = 3):
     """ Perform a semantic search across products using the provided attributes. 
@@ -53,8 +49,7 @@ def product_semantic_search(attributes, limit = 3):
         raise ConnectionError(msg)
 
     products = response.json()
-    print ("Response:", products)
-
+    logger.debug("Response: %s", products)
 
     matching_products: List[Product] = []
     for product in products:
@@ -70,6 +65,13 @@ def product_semantic_search(attributes, limit = 3):
 
 def service_adapter_main():
     """ Testing CLI for service adapter. """
+
+    # Setup Logging
+    logging.basicConfig(level=logging.DEBUG,
+        handlers=[
+            logging.StreamHandler()
+        ])
+
     print ()
     print ()
     print ("Entering Adapter Test Mode...")
@@ -107,7 +109,6 @@ def service_adapter_main():
                    "\tCosign Similarity:", p["cosign_similarity"])
 
         print ()
-
 
 if __name__ == "__main__":
     service_adapter_main()

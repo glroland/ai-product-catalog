@@ -69,7 +69,7 @@ storefront.run.adapter:
 	cd storefront-svc/src && ENV_PRODUCT_SERVICE_ADDRESS=http://localhost:8083 python service_adapter.py
 
 storefront.test:
-	cd storefront-svc/src && pytest -o log_cli=true --log-cli-level=INFO
+	cd storefront-svc && pytest -o log_cli=true --log-cli-level=INFO
 
 storefront.build: storefront.lint
 	cd storefront-svc && podman build -t registry.home.glroland.com/ai-product-catalog/storefront:latest . --platform linux/amd64
@@ -114,3 +114,5 @@ publish:
 	podman push registry.home.glroland.com/ai-product-catalog/customer-greeter-agent:latest --tls-verify=false
 
 install: data.install chatbot.install customer-greeter-agent.install storefront.install
+
+lint: chatbot.lint storefront.lint data.lint
