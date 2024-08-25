@@ -40,6 +40,9 @@ spec:
           imagePullPolicy: {{ .Values.global.image.pullPolicy }}
           ports:
           - containerPort: {{ .Values.image.port }}
+          env:
+            - name: ENV_PRODUCT_SERVICE_ADDRESS
+              value: http://{{ .Release.Name }}-svc:8080
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           readinessProbe:
