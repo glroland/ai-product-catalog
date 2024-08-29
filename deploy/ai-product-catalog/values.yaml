@@ -7,7 +7,7 @@ serviceAccount:
 global:
 
   appconfig:
-    inferenceUrl: http://ocpbmwork:11434
+    inferenceUrl: http://ocpwork:11434
     inferenceEngine: ollama
     inferenceModel: llama3.1
 
