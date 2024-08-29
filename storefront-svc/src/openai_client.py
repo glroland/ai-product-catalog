@@ -4,11 +4,16 @@ Connect to OpenAI servers consistently from the product catalog application with
 replicating the openai configuration everywhere.
 """
 import logging
+import os
 import httpx
 from langchain_openai import ChatOpenAI
 from openai import APIConnectionError
 
 logger = logging.getLogger(__name__)
+
+ENV_OPENAI_BASEURL="OPENAI_BASEURL"
+ENV_OPENAI_MODEL="OPENAI_MODEL"
+ENV_OPENAI_APIKEY="OPENAI_APIKEY"
 
 def openai_invoke(messages, max_tokens=100, temperature=0.8):
     """ Invoke an OpenAI completion inquiry.
@@ -19,10 +24,22 @@ def openai_invoke(messages, max_tokens=100, temperature=0.8):
     """
     logger.debug("openai_invoke() - %s", messages)
 
+    url = "http://ocpwork:11434/v1"
+    if ENV_OPENAI_BASEURL in os.environ:
+        url = os.environ[ENV_OPENAI_BASEURL]
+    model = "llama3.1"
+    if ENV_OPENAI_MODEL in os.environ:
+        model = os.environ[ENV_OPENAI_MODEL]
+    apikey = "nokey"
+    if ENV_OPENAI_APIKEY in os.environ:
+        apikey = os.environ[ENV_OPENAI_APIKEY]
+        logging.debug("Overriding API Key with configured value")
+    logger.info("OpenAI Base URL (%s) and Model (%s)", url, model)
+
     try:
-        llm = ChatOpenAI(model_name="llama3.1",
-                        base_url="http://ocpbmwork:11434/v1",
-                        api_key="nokey",
+        llm = ChatOpenAI(model_name=model,
+                        base_url=url,
+                        api_key=apikey,
                         timeout = httpx.Timeout(timeout=30),
                         http_client=httpx.Client(verify=False),
                         max_tokens=max_tokens,

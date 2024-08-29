@@ -43,6 +43,21 @@ spec:
           env:
             - name: ENV_PRODUCT_SERVICE_ADDRESS
               value: http://{{ .Release.Name }}-svc:8080
+            - name: OPENAI_BASEURL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "ai-product-catalog.fullname" . }}
+                  key: OPENAI_BASEURL
+            - name: OPENAI_MODEL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "ai-product-catalog.fullname" . }}
+                  key: OPENAI_MODEL
+            - name: OPENAI_APIKEY
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "ai-product-catalog.fullname" . }}
+                  key: OPENAI_APIKEY
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           readinessProbe:
