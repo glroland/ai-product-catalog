@@ -24,7 +24,7 @@ def openai_invoke(messages, max_tokens=100, temperature=0.8):
     """
     logger.debug("openai_invoke() - %s", messages)
 
-    url = "http://ocpwork:11434/v1"
+    url = "http://ocpwork.home.glroland.com:11434/v1"
     if ENV_OPENAI_BASEURL in os.environ:
         url = os.environ[ENV_OPENAI_BASEURL]
     model = "llama3.1"
