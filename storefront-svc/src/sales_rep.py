@@ -39,7 +39,7 @@ def clarify_customer_requirements_action(message_with_history):
             """.strip())
     ] + message_with_history
 
-    response = openai_invoke(messages, max_tokens=150, temperature=0.8)
+    response = openai_invoke(messages=messages, max_tokens=150, temperature=0.8, json_mode=True)
 
     response_message = response.content
     logger.info("Response: %s", response_message)

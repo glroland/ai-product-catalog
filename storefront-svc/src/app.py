@@ -4,6 +4,7 @@ Virtual Storefront API
 """
 import os
 import logging
+import json
 import uvicorn
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -12,6 +13,15 @@ from pydantic import BaseModel
 from supervisor import inquiry_by_customer
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_RESPONSE = "Hello!  Welcome to the Virtual AI Storefront!  " + \
+                   "Please see the Swagger API for usage guidance."
+
+UNRELATED_RESPONSE = "I'm sorry but this is a shoe store.  " + \
+                     "We are unable to help you with that question." + \
+                     "However, we would love to sell you a new pair of shoes!"
+
+IM_SPEECHLESS_RESPONSE = "Whoah!  You stumped the AI!  Not sure how you got here!"
 
 app = FastAPI()
 
@@ -49,9 +59,7 @@ def default_response():
     """
     logging.info("default_response")
 
-    msg = "Hello!  Welcome to the Virtual AI Storefront!  " + \
-          "Please see the Swagger API for usage guidance."
-    return {"message": msg}
+    return {"message": DEFAULT_RESPONSE}
 
 class ChatRequest(BaseModel):
     """ Chat Request Input Structure """
@@ -74,7 +82,43 @@ def chat(chat_request: ChatRequest):
     state = inquiry_by_customer(user_message, client_id)
     logger.info("Resulting State After Invoke: %s", state)
 
-    return state
+    # Create qualification flag
+    qualified_customer_flag = bool("YES" == state["qualified_customer"])
+
+    # Prepare attributes response
+    if state["attributes_confirmed"] is None:
+        attributes_confirmed_flag = False
+    else:
+        attributes_confirmed_flag = state["attributes_confirmed"]
+    product_attributes = state["product_attributes"]
+
+    # Prepare default AI Response - allows ai to override logic by design
+    if state["most_recent_ai_response"] is None:
+        if qualified_customer_flag is True:
+            ai_response = IM_SPEECHLESS_RESPONSE
+        else:
+            ai_response = UNRELATED_RESPONSE
+            product_attributes = ""
+    else:
+        json_str_response = state["most_recent_ai_response"].content
+        json_response = json.loads(json_str_response)
+        ai_response = json_response["Response"]
+        product_attributes = json_response["Attributes"]
+
+    matching_products = ""
+    if state["matching_products"] is not None:
+        matching_products = state["matching_products"]
+
+    # Map State to Response Object
+    response = {
+        "ai_response": f"{ai_response}",
+        "qualified_customer_flag": qualified_customer_flag,
+        "attributes_confirmed_flag": attributes_confirmed_flag,
+        "identified_attributes": f"{product_attributes}",
+        "matching_products": f"{matching_products}"
+    }
+    logger.info("Response to Chat Request <<< %s >>>", response)
+    return response
 
 @app.get("/health")
 def health_check():

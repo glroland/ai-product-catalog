@@ -1,4 +1,4 @@
-"""customer-chatbot
+"""Customer Chatbot
 
 Chatbot emulating the customer experience for intereacting with a virtual
 retail store.
@@ -7,11 +7,7 @@ import logging
 import uuid
 import streamlit as st
 from api_utils import invoke_chat_api
-from state_utils import get_most_recent_ai_response
-from state_utils import get_most_recent_ai_attributes
-from state_utils import is_qualified_customer
 from state_utils import comma_seperated_to_markdown
-from state_utils import get_matching_products
 
 logging.basicConfig(level=logging.DEBUG,
     handlers=[
@@ -30,6 +26,8 @@ if "identified_attributes" not in st.session_state:
     st.session_state["identified_attributes"] = ""
 if "recommended_products" not in st.session_state:
     st.session_state["recommended_products"] = ""
+if "matching_products" not in st.session_state:
+    st.session_state["matching_products"] = ""
 
 # Process a text response
 def process_user_message(prompt):
@@ -43,17 +41,12 @@ def process_user_message(prompt):
     print ("st.session_state.messages", st.session_state.messages)
 
     # Invoke Backend API
-    state = invoke_chat_api(prompt, st.session_state["client_id"])
-    print("State:", state)
-    st.session_state["last_state"] = state
+    response = invoke_chat_api(prompt, st.session_state["client_id"])
+    print("Response:", response)
+    st.session_state["last_response"] = response
 
     # Was the customer qualified?
-    if not is_qualified_customer(state):
-        messages.chat_message("assistant").write(
-            "I'm sorry but this is a shoe store.  We are unable to help you with that question." +
-            "However, we would love to sell you a new pair of shoes!"
-        )
-
+    if not response["qualified_customer_flag"]:
         # Reset the state
         st.session_state["messages"] = []
         st.session_state["last_state"] = ""
@@ -61,24 +54,25 @@ def process_user_message(prompt):
         st.session_state["recommended_products"] = ""
 
     else:
-        # Get AI Response to Latest Inquiry
-        ai_response = get_most_recent_ai_response(state)
-        print ("AI Response Message: " + ai_response)
-
         # Get AI Product Attributes
-        st.session_state["identified_attributes"] = get_most_recent_ai_attributes(state)
+        st.session_state["identified_attributes"] = response["identified_attributes"]
         if st.session_state["identified_attributes"] is not None:
             print ("AI Product Attributes: ", st.session_state["identified_attributes"])
 
         # Get Matching Products
-        st.session_state["recommended_products"] = get_matching_products(state)
-        if st.session_state["recommended_products"] is not None:
-            print ("Matching Products: " + st.session_state["recommended_products"])
+        st.session_state["matching_products"] = response["matching_products"]
+        if st.session_state["matching_products"] is not None:
+            print ("Matching Products: " + st.session_state["matching_products"])
 
-        # Append AI Response to history
-        st.session_state.messages.append({"role": "assistant",
-                                        "content": ai_response})
-        messages.chat_message("assistant").write(ai_response)
+    # Get AI Response to Latest Inquiry
+    ai_response = response["ai_response"]
+    print ("AI Response Message: " + ai_response)
+
+    # Append AI Response to history
+    st.session_state.messages.append({"role": "assistant",
+                                    "content": ai_response})
+    messages.chat_message("assistant").write(ai_response)
+
 
 # Initialize High Level Page Structure
 st.title("💬 Let's GOOOOO!!!! Shoe Store")

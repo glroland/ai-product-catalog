@@ -15,7 +15,7 @@ ENV_OPENAI_BASEURL="OPENAI_BASEURL"
 ENV_OPENAI_MODEL="OPENAI_MODEL"
 ENV_OPENAI_APIKEY="OPENAI_APIKEY"
 
-def openai_invoke(messages, max_tokens=100, temperature=0.8):
+def openai_invoke(messages, max_tokens=100, temperature=0.8, json_mode = False):
     """ Invoke an OpenAI completion inquiry.
     
         messages - message and history
@@ -45,7 +45,11 @@ def openai_invoke(messages, max_tokens=100, temperature=0.8):
                         max_tokens=max_tokens,
                         temperature=temperature)
 
-        response = llm.invoke(messages)
+        actionable_llm = llm
+        if json_mode is True:
+            actionable_llm = llm.bind(response_format={"type": "json_object"})
+
+        response = actionable_llm.invoke(messages)
     except APIConnectionError as e:
         msg = "Unable to connect to OpenAI Server: " + str(e)
         logger.fatal(msg)

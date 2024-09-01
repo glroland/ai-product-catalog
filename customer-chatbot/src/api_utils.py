@@ -25,6 +25,7 @@ def get_ai_backend_endpoint():
     logger.debug("AI Backend Endpoint: %s", url)
     return url
 
+
 def invoke_chat_api(user_message, client_id):
     """ Invokes the backend chat API.
     
