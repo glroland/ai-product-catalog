@@ -69,7 +69,7 @@ storefront.run.adapter:
 	cd storefront-svc/src && ENV_PRODUCT_SERVICE_ADDRESS=http://localhost:8083 python service_adapter.py
 
 storefront.test:
-	cd storefront-svc && pytest -o log_cli=true --log-cli-level=INFO
+	cd storefront-svc && pytest
 
 storefront.build: #storefront.lint
 	cd storefront-svc && podman build -t registry.home.glroland.com/ai-product-catalog/storefront:latest . --platform linux/amd64
