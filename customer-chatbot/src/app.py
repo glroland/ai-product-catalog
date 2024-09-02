@@ -7,7 +7,7 @@ import logging
 import uuid
 import streamlit as st
 from api_gateway import invoke_chat_api
-from utils import comma_seperated_to_markdown
+from utils import list_of_strings_to_markdown, object_to_markdown
 
 logger = logging.getLogger(__name__)
 
@@ -96,9 +96,9 @@ st.markdown("""
 with st.sidebar:
     # Additional Details
     st.subheader("Identified Attributes", divider=True)
-    st.markdown(comma_seperated_to_markdown(st.session_state["identified_attributes"]))
+    st.markdown(list_of_strings_to_markdown(st.session_state["identified_attributes"]))
     st.subheader("Product Recommendations", divider=True)
-    st.markdown(comma_seperated_to_markdown(st.session_state["matching_products"]))
+    st.markdown(object_to_markdown("product_name", st.session_state["matching_products"]))
 
     # Quick Response Buttons
     st.subheader("Quick Responses", divider=True)

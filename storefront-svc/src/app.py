@@ -112,8 +112,8 @@ def chat(chat_request: ChatRequest):
     response = {
         "ai_response": f"{ai_response}",
         "qualified_customer_flag": qualified_customer_flag,
-        "identified_attributes": f"{product_attributes}",
-        "matching_products": f"{matching_products}"
+        "identified_attributes": product_attributes,
+        "matching_products": matching_products
     }
     logger.info("Response to Chat Request <<< %s >>>", response)
     return response
