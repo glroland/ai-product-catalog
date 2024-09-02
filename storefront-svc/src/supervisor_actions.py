@@ -110,8 +110,12 @@ def match_attributes_to_product(state: ss.CustomerVisitState):
     attributes = state["product_attributes"]
     logger.debug("Matching Attributes to Products via Semantic Search: %s", attributes)
 
-    products = product_semantic_search(attributes, 3)
-    logger.info("Matched Products!  Attributes=%s  Matching_Products=%s", attributes, products)
-    state["matching_products"] = products
+    if len(attributes) == 0:
+        logger.info("Cannot search against an empty set of attributes")
+        state["matching_products"] = None
+    else:
+        products = product_semantic_search(attributes, 3)
+        logger.info("Matched Products!  Attributes=%s  Matching_Products=%s", attributes, products)
+        state["matching_products"] = products
 
     return state
