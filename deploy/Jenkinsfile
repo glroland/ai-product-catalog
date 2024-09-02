@@ -110,7 +110,7 @@ pipeline
                   sh 'docker rmi registry.home.glroland.com/ai-product-catalog/chatbot:$BUILD_NUMBER'
                
                   sh 'docker load -i ai-product-catalog-svc/svc-dockerimage.tar'
-                  sh 'docker tag svc:$BUILD_NUMBER registry.home.glroland.com/ai-product-catalog-svc/svc:$BUILD_NUMBER'
+                  sh 'docker tag svc:$BUILD_NUMBER registry.home.glroland.com/ai-product-catalog/svc:$BUILD_NUMBER'
                   sh 'docker rmi svc:$BUILD_NUMBER'
                   sh 'docker push registry.home.glroland.com/ai-product-catalog/svc:$BUILD_NUMBER'
                   sh 'docker rmi registry.home.glroland.com/ai-product-catalog/svc:$BUILD_NUMBER'
