@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.glroland.ai</groupId>
 	<artifactId>ai-product-catalog</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>ai-product-catalog</name>
 	<description>AI Enabled Product Catalog Service and Web Frontend</description>
 	<url/>
