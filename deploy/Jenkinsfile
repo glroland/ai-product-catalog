@@ -26,7 +26,8 @@ pipeline
                     echo "M2_HOME = ${M2_HOME}"
                 '''
 
-            git 'https://github.com/glroland/ai-product-catalog.git'
+            git branch: 'main', 
+                    url: 'https://github.com/glroland/ai-product-catalog.git'
          }
       }
 
