@@ -37,8 +37,7 @@ def build_customer_visit_graph():
     store_builder.add_edge(START, "qualify_customer")
 
     store_builder.add_conditional_edges("qualify_customer", is_customer_qualified)
-    store_builder.add_edge("clarify_customer_requirements", "match_attributes_to_product")
-    #store_builder.add_conditional_edges("clarify_customer_requirements", is_sufficient_attributes)
+    store_builder.add_conditional_edges("clarify_customer_requirements", is_sufficient_attributes)
     store_builder.add_edge("match_attributes_to_product", END)
 
     return store_builder.compile(checkpointer=memory)

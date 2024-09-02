@@ -89,15 +89,12 @@ def is_sufficient_attributes(state: ss.CustomerVisitState) -> \
 
         attributes - delimited string containing attribute data
     """
-    if "product_attributes" in state:
-        attributes = state["product_attributes"]
-        if not isinstance(attributes, str) or len(attributes) == 0:
-            return False
-
+    attributes = state["product_attributes"]
+    if isinstance(attributes, str) and len(attributes) > 0:
         alist = attributes.split(",")
-
         if len(alist) >= 2:
             return "match_attributes_to_product"
+        logger.debug("Insufficient number of matching attributes to proceed to product match")
 
     return END
 
