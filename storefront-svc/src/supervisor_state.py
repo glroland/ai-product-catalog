@@ -13,5 +13,4 @@ class CustomerVisitState(TypedDict):
     qualified_customer: str
     most_recent_ai_response: str
     product_attributes: str
-    attributes_confirmed: str
     matching_products: list[Product]

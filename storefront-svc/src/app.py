@@ -86,10 +86,6 @@ def chat(chat_request: ChatRequest):
     qualified_customer_flag = bool("YES" == state["qualified_customer"])
 
     # Prepare attributes response
-    if state["attributes_confirmed"] is None:
-        attributes_confirmed_flag = False
-    else:
-        attributes_confirmed_flag = state["attributes_confirmed"]
     product_attributes = state["product_attributes"]
 
     # Prepare default AI Response - allows ai to override logic by design
@@ -113,7 +109,6 @@ def chat(chat_request: ChatRequest):
     response = {
         "ai_response": f"{ai_response}",
         "qualified_customer_flag": qualified_customer_flag,
-        "attributes_confirmed_flag": attributes_confirmed_flag,
         "identified_attributes": f"{product_attributes}",
         "matching_products": f"{matching_products}"
     }

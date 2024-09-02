@@ -9,7 +9,7 @@ from typing import Literal
 from langgraph.graph import END
 from customer_greeter import qualify_customer_action
 from sales_rep import clarify_customer_requirements_action
-from service_adapter import product_semantic_search
+from semantic_search import product_semantic_search
 import supervisor_state as ss
 
 logger = logging.getLogger(__name__)
@@ -35,39 +35,13 @@ def qualify_customer(state: ss.CustomerVisitState):
 
 
 def is_customer_qualified(state: ss.CustomerVisitState) -> \
-                Literal["check_attributes", END]:
+                Literal["clarify_customer_requirements", END]:
     """ Determine whether the graph should proceed to clarify customer requirements or end.
 
         state - langgraph state
     """
     if state["qualified_customer"] != "YES":
         return END
-
-    return "check_attributes"
-
-def check_attributes(state: ss.CustomerVisitState):
-    """ Qualified customer and now check to see if attributes are complete and confirmed. 
-    
-        state - langgraph state
-    """
-    print ("State>", state)
-    logger.info("State> %s", state)
-
-    if isinstance(state["attributes_confirmed"], bool) and state["attributes_confirmed"]:
-        if len(state["product_attributes"].strip()) == 0:
-            state["attributes_confirmed"] = False
-
-    return state
-
-def is_attributes_confirmed(state: ss.CustomerVisitState) -> \
-        Literal["clarify_customer_requirements", "match_attributes_to_product"]:
-    """ Determine whether the graph should continue to clarify customer requirements or 
-        proceed onto matching possible products to their requests.
-
-        state - langgraph state
-    """
-    if isinstance(state["attributes_confirmed"], bool) and state["attributes_confirmed"]:
-        return "match_attributes_to_product"
 
     return "clarify_customer_requirements"
 
@@ -100,44 +74,38 @@ def clarify_customer_requirements(state: ss.CustomerVisitState):
         logger.error("LLM produced unexpected response.  Exception=%s Response=%s",
                      e, response.content)
         state["product_attributes"] = ""
-        state["attributes_confirmed"] = ""
         if state["matching_products"] is not None:
             state["matching_products"].clear()
 
         print()
 
-    if is_sufficient_attributes(state["product_attributes"]):
-        state["attributes_confirmed"] = True
-    else:
-        state["attributes_confirmed"] = False
-
     return state
 
 
-def is_sufficient_attributes(attributes):
+def is_sufficient_attributes(state: ss.CustomerVisitState) -> \
+                Literal["match_attributes_to_product", END]:
     """ Check attributes to see if there is sufficient quanitity and quality to
         proceed.
 
         attributes - delimited string containing attribute data
     """
-    if not isinstance(attributes, str) or len(attributes) == 0:
-        return False
+    if "product_attributes" in state:
+        attributes = state["product_attributes"]
+        if not isinstance(attributes, str) or len(attributes) == 0:
+            return False
 
-    alist = attributes.split(",")
+        alist = attributes.split(",")
 
-    if len(alist) >= 2:
-        return True
+        if len(alist) >= 2:
+            return "match_attributes_to_product"
 
-    return False
+    return END
 
 
 def match_attributes_to_product(state: ss.CustomerVisitState):
     """ Take the shoe attributes gathered from the customer and attempt to
         match available products to them.  """
     logger.debug("match_attributes_to_product")
-
-    if state["attributes_confirmed"] is not True:
-        return state
 
     attributes = state["product_attributes"]
     logger.debug("Matching Attributes to Products via Semantic Search: %s", attributes)

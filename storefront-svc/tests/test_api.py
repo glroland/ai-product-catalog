@@ -32,7 +32,6 @@ def test_unrelated_to_retail():
     assert json["ai_response"] is not None
     assert json["ai_response"] == UNRELATED_RESPONSE
     assert len(json["ai_response"]) > 0
-    assert json["attributes_confirmed_flag"] is False
     assert json["identified_attributes"] is not None
     assert len(json["identified_attributes"]) == 0
 
@@ -51,7 +50,6 @@ def test_basic_unresolved_question():
     assert json["ai_response"] != UNRELATED_RESPONSE
     assert json["ai_response"] != IM_SPEECHLESS_RESPONSE
     assert len(json["ai_response"]) > 0
-    assert json["attributes_confirmed_flag"] is False
     assert json["identified_attributes"] is not None
     assert len(json["identified_attributes"]) > 0
 
@@ -70,6 +68,5 @@ def test_fully_qualified_question():
     assert json["ai_response"] != UNRELATED_RESPONSE
     assert json["ai_response"] != IM_SPEECHLESS_RESPONSE
     assert len(json["ai_response"]) > 0
-    assert json["attributes_confirmed_flag"] is True
     assert json["identified_attributes"] is not None
     assert len(json["identified_attributes"]) > 0
