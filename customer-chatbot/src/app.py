@@ -6,8 +6,10 @@ retail store.
 import logging
 import uuid
 import streamlit as st
-from api_utils import invoke_chat_api
-from state_utils import comma_seperated_to_markdown
+from api_gateway import invoke_chat_api
+from utils import comma_seperated_to_markdown
+
+logger = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.DEBUG,
     handlers=[
@@ -24,8 +26,6 @@ if "last_state" not in st.session_state:
     st.session_state["last_state"] = ""
 if "identified_attributes" not in st.session_state:
     st.session_state["identified_attributes"] = ""
-if "recommended_products" not in st.session_state:
-    st.session_state["recommended_products"] = ""
 if "matching_products" not in st.session_state:
     st.session_state["matching_products"] = ""
 
@@ -35,38 +35,42 @@ def process_user_message(prompt):
     
     prompt - user message
     """
-    print ("User Input: " + prompt)
+    logger.info ("User Input: %s", prompt)
     messages.chat_message("user").write(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
-    print ("st.session_state.messages", st.session_state.messages)
+    logger.info ("st.session_state.messages - %s", st.session_state.messages)
 
     # Invoke Backend API
     response = invoke_chat_api(prompt, st.session_state["client_id"])
-    print("Response:", response)
+    logger.info("Response: %s", response)
     st.session_state["last_response"] = response
 
     # Was the customer qualified?
     if not response["qualified_customer_flag"]:
+        logger.info("Customer not qualified. Resetting state...")
+
         # Reset the state
         st.session_state["messages"] = []
         st.session_state["last_state"] = ""
         st.session_state["identified_attributes"] = ""
-        st.session_state["recommended_products"] = ""
+        st.session_state["matching_products"] = ""
 
     else:
         # Get AI Product Attributes
         st.session_state["identified_attributes"] = response["identified_attributes"]
-        if st.session_state["identified_attributes"] is not None:
-            print ("AI Product Attributes: ", st.session_state["identified_attributes"])
+        logger.info ("AI Product Attributes Type<%s> - %",
+                     type(st.session_state["identified_attributes"]),
+                     st.session_state["identified_attributes"])
 
         # Get Matching Products
         st.session_state["matching_products"] = response["matching_products"]
-        if st.session_state["matching_products"] is not None:
-            print ("Matching Products: " + st.session_state["matching_products"])
+        logger.info ("Matching Products Type<%s> - %s",
+                     type(st.session_state["matching_products"]),
+                     st.session_state["matching_products"])
 
     # Get AI Response to Latest Inquiry
     ai_response = response["ai_response"]
-    print ("AI Response Message: " + ai_response)
+    logger.info ("AI Response Message: %s", ai_response)
 
     # Append AI Response to history
     st.session_state.messages.append({"role": "assistant",
@@ -94,7 +98,7 @@ with st.sidebar:
     st.subheader("Identified Attributes", divider=True)
     st.markdown(comma_seperated_to_markdown(st.session_state["identified_attributes"]))
     st.subheader("Product Recommendations", divider=True)
-    st.markdown(comma_seperated_to_markdown(st.session_state["recommended_products"]))
+    st.markdown(comma_seperated_to_markdown(st.session_state["matching_products"]))
 
     # Quick Response Buttons
     st.subheader("Quick Responses", divider=True)
