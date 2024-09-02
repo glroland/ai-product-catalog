@@ -57,6 +57,7 @@ pipeline
       {
          steps 
          {
+            sh 'cp -f ai-product-catalog-svc/src/main/resources/application.properties-lab ai-product-catalog-svc/src/main/resources/application.properties'
             sh 'cd ai-product-catalog-svc ; mvn --batch-mode clean package'
             step(followSymlinks: false, artifacts: 'ai-product-catalog-svc/target/ai-product-catalog-svc-1.0.jar', $class: 'ArtifactArchiver')
          }
