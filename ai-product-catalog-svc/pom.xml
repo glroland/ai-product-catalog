@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.glroland.ai</groupId>
-	<artifactId>ai-product-catalog</artifactId>
+	<artifactId>ai-product-catalog-svc</artifactId>
 	<version>1.0.0</version>
 	<name>ai-product-catalog</name>
 	<description>AI Enabled Product Catalog Service and Web Frontend</description>
