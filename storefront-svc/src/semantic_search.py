@@ -22,7 +22,7 @@ class Product(TypedDict):
     """
     sku: str
     product_name: str
-    msrp: int
+    msrp: float
     cosign_similarity: float
 
 def get_connection_string():
@@ -78,7 +78,7 @@ def product_semantic_search(attributes, limit = 3):
     for row in rows:
         p: Product = {'sku': row[1],
                       'product_name': row[3],
-                      'msrp': row[6] * 100.00,
+                      'msrp': row[6],
                       'cosign_similarity': row[9]}
         matching_products.append(p)
 

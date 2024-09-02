@@ -94,11 +94,21 @@ st.markdown("""
 
 # Build Side Bar
 with st.sidebar:
-    # Additional Details
+    # Additional Details - Attributes
     st.subheader("Identified Attributes", divider=True)
     st.markdown(list_of_strings_to_markdown(st.session_state["identified_attributes"]))
+
+    # Additional Details - Matched Products
     st.subheader("Product Recommendations", divider=True)
-    st.markdown(object_to_markdown("product_name", st.session_state["matching_products"]))
+    if st.session_state["matching_products"] is not None:
+        for product in st.session_state["matching_products"]:
+            cosign_similarity = round(product["cosign_similarity"] * 100)
+            label = product["product_name"] # + f" ({cosign_similarity}%)"
+            with st.popover(label=label, use_container_width=True):
+                msrp = product["msrp"]
+                st.markdown(f"MSRP ${msrp}")
+                st.markdown("SKU #" + product["sku"])
+                st.markdown(f"Similarity - {cosign_similarity}%")
 
     # Quick Response Buttons
     st.subheader("Quick Responses", divider=True)
