@@ -70,8 +70,9 @@ def product_semantic_search(attributes, limit = 3):
     with psycopg.connect(get_connection_string()) as db_connection:
         with db_connection.cursor() as c:
             c.execute(sql, values)
-
             rows = c.fetchall()
+
+    logger.debug("# of similar results returned from query: %s", len(rows))
 
     matching_products: List[Product] = []
     for row in rows:

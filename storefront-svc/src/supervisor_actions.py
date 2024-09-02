@@ -69,7 +69,15 @@ def clarify_customer_requirements(state: ss.CustomerVisitState):
 
     try:
         response_json = json.loads(response.content)
-        state["product_attributes"] = response_json["Attributes"]
+        product_attributes = response_json["Attributes"]
+        if isinstance(product_attributes, str):
+            pa_list = product_attributes.split(",")
+            state["product_attributes"] = [s.strip() for s in pa_list]
+        elif isinstance(product_attributes, list):
+            state["product_attributes"] = product_attributes
+        else:
+            logger.error("Product Attributes Result is of unknown type: %s", type(product_attributes))
+            state["product_attributes"] = None
     except Exception as e:
         logger.error("LLM produced unexpected response.  Exception=%s Response=%s",
                      e, response.content)
@@ -90,12 +98,11 @@ def is_sufficient_attributes(state: ss.CustomerVisitState) -> \
         attributes - delimited string containing attribute data
     """
     attributes = state["product_attributes"]
-    if isinstance(attributes, str) and len(attributes) > 0:
-        alist = attributes.split(",")
-        if len(alist) >= 2:
-            return "match_attributes_to_product"
-        logger.debug("Insufficient number of matching attributes to proceed to product match")
-
+    if len(attributes) >= 2:
+        logger.debug("Sufficient number of attributes to search for products: %s", len(attributes))
+        return "match_attributes_to_product"
+    
+    logger.info("Insufficient number of matching attributes to proceed to product match")
     return END
 
 

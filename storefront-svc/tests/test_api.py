@@ -70,3 +70,5 @@ def test_fully_qualified_question():
     assert len(json["ai_response"]) > 0
     assert json["identified_attributes"] is not None
     assert len(json["identified_attributes"]) > 0
+    assert json["matching_products"] is not None
+    assert len(json["matching_products"]) > 0
