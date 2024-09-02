@@ -4,177 +4,32 @@ Agent that manages the virtual storefront by coordinating responses to customer
 inquiries and deferral to other agents.
 """
 import logging
-import json
 import sys
-from typing import TypedDict, Annotated, Literal
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import StateGraph, START, END
-from langgraph.graph.message import add_messages
 from IPython.display import Image
-from customer_greeter import qualify_customer_action
-from sales_rep import clarify_customer_requirements_action
-from service_adapter import product_semantic_search, Product
+import supervisor_state as ss
+from supervisor_actions import qualify_customer
+from supervisor_actions import is_customer_qualified
+from supervisor_actions import check_attributes
+from supervisor_actions import is_attributes_confirmed
+from supervisor_actions import clarify_customer_requirements
+from supervisor_actions import match_attributes_to_product
 
 logger = logging.getLogger(__name__)
 
-class CustomerVisitState(TypedDict):
-    """ State structure used throughout the storefront agent process.
-    """
-    messages: Annotated[list, add_messages]
-    qualified_customer: str
-    most_recent_ai_response: str
-    product_attributes: str
-    attributes_confirmed: str
-    matching_products: list[Product]
-
 memory = MemorySaver()
-
-def qualify_customer(state):
-    """ Qualify whether a new customer walking into the virtual store is interested in
-        shoes.
-
-        state - langchain graph state
-    """
-    logger.info("qualify_customer()")
-
-    logger.debug("State=%s", state)
-    user_message = state["messages"][0].content.strip()
-    logger.info("User Message = %s", user_message)
-
-    if qualify_customer_action(user_message):
-        state["qualified_customer"] = "YES"
-    else:
-        state["qualified_customer"] = "NO"
-
-    return state
-
-
-def is_customer_qualified(state: CustomerVisitState) -> \
-                Literal["check_attributes", END]:
-    """ Determine whether the graph should proceed to clarify customer requirements or end.
-
-        state - langgraph state
-    """
-    if state["qualified_customer"] != "YES":
-        return END
-
-    return "check_attributes"
-
-def check_attributes(state: CustomerVisitState):
-    """ Qualified customer and now check to see if attributes are complete and confirmed. 
-    
-        state - langgraph state
-    """
-    print ("State>", state)
-    logger.info("State> %s", state)
-
-    if isinstance(state["attributes_confirmed"], bool) and state["attributes_confirmed"]:
-        if len(state["product_attributes"].strip()) == 0:
-            state["attributes_confirmed"] = False
-
-    return state
-
-def is_attributes_confirmed(state: CustomerVisitState) -> \
-        Literal["clarify_customer_requirements", "match_attributes_to_product"]:
-    """ Determine whether the graph should continue to clarify customer requirements or 
-        proceed onto matching possible products to their requests.
-
-        state - langgraph state
-    """
-    if isinstance(state["attributes_confirmed"], bool) and state["attributes_confirmed"]:
-        return "match_attributes_to_product"
-
-    return "clarify_customer_requirements"
-
-
-# pylint disable=W0718
-def clarify_customer_requirements(state):
-    """ Attempt to clarify customer purchasing needs node.
-
-        state - langgraph state
-    """
-    logger.debug("clarify_customer_requirements")
-
-    logger.debug("State=%s", state)
-    user_message = state["messages"][0].content.strip()
-    logger.info("User Message = %s", user_message)
-
-    logger.debug ("Message History and Latest User Message prior to LLM>>  %s", state["messages"])
-
-    if state["matching_products"] is not None:
-        state["matching_products"].clear()
-
-    response = clarify_customer_requirements_action(state["messages"])
-    state["messages"].append(response)
-    state["most_recent_ai_response"] = response
-
-    try:
-        response_json = json.loads(response.content)
-        state["product_attributes"] = response_json["Attributes"]
-    except Exception as e:
-        logger.error("LLM produced unexpected response.  Exception=%s Response=%s",
-                     e, response.content)
-        state["product_attributes"] = ""
-        state["attributes_confirmed"] = ""
-        if state["matching_products"] is not None:
-            state["matching_products"].clear()
-
-        print()
-
-    if is_sufficient_attributes(state["product_attributes"]):
-        state["attributes_confirmed"] = True
-    else:
-        state["attributes_confirmed"] = False
-
-    return state
-
-
-def is_sufficient_attributes(attributes):
-    """ Check attributes to see if there is sufficient quanitity and quality to
-        proceed.
-
-        attributes - delimited string containing attribute data
-    """
-    if not isinstance(attributes, str) or len(attributes) == 0:
-        return False
-
-    alist = attributes.split(",")
-
-    if len(alist) >= 2:
-        return True
-
-    return False
-
-
-def match_attributes_to_product(state):
-    """ Take the shoe attributes gathered from the customer and attempt to
-        match available products to them.  """
-    logger.debug("match_attributes_to_product")
-
-    if state["attributes_confirmed"] is not True:
-        return state
-
-    attributes = state["product_attributes"]
-    logger.debug("Matching Attributes to Products via Semantic Search: %s", attributes)
-
-    products = product_semantic_search(attributes, 3)
-    logger.info("Matched Products!  Attributes=%s  Matching_Products=%s", attributes, products)
-    state["matching_products"] = products
-
-    return state
-
 
 def generate_graph_image(graph_app):
     """ Build the storefront agent experience graph
     """
     return Image(graph_app.get_graph(xray=1).draw_mermaid_png())
 
-
 def build_customer_visit_graph():
     """ Builds the langchain graph representing the virtual storefront experience
         that the customer will traverse while interacting with the agent via textual chat.
     """
-    store_builder = StateGraph(CustomerVisitState)
+    store_builder = StateGraph(ss.CustomerVisitState)
 
     store_builder.add_node("qualify_customer", qualify_customer)
     store_builder.add_node("check_attributes", check_attributes)
@@ -189,7 +44,6 @@ def build_customer_visit_graph():
     return store_builder.compile(checkpointer=memory)
 
 graph = build_customer_visit_graph()
-
 
 def inquiry_by_customer(user_input, client_id):
     """ Meet new customer node.
