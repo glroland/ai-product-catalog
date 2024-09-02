@@ -26,11 +26,12 @@ class Product(TypedDict):
     cosign_similarity: float
 
 def get_connection_string():
+    """ Gets the DB Connection String from config or via defaults """
     connection_string = DEVTEST_CONNECTION_STRING
     if ENV_PRODUCT_DB_CONN_STRING in os.environ:
         connection_string = os.environ[ENV_PRODUCT_DB_CONN_STRING]
 
-    logger.info("Product DB Connection String: %s", connection_string)    
+    logger.info("Product DB Connection String: %s", connection_string)
     return connection_string
 
 def product_semantic_search(attributes, limit = 3):
@@ -66,7 +67,8 @@ def product_semantic_search(attributes, limit = 3):
     embedding = create_embedding(attributes)
     values = [ embedding, embedding, embedding, embedding, limit ]
 
-    rows = None
+    rows = []
+    # pylint: disable=E1129
     with psycopg.connect(get_connection_string()) as db_connection:
         with db_connection.cursor() as c:
             c.execute(sql, values)

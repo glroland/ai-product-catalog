@@ -76,7 +76,8 @@ def clarify_customer_requirements(state: ss.CustomerVisitState):
         elif isinstance(product_attributes, list):
             state["product_attributes"] = product_attributes
         else:
-            logger.error("Product Attributes Result is of unknown type: %s", type(product_attributes))
+            logger.error("Product Attributes Result is of unknown type: %s",
+                         type(product_attributes))
             state["product_attributes"] = None
     except Exception as e:
         logger.error("LLM produced unexpected response.  Exception=%s Response=%s",
@@ -101,7 +102,7 @@ def is_sufficient_attributes(state: ss.CustomerVisitState) -> \
     if len(attributes) >= 2:
         logger.debug("Sufficient number of attributes to search for products: %s", len(attributes))
         return "match_attributes_to_product"
-    
+
     logger.info("Insufficient number of matching attributes to proceed to product match")
     return END
 

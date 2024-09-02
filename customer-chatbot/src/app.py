@@ -7,7 +7,7 @@ import logging
 import uuid
 import streamlit as st
 from api_gateway import invoke_chat_api
-from utils import list_of_strings_to_markdown, object_to_markdown
+from utils import list_of_strings_to_markdown
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ def process_user_message(prompt):
     else:
         # Get AI Product Attributes
         st.session_state["identified_attributes"] = response["identified_attributes"]
-        logger.info ("AI Product Attributes Type<%s> - %",
+        logger.info ("AI Product Attributes Type<%s> - %s",
                      type(st.session_state["identified_attributes"]),
                      st.session_state["identified_attributes"])
 

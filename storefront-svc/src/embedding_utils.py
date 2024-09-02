@@ -24,7 +24,7 @@ def create_embedding(text):
     embedding_raw = model.encode([text])
 
     if len(embedding_raw) > 1:
-        logger.warn ("Embedding has more dimensions than expected!  Data likely being lost",
+        logger.error ("Embedding has more dimensions than expected!  Data likely being lost.  %s",
                 embedding_raw.shape)
 
     embedding = embedding_raw[0].tolist()
