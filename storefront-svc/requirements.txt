@@ -7,3 +7,5 @@ langgraph
 pytest
 openai
 langchain_openai
+psycopg[binary]
+sentence-transformers
