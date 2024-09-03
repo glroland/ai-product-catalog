@@ -8,15 +8,22 @@ metadata:
     app.kubernetes.io/part-of: storefront-svc-app
   annotations:
     app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"storefront-svc-deploy"}]'
-    jenkins.io/job-full-name: "default:ai-product-catalog/ai-product-catalog"
+    backstage.io/techdocs-ref: dir:.
+    jenkins.io/job-full-name: "ai-product-catalog"
+    argocd/app-name: ai-product-catalog
+    argocd/instance-name: 'argoInstance'
+    quay.io/repository-slug: 'ai-product-catalog/chatbot'
   links:
+    - url: https://ai-product-catalog-storefront-svc-ai-product-catalog-prod.apps.ocpprod.home.glroland.com/
+      title: Prod
+      icon: web
     - url: 'https://devspaces.apps.ocpbm.home.glroland.com/dashboard/#/load-factory?url=https://github.com/glroland/ai-product-catalog.git'
       title: 'Code in DevSpaces'
       icon: catalog
       type: ide
     - title: OpenShift AI
       icon: chat
-      url: https://rhods-dashboard-redhat-ods-applications.apps.ocpbm.home.glroland.com/projects
+      url: https://rhods-dashboard-redhat-ods-applications.apps.ocpprod.home.glroland.com/projects
   tags:
     - python
     - ai
@@ -24,5 +31,5 @@ metadata:
     - rest
 spec:
   type: service
-  lifecycle: experimental
+  lifecycle: production
   owner: user:default/glroland
