@@ -11,6 +11,7 @@ metadata:
     argocd/instance-name: 'argoInstance'
     quay.io/repository-slug: 'ai-product-catalog/svc'
     backstage.io/techdocs-ref: dir:.
+    jenkins.io/job-full-name: "default:ai-product-catalog/ai-product-catalog"
   tags:
     - java
     - maven

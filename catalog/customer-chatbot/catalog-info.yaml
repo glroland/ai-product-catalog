@@ -12,6 +12,7 @@ metadata:
     argocd/instance-name: 'argoInstance'
     quay.io/repository-slug: 'ai-product-catalog/chatbot'
     backstage.io/techdocs-ref: dir:.
+    jenkins.io/job-full-name: "default:ai-product-catalog/ai-product-catalog"
   links:
     - url: https://ai-product-catalog-chatbot-ai-product-catalog-prod.apps.ocpbm.home.glroland.com/
       title: Prod

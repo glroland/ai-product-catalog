@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/part-of: storefront-svc-app
   annotations:
     app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"storefront-svc-deploy"}]'
-
+    jenkins.io/job-full-name: "default:ai-product-catalog/ai-product-catalog"
   links:
     - url: 'https://devspaces.apps.ocpbm.home.glroland.com/dashboard/#/load-factory?url=https://github.com/glroland/ai-product-catalog.git'
       title: 'Code in DevSpaces'
