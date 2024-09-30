@@ -14,7 +14,7 @@ metadata:
     argocd/instance-name: 'argoInstance'
     quay.io/repository-slug: 'ai-product-catalog/chatbot'
   links:
-    - url: https://ai-product-catalog-chatbot-ai-product-catalog-prod.apps.ocpbm.home.glroland.com/
+    - url: https://ai-product-catalog-chatbot-ai-product-catalog-prod.apps.ocpprod.home.glroland.com/
       title: Prod
       icon: web
     - url: 'https://devspaces.apps.ocpprod.home.glroland.com/dashboard/#/load-factory?url=https://github.com/glroland/ai-product-catalog.git'

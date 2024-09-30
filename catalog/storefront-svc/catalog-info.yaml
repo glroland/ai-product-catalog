@@ -17,7 +17,7 @@ metadata:
     - url: https://ai-product-catalog-storefront-svc-ai-product-catalog-prod.apps.ocpprod.home.glroland.com/
       title: Prod
       icon: web
-    - url: 'https://devspaces.apps.ocpbm.home.glroland.com/dashboard/#/load-factory?url=https://github.com/glroland/ai-product-catalog.git'
+    - url: 'https://devspaces.apps.ocpprod.home.glroland.com/dashboard/#/load-factory?url=https://github.com/glroland/ai-product-catalog.git'
       title: 'Code in DevSpaces'
       icon: catalog
       type: ide

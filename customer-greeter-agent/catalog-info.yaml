@@ -10,13 +10,13 @@ metadata:
     app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"customer-greeter-agent-deploy"}]'
 
   links:
-    - url: 'https://devspaces.apps.ocpbm.home.glroland.com/dashboard/#/load-factory?url=https://github.com/${{values.destination.owner + "/" + values.destination.repo}}.git'
+    - url: 'https://devspaces.apps.ocpprod.home.glroland.com/dashboard/#/load-factory?url=https://github.com/${{values.destination.owner + "/" + values.destination.repo}}.git'
       title: 'Code in DevSpaces'
       icon: catalog
       type: ide
     - title: OpenShift AI
       icon: chat
-      url: https://rhods-dashboard-redhat-ods-applications.apps.ocpbm.home.glroland.com/projects
+      url: https://rhods-dashboard-redhat-ods-applications.apps.ocpprod.home.glroland.com/projects
   tags:
     - python
     - ai
