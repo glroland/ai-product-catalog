@@ -1,5 +1,5 @@
 apiVersion: v2
-name: ai-product-catalog-db
+name: db
 description: AI Product Catalog Database
 
 # A chart can be either an 'application' or a 'library' chart.
