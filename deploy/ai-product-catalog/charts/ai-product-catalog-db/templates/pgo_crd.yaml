@@ -8,17 +8,6 @@ metadata:
     app.kubernetes.io/part-of: "{{ .Release.Name }}-ai-product-catalog"
     {{- include "ai-product-catalog.labels" . | nindent 4 }}
 spec:
-  backups:
-    pgbackrest:
-      repos:
-        - name: repo1
-          volume:
-            volumeClaimSpec:
-              accessModes:
-                - ReadWriteOnce
-              resources:
-                requests:
-                  storage: 5Gi
   instances:
     - dataVolumeClaimSpec:
         accessModes:
