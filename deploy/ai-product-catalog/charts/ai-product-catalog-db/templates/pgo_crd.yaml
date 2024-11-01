@@ -33,3 +33,5 @@ spec:
   databaseInitSQL:
     key: create_db.sql
     name: {{ include "ai-product-catalog.fullname" . }}-init-sql
+  service:
+    type: ClusterIP
