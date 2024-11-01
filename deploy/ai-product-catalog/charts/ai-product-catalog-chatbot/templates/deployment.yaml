@@ -23,9 +23,9 @@ spec:
       labels:
         {{- include "ai-product-catalog.selectorLabels" . | nindent 8 }}
     spec:
-      {{- if .Values.global.image.pullSecret }}
+      {{- if .Values.global.image.usePullSecret }}
       imagePullSecrets:
-      - name: {{ .Values.global.image.pullSecret }}
+      - name: {{ include "ai-product-catalog.fullname" . }}-pull-secret
       {{- end }}
       {{ if eq .Values.global.useServiceAccount true }}
       serviceAccountName: {{ include "ai-product-catalog.fullname" . }}

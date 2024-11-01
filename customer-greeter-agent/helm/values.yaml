@@ -9,7 +9,7 @@ serviceAccount:
 image:
   repository: registry.home.glroland.com/paas/
   name: ai-rhdh-customization-provider
-  tag: 3
+  tag: 19
   usePullSecret: true
   pullPolicy: IfNotPresent
   port: 8080

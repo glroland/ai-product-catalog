@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ai-product-catalog.fullname" . }}-init-sql
+  labels:
+    app.kubernetes.io/part-of: "{{ .Release.Name }}-ai-product-catalog"
+    {{- include "ai-product-catalog.labels" . | nindent 4 }}
+data:
+  create_db.sql: |+
+    create user ai_product_catalog with password 'ai_product_catalog123';
+    ALTER USER ai_product_catalog WITH SUPERUSER;
+
+    create database ai_product_catalog with owner ai_product_catalog;
