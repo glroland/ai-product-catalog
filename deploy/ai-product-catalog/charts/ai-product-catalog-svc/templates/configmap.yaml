@@ -30,7 +30,7 @@ data:
 
     # Database Configuration
     spring.datasource.driver-class-name=org.postgresql.Driver
-    spring.datasource.username=ai_product_catalog
+    spring.datasource.username=ai-product-catalog
     spring.datasource.password=ai_product_catalog123
     spring.datasource.url=jdbc:postgresql://{{ .Release.Name }}-db-primary:5432/ai_product_catalog
 
