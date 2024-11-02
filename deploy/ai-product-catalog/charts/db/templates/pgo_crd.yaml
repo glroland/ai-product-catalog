@@ -25,8 +25,8 @@ spec:
   service:
     type: ClusterIP
   users:
-    - name: postgres
-    - name: ai_product_catalog
+    - name: 'postgres'
+    - name: 'ai_product_catalog'
       databases:
-        - ai_product_catalog
+        - 'ai_product_catalog'
       options: 'SUPERUSER'
