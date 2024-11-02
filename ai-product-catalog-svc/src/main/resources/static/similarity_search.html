@@ -83,9 +83,12 @@
             
             // Loop through the values and create table cells
             vals.forEach((elem) => {
-               let td = document.createElement("td");
-               td.innerText = elem; // Set the value as the text of the table cell
-               tr.appendChild(td); // Append the table cell to the table row
+                let td = document.createElement("td");
+                var elem_str = elem;
+                if (typeof elem === 'number')
+                    elem_str = elem.toFixed(2)
+                td.innerText = elem_str; // Set the value as the text of the table cell
+                tr.appendChild(td); // Append the table cell to the table row
             });
             table.appendChild(tr); // Append the table row to the table
          });

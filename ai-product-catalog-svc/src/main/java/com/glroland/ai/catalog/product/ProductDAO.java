@@ -141,7 +141,8 @@ public class ProductDAO {
                         + "products.category_id as category_id, "
                         + "embedding <-> CAST(? as vector) as distance, "
                         + "1 - (embedding <=> CAST(? as vector)) as cosign_similarity, "
-                        + "(embedding <#> CAST(? as vector)) * -1 AS inner_product "
+                        + "(embedding <#> CAST(? as vector)) * -1 AS inner_product, "
+                        + "text_segment "
                  + "FROM products, categories, brands, product_embeddings " 
                  + "WHERE products.category_id = categories.category_id "
                  + "AND products.brand_id = brands.brand_id "
@@ -162,7 +163,8 @@ public class ProductDAO {
                                         rs.getInt("category_id"),
                                         rs.getDouble("distance"),
                                         rs.getDouble("cosign_similarity"),
-                                        rs.getDouble("inner_product")),
+                                        rs.getDouble("inner_product"),
+                                        rs.getString("text_segment")),
             new Object[] { embedding, embedding, embedding, embedding, limit });
 
         return products;

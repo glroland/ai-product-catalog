@@ -344,29 +344,67 @@ class ProductDataset:
             print (row)
 
 
-    def refresh_embeddings(self):
-        """Recreate all embeddings based on the master data frame.
+    def create_text_fragment_for_embedding_full(self, row):
+        """ Create a text fragment for embedding purposes.  This function uses 
+            the original algorithm used with the POC.
+            
+            row -- row of product attributes
         """
-        self.products_df.apply(lambda row: self.append_embedding_for_product(
-                                            row), axis=1, result_type='expand')
-        print (self.embeddings_df.head())
-        return self.embeddings_df
-
-
-    def append_embedding_for_product(self, row):
-        """Recreate the embedding for the provided product record.
-
-        Keyword arguments:
-        row -- product record
-        """
-        product_id = row[self.ProductColumns.ID]
-
         embedded_text = f"""'{row[self.ProductColumns.NAME]}',
                             '{row[self.ProductColumns.SKU]}',
                             {row[self.ProductColumns.PRICE]},
                             '{row[self.ProductColumns.BRAND_DESC]}',
                             '{row[self.ProductColumns.DESC]}'"""
-        embedded_text = embedded_text.replace("\n", " ")
+
+        return embedded_text.replace("\n", " ")
+
+
+    def create_text_fragment_for_embedding_desc_only(self, row):
+        """ Create a text fragment for embedding purposes.  This function uses 
+            only the description.
+            
+            row -- row of product attributes
+        """
+        embedded_text = f"""{row[self.ProductColumns.DESC]}"""
+
+        return embedded_text.replace("\n", " ")
+
+
+    def refresh_embeddings(self):
+        """Recreate all embeddings based on the master data frame.
+        """
+        # purge existing embeddings
+        delete_sql = "truncate table product_embeddings"
+        self.sql_execute(delete_sql, [], False)
+        self.embeddings_df = pd.DataFrame(columns=(self.EmbeddingColumns.PRODUCT_ID,
+                                                  self.EmbeddingColumns.MODEL,
+                                                  self.EmbeddingColumns.TEXT_SEGMENT,
+                                                  self.EmbeddingColumns.EMBEDDING))
+
+        # recreate embeddings for each product
+        for row in self.products_df.iterrows():
+            product_row = row[1]
+
+            # original poc - full text embedding
+            embedded_text = self.create_text_fragment_for_embedding_full(product_row)
+            self.create_embedding(product_row, embedded_text)
+
+            # description only
+            embedded_text = self.create_text_fragment_for_embedding_desc_only(product_row)
+            self.create_embedding(product_row, embedded_text)
+
+        print (self.embeddings_df.head())
+        return self.embeddings_df
+
+
+    def create_embedding(self, row, embedded_text):
+        """Recreate the embedding for the provided product record.
+
+        Keyword arguments:
+        row -- product record
+        embedded_text -- associated embedded text
+        """
+        product_id = row[self.ProductColumns.ID]
 
         print ("Preparing to create embedding....  Product_ID:", product_id,
                                                   "Model:", self.model_name,
