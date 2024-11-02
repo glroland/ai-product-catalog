@@ -25,8 +25,8 @@ def main():
 
     with psycopg.connect(db_conn_str, autocommit=True) as db_connection:
         with db_connection.cursor() as c:
-            c.execute("create user ai_product_catalog with password 'ai_product_catalog123'")
-            c.execute("ALTER USER ai_product_catalog WITH SUPERUSER")
+            c.execute("create user 'ai-product-catalog' with password 'ai_product_catalog123'")
+            c.execute("ALTER USER 'ai-product-catalog' WITH SUPERUSER")
             c.execute("create database ai_product_catalog with owner ai_product_catalog")
 
 
