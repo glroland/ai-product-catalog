@@ -20,7 +20,13 @@ spec:
   port: 5432
   postgresVersion: 16
   databaseInitSQL:
-    key: create_db.sql
+    key: create_tables.sql
     name: {{ include "ai-product-catalog.fullname" . }}-init-sql
   service:
     type: ClusterIP
+  users:
+    - name: postgres
+    - name: ai_product_catalog
+      databases:
+        - ai_product_catalog
+      options: 'SUPERUSER'
