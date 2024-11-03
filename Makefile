@@ -3,7 +3,8 @@
 #
 db_host ?= localhost
 db_port ?= 5432
-db_user ?= ai_product_catalog
+db_user ?= ai-product-catalog
+db_name ?= ai_product_catalog
 db_password ?= ai_product_catalog123
 db_dba_user ?= postgres
 db_dba_password ?= S@mmyR0cks
@@ -30,8 +31,8 @@ else
 	psql -h "$(db_host)" -p "$(db_port)" -w -f data/sql_ddl/drop_db.sql
 	psql -h "$(db_host)" -p "$(db_port)" -w -f data/sql_ddl/create_db.sql
 endif
-	PGPASSWORD="$(db_password)" psql -h "$(db_host)" -p "$(db_port)" -U "$(db_user)" -w -f data/sql_ddl/create_tables.sql
-	cd data && jupyter nbconvert --to python ingest_dataworld_nike_dataset.ipynb --stdout  | DB_HOST="$(db_host)" DB_PORT="$(db_port)" DB_USER="$(db_user)" DB_PASSWORD="$(db_password)" python
+	PGPASSWORD="$(db_password)" psql -h "$(db_host)" -p "$(db_port)" -U "$(db_user)" -d "$(db_name)" -w -f data/sql_ddl/create_tables.sql
+	cd data && jupyter nbconvert --to python ingest_dataworld_nike_dataset.ipynb --stdout  | DB_HOST="$(db_host)" DB_PORT="$(db_port)" DB_USER="$(db_user)" DB_PASSWORD="$(db_password)" DB_NAME="$(db_name)" python
 
 
 #
