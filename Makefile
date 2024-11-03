@@ -6,7 +6,7 @@ db_port ?= 5432
 db_user ?= ai_product_catalog
 db_password ?= ai_product_catalog123
 db_dba_user ?= postgres
-db_dba_password ?= r3dh@t123
+db_dba_password ?= S@mmyR0cks
 run_chatbot_port ?= 8080
 run_storefront_port ?= 8081
 run_greeter_port ?= 8082
@@ -24,14 +24,14 @@ data.install:
 
 data.db:
 ifneq "$(db_dba_password)" "" 
-	PGPASSWORD=$(db_dba_password) psql -h $(db_host) -p $(db_port) -U $(db_dba_user) -f data/sql_ddl/drop_db.sql
-	PGPASSWORD=$(db_dba_password) psql -h $(db_host) -p $(db_port) -U $(db_dba_user) -f data/sql_ddl/create_db.sql
+	PGPASSWORD="$(db_dba_password)" psql -h "$(db_host)" -p "$(db_port)" -U "$(db_dba_user)" -f data/sql_ddl/drop_db.sql
+	PGPASSWORD="$(db_dba_password)" psql -h "$(db_host)" -p "$(db_port)" -U "$(db_dba_user)" -f data/sql_ddl/create_db.sql
 else
-	psql -h $(db_host) -p $(db_port) -w -f data/sql_ddl/drop_db.sql
-	psql -h $(db_host) -p $(db_port) -w -f data/sql_ddl/create_db.sql
+	psql -h "$(db_host)" -p "$(db_port)" -w -f data/sql_ddl/drop_db.sql
+	psql -h "$(db_host)" -p "$(db_port)" -w -f data/sql_ddl/create_db.sql
 endif
-	PGPASSWORD=$(db_password) psql -h $(db_host) -p $(db_port) -U $(db_user) -w -f data/sql_ddl/create_tables.sql
-	cd data && jupyter nbconvert --to python ingest_dataworld_nike_dataset.ipynb --stdout  | DB_HOST=$(db_host) DB_PORT=$(db_port) DB_USER=$(db_user) DB_PASSWORD=$(db_password) python
+	PGPASSWORD="$(db_password)" psql -h "$(db_host)" -p "$(db_port)" -U "$(db_user)" -w -f data/sql_ddl/create_tables.sql
+	cd data && jupyter nbconvert --to python ingest_dataworld_nike_dataset.ipynb --stdout  | DB_HOST="$(db_host)" DB_PORT="$(db_port)" DB_USER="$(db_user)" DB_PASSWORD="$(db_password)" python
 
 
 #
