@@ -5,3 +5,4 @@ pandas
 psycopg[binary]
 datadotworld
 sentence-transformers
+openai
