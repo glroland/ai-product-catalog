@@ -3,6 +3,7 @@
 import os
 import pandas as pd
 import psycopg
+from openai import OpenAI, APIConnectionError
 from sentence_transformers import SentenceTransformer
 
 
@@ -65,11 +66,13 @@ class ProductDataset:
     embeddings_df = None
     embeddings_counter = 0
     model_name = None
+    openai_url = None
 
     def __init__(self,
                  data_source_description,
                  target_database_conn_str,
                  model_name,
+                 openai_url,
                  max_embeddings_allowed = -1):
         """Initialize the product data set processing library.
 
@@ -77,6 +80,7 @@ class ProductDataset:
         data_source_description -- short form description of the data source
         target_database_conn_str -- destination database connection string
         model_name -- name of the sentence transformers model to use for embeddings
+        openai_url -- open ai api url
         max_embeddings_allowed -- optional limit for the number of embeddings processed by the load.  
                                 useful for managing costs during development and testing.
         """
@@ -84,6 +88,7 @@ class ProductDataset:
         self.target_database_conn_str = target_database_conn_str
         self.max_embeddings_allowed = max_embeddings_allowed
         self.model_name = model_name
+        self.openai_url = openai_url
 
         if self.target_database_conn_str is None or len(self.target_database_conn_str) == 0:
             raise RuntimeError("Database Connection String for Destination DB is required!")
@@ -370,6 +375,58 @@ class ProductDataset:
         return embedded_text.replace("\n", " ")
 
 
+    def create_text_fragment_for_embedding_keywords(self, row):
+        """ Create a text fragment for embedding purposes.  This function uses 
+            an LLM via an OpenAI API to get appropriate keywords based on the product.
+            
+            row -- row of product attributes
+        """
+
+        system_prompt = """
+
+            You are the product recommendation engine for an e-commerce website whose role is to take product information and suggest keywords that will help align products with customer interest.  Keywords should reflect prominent attributes and uses of the product provided.  For example, if the prompt is about shoes, then style and intended use should always be included in the attributes.
+
+            Each user prompt will be a description of the product.  In a conversation, each user prompt is a standalone request and is completely unrelated to any other user prompts.  Based on that description, your response must be an array of strings, where each string is an attribute. 
+            
+            You MUST not include anything other than the attributes in your response.  This includes NOT including a header or a footer.  You are encouraged to be creative with the attributes returned.  DO NOT ask if you were correct and DO NOT thank me for asking you a question!
+
+            Do not respond with more than 10 attributes.
+
+            Here is an example.
+
+            Input:
+
+            The Nike Canyon Sandal sets your journey off in style. Heritage-inspired design features a beefy outsole, plush foam midsole, triple-strap closure and premium metallic finishes. From cityscapes to the river banks, this versatile powerhouse will keep you steady on your feet and comfortable tackling whatever lies ahead.
+
+            Output:
+
+            Hiking, Walking, Versatile, Stylish, Comfortable
+
+                        """
+
+        try:
+            openai_client = OpenAI(
+                base_url = self.openai_url,
+                api_key = "not_used",
+                timeout = 1000)
+
+            completion = openai_client.chat.completions.create(
+                model="llama3.2",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": row[self.ProductColumns.DESC]}
+                ],
+                temperature=0.8,
+                max_tokens=5000,
+                top_p=1.0
+            )
+
+            return completion.choices[0].message.content
+
+        except APIConnectionError as e:
+            raise ValueError(f"Unable to connect to endpoint: {self.openai_url} DueTo={e}")
+
+
     def refresh_embeddings(self):
         """Recreate all embeddings based on the master data frame.
         """
@@ -385,13 +442,21 @@ class ProductDataset:
         for row in self.products_df.iterrows():
             product_row = row[1]
 
-            # original poc - full text embedding
-            embedded_text = self.create_text_fragment_for_embedding_full(product_row)
-            self.create_embedding(product_row, embedded_text)
+            # only do embeddings for products with a description
+            product_desc = product_row[self.ProductColumns.DESC]
+            if product_desc is not None and len(product_desc) > 0:
 
-            # description only
-            embedded_text = self.create_text_fragment_for_embedding_desc_only(product_row)
-            self.create_embedding(product_row, embedded_text)
+                # original poc - full text embedding
+                embedded_text = self.create_text_fragment_for_embedding_full(product_row)
+                self.create_embedding(product_row, embedded_text)
+
+                # description only
+                embedded_text = self.create_text_fragment_for_embedding_desc_only(product_row)
+                self.create_embedding(product_row, embedded_text)
+
+                # openai keywords
+                embedded_text = self.create_text_fragment_for_embedding_keywords(product_row)
+                self.create_embedding(product_row, embedded_text)
 
         print (self.embeddings_df.head())
         return self.embeddings_df
