@@ -102,11 +102,12 @@ def chat(chat_request: ChatRequest):
         product_attributes = json_response["Attributes"]
 
     # Process matching products data
-    matching_products = state["matching_products"]
-    logging.info("Matching Products: %s", matching_products)
-    if matching_products is None:
+    matching_products = ""
+    if "matching_products" in state and state["matching_products"] is not None:
+        matching_products = state["matching_products"]
+    else:
         logging.info("No matching products.  Defaulting to empty string")
-        matching_products = ""
+    logging.info("Matching Products: %s", matching_products)
 
     # Map State to Response Object
     response = {
