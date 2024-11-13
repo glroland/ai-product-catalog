@@ -60,7 +60,7 @@ def clarify_customer_requirements(state: ss.CustomerVisitState):
 
     logger.debug ("Message History and Latest User Message prior to LLM>>  %s", state["messages"])
 
-    if state["matching_products"] is not None:
+    if "matching_products" in state and state["matching_products"] is not None:
         state["matching_products"].clear()
 
     response = clarify_customer_requirements_action(state["messages"])
