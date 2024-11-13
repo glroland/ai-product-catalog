@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: ai-product-catalog-all
+  description: An AI-enabled Product Catalog Application
+spec:
+  type: url
+  targets:
+     - ai-product-catalog-svc/catalog-info.yaml
+     - customer-chatbot/catalog-info.yaml
+     - storefront-svc/catalog-info.yaml
