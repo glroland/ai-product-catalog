@@ -7,5 +7,5 @@ metadata:
 immutable: false
 data:
   OPENAI_BASEURL: "http://ocpwork:11434/v1"
-  OPENAI_MODEL: "llama3.1"
+  OPENAI_MODEL: "llama3.2"
   OPENAI_APIKEY: "nokey"
