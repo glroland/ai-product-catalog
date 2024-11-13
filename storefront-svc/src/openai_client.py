@@ -27,7 +27,8 @@ def openai_invoke(messages, max_tokens=100, temperature=0.8, json_mode = False):
     url = "http://ocpwork.home.glroland.com:11434/v1"
     if ENV_OPENAI_BASEURL in os.environ:
         url = os.environ[ENV_OPENAI_BASEURL]
-    model = "llama3.1"
+    # TODO - make the defaults managed by make versus hard coded
+    model = "llama3.2"
     if ENV_OPENAI_MODEL in os.environ:
         model = os.environ[ENV_OPENAI_MODEL]
     apikey = "nokey"
