@@ -25,7 +25,7 @@ spec:
     spec:
       {{- if .Values.global.image.usePullSecret }}
       imagePullSecrets:
-      - name: {{ include "ai-product-catalog.fullname" . }}-pull-secret
+      - name: ai-product-catalog-pull-secret
       {{- end }}
       {{ if eq .Values.global.useServiceAccount true }}
       serviceAccountName: {{ include "ai-product-catalog.fullname" . }}
