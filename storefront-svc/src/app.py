@@ -87,7 +87,9 @@ def chat(chat_request: ChatRequest):
     qualified_customer_flag = bool("YES" == state["qualified_customer"])
 
     # Prepare attributes response
-    product_attributes = state["product_attributes"]
+    product_attributes = ""
+    if "product_attributes" in state:
+        product_attributes = state["product_attributes"]
 
     # Prepare default AI Response - allows ai to override logic by design
     if state["most_recent_ai_response"] is None:
