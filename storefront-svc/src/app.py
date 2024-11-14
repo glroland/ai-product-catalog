@@ -11,6 +11,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from supervisor import inquiry_by_customer
+from json.decoder import JSONDecodeError
 
 logger = logging.getLogger(__name__)
 
@@ -97,9 +98,15 @@ def chat(chat_request: ChatRequest):
             product_attributes = ""
     else:
         json_str_response = state["most_recent_ai_response"].content
-        json_response = json.loads(json_str_response)
-        ai_response = json_response["Response"]
-        product_attributes = json_response["Attributes"]
+        product_attributes = None
+        try:
+            json_response = json.loads(json_str_response)
+            ai_response = json_response["Response"]
+            if "Attributes" in json_response:
+                product_attributes = json_response["Attributes"]
+        except JSONDecodeError as e:
+            logger.error("Unable to parse JSON response!  JsonStr=%s", json_str_response)
+            ai_response = json_str_response
 
     # Process matching products data
     matching_products = ""
@@ -110,6 +117,7 @@ def chat(chat_request: ChatRequest):
     logging.info("Matching Products: %s", matching_products)
 
     # Map State to Response Object
+    logger.info("AI Response - %s", ai_response)
     response = {
         "ai_response": f"{ai_response}",
         "qualified_customer_flag": qualified_customer_flag,
