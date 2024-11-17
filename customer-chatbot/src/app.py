@@ -8,6 +8,13 @@ import uuid
 import streamlit as st
 from api_gateway import invoke_chat_api
 from utils import list_of_strings_to_markdown
+from constants import SessionStateVariables
+from constants import StorefrontResponseVariables
+from constants import AppUserInterfaceElements
+from constants import QuickResponses
+from constants import CannedGreetings
+from constants import ProductAttributes
+from constants import MessageAttributes
 
 logger = logging.getLogger(__name__)
 
@@ -18,16 +25,16 @@ logging.basicConfig(level=logging.DEBUG,
     ])
 
 # Initialize Streamlit State
-if "client_id" not in st.session_state:
-    st.session_state["client_id"] = str(uuid.uuid4())
-if "messages" not in st.session_state:
-    st.session_state["messages"] = []
-if "last_state" not in st.session_state:
-    st.session_state["last_state"] = ""
-if "identified_attributes" not in st.session_state:
-    st.session_state["identified_attributes"] = ""
-if "matching_products" not in st.session_state:
-    st.session_state["matching_products"] = ""
+if SessionStateVariables.CLIENT_ID not in st.session_state:
+    st.session_state[SessionStateVariables.CLIENT_ID] = str(uuid.uuid4())
+if SessionStateVariables.MESSAGES not in st.session_state:
+    st.session_state[SessionStateVariables.MESSAGES] = []
+if SessionStateVariables.LAST_STATE not in st.session_state:
+    st.session_state[SessionStateVariables.LAST_STATE] = ""
+if SessionStateVariables.IDENTIFIED_ATTRIBUTES not in st.session_state:
+    st.session_state[SessionStateVariables.IDENTIFIED_ATTRIBUTES] = ""
+if SessionStateVariables.MATCHING_PRODUCTS not in st.session_state:
+    st.session_state[SessionStateVariables.MATCHING_PRODUCTS] = ""
 
 # Process a text response
 def process_user_message(prompt):
@@ -41,45 +48,46 @@ def process_user_message(prompt):
     logger.info ("st.session_state.messages - %s", st.session_state.messages)
 
     # Invoke Backend API
-    response = invoke_chat_api(prompt, st.session_state["client_id"])
+    response = invoke_chat_api(prompt, st.session_state[SessionStateVariables.CLIENT_ID])
     logger.info("Response: %s", response)
-    st.session_state["last_response"] = response
+    st.session_state[SessionStateVariables.LAST_RESPONSE] = response
 
     # Was the customer qualified?
-    if not response["qualified_customer_flag"]:
+    if not response[StorefrontResponseVariables.QUALIFIED_CUSTOMER_FLAG]:
         logger.info("Customer not qualified. Resetting state...")
 
         # Reset the state
-        st.session_state["messages"] = []
-        st.session_state["last_state"] = ""
-        st.session_state["identified_attributes"] = ""
-        st.session_state["matching_products"] = ""
+        st.session_state[SessionStateVariables.MESSAGES] = []
+        st.session_state[SessionStateVariables.LAST_STATE] = ""
+        st.session_state[SessionStateVariables.IDENTIFIED_ATTRIBUTES] = ""
+        st.session_state[SessionStateVariables.MATCHING_PRODUCTS] = ""
 
     else:
         # Get AI Product Attributes
-        st.session_state["identified_attributes"] = response["identified_attributes"]
+        st.session_state[SessionStateVariables.IDENTIFIED_ATTRIBUTES] = \
+                    response[StorefrontResponseVariables.IDENTIFIED_ATTRIBUTES]
         logger.info ("AI Product Attributes Type<%s> - %s",
-                     type(st.session_state["identified_attributes"]),
-                     st.session_state["identified_attributes"])
+                     type(st.session_state[SessionStateVariables.IDENTIFIED_ATTRIBUTES]),
+                     st.session_state[SessionStateVariables.IDENTIFIED_ATTRIBUTES])
 
         # Get Matching Products
-        st.session_state["matching_products"] = response["matching_products"]
+        st.session_state[SessionStateVariables.MATCHING_PRODUCTS] = \
+                    response[StorefrontResponseVariables.MATCHING_PRODUCTS]
         logger.info ("Matching Products Type<%s> - %s",
-                     type(st.session_state["matching_products"]),
-                     st.session_state["matching_products"])
+                     type(st.session_state[SessionStateVariables.MATCHING_PRODUCTS]),
+                     st.session_state[SessionStateVariables.MATCHING_PRODUCTS])
 
     # Get AI Response to Latest Inquiry
-    ai_response = response["ai_response"]
+    ai_response = response[StorefrontResponseVariables.AI_RESPONSE]
     logger.info ("AI Response Message: %s", ai_response)
 
     # Append AI Response to history
-    st.session_state.messages.append({"role": "assistant",
-                                    "content": ai_response})
-    messages.chat_message("assistant").write(ai_response)
-
+    st.session_state.messages.append({MessageAttributes.ROLE: MessageAttributes.ASSISTANT,
+                                    MessageAttributes.CONTENT: ai_response})
+    messages.chat_message(MessageAttributes.ASSISTANT).write(ai_response)
 
 # Initialize High Level Page Structure
-st.title("💬 Let's GOOOOO!!!! Shoe Store")
+st.title(AppUserInterfaceElements.TITLE)
 st.markdown("""
     <style>
         .reportview-container {
@@ -95,40 +103,47 @@ st.markdown("""
 # Build Side Bar
 with st.sidebar:
     # Additional Details - Attributes
-    st.subheader("Identified Attributes", divider=True)
-    st.markdown(list_of_strings_to_markdown(st.session_state["identified_attributes"]))
+    st.subheader(AppUserInterfaceElements.ATTRIBUTES_HEADER, divider=True)
+    st.markdown(list_of_strings_to_markdown(
+        st.session_state[SessionStateVariables.IDENTIFIED_ATTRIBUTES]
+    ))
 
     # Additional Details - Matched Products
-    st.subheader("Product Recommendations", divider=True)
-    if st.session_state["matching_products"] is not None:
-        for product in st.session_state["matching_products"]:
-            cosign_similarity = round(product["cosign_similarity"] * 100)
-            label = product["product_name"] # + f" ({cosign_similarity}%)"
+    st.subheader(AppUserInterfaceElements.PRODUCTS_HEADER, divider=True)
+    if st.session_state[SessionStateVariables.MATCHING_PRODUCTS] is not None:
+        for product in st.session_state[SessionStateVariables.MATCHING_PRODUCTS]:
+            cosign_similarity = round(product[ProductAttributes.SIMILARITY] * 100)
+            label = product[ProductAttributes.NAME] # + f" ({cosign_similarity}%)"
             with st.popover(label=label, use_container_width=True):
-                msrp = product["msrp"]
+                msrp = product[ProductAttributes.MSRP]
                 st.markdown(f"MSRP ${msrp}")
-                st.markdown("SKU #" + product["sku"])
+                st.markdown("SKU #" + product[ProductAttributes.SKU])
                 st.markdown(f"Similarity - {cosign_similarity}%")
 
     # Quick Response Buttons
-    st.subheader("Quick Responses", divider=True)
-    st.button("Generic Greeting", on_click=process_user_message, use_container_width=True,
-              args=("Hello, I am looking for a new pair of shoes.", ))
-    st.button("Specific Ask", on_click=process_user_message, use_container_width=True,
-              args=("I am looking for a new pair of high tops for playing pickup " +
-                    "games of Basketball with my friends.  If you have multiple " +
-                    "options, I would like a retro look and love the color white. " +
-                    "Also, I am a huge Michael Jordan fan!", ))
-    st.button("Unrelated Question", on_click=process_user_message, use_container_width=True,
-              args=("What's the weather like today?", ))
-    st.button("Generic Clarification", on_click=process_user_message, use_container_width=True,
-              args=("I like baseball and the color red.", ))
+    st.subheader(AppUserInterfaceElements.QUICK_RESPONSES, divider=True)
+    st.button(QuickResponses.GENERIC_GREETING_BTN,
+              on_click=process_user_message,
+              use_container_width=True,
+              args=(QuickResponses.GENERIC_GREETING_PROMPT, ))
+    st.button(QuickResponses.SPECIFIC_ASK_BTN,
+              on_click=process_user_message,
+              use_container_width=True,
+              args=(QuickResponses.SPECIFIC_ASK_PROMPT, ))
+    st.button(QuickResponses.UNRELATED_ASK_BTN,
+              on_click=process_user_message,
+              use_container_width=True,
+              args=(QuickResponses.UNRELATED_ASK_PROMPT, ))
+    st.button(QuickResponses.GENERIC_CLARIFICATION_BTN,
+              on_click=process_user_message,
+              use_container_width=True,
+              args=(QuickResponses.GENERIC_CLARIFICATION_PROMPT, ))
 
 # Initialize Chat Box
 messages = st.container(height=300)
-messages.chat_message("assistant").write("Thank you for visiting our store.  How may we help you?")
+messages.chat_message(MessageAttributes.ASSISTANT).write(CannedGreetings.INTRO)
 for msg in st.session_state.messages:
-    messages.chat_message(msg["role"]).write(msg["content"])
+    messages.chat_message(msg[MessageAttributes.ROLE]).write(msg[MessageAttributes.CONTENT])
 
 # Gather and log user prompt
 if user_input := st.chat_input():
