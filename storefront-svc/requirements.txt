@@ -8,4 +8,9 @@ pytest
 openai
 langchain_openai
 psycopg[binary]
+
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==2.3.1+cpu
+
 sentence-transformers
+
