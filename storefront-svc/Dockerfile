@@ -19,4 +19,4 @@ COPY ./src/ .
 ENV NUM_WORKERS = 10
 
 # Specify the command to run on container start
-CMD [ "fastapi", "run", "--host", "0.0.0.0", "--port", "8080", "--no-reload", "--workers", "$NUM_WORKERS" ]
+CMD [ "fastapi", "run", "--host", "0.0.0.0", "--port", "8080", "--no-reload", "--workers", $NUM_WORKERS ]
