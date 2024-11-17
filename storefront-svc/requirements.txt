@@ -1,6 +1,6 @@
 ipykernel
 pylint
-fastapi
+fastapi[standard]
 uvicorn
 requests
 langgraph

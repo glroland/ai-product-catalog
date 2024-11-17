@@ -61,7 +61,7 @@ storefront.install:
 	cd storefront-svc && pip install -r requirements.txt
 
 storefront.run: #storefront.lint
-	cd storefront-svc/src && PORT=$(run_storefront_port) python app.py
+	cd storefront-svc/src && fastapi dev --host 0.0.0.0 --port $(run_storefront_port) --reload
 
 storefront.run.supervisor:
 	cd storefront-svc/src && ENV_PRODUCT_SERVICE_ADDRESS=http://localhost:8083 python supervisor.py --show-options

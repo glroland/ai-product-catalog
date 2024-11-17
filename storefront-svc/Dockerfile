@@ -1,8 +1,7 @@
 FROM registry.access.redhat.com/ubi9/python-311:1-77.1729767833
 
-# By default, listen on port 8080
+# listen on port 8080
 EXPOSE 8080/tcp
-#ENV UVICORN_PORT=8080
 
 # Set the working directory in the container
 WORKDIR /projects
@@ -16,5 +15,8 @@ RUN pip install -r requirements.txt
 # Copy the content of the local src directory to the working directory
 COPY ./src/ .
 
+# Environment variable for number of workers
+ENV NUM_WORKERS = 10
+
 # Specify the command to run on container start
-CMD [ "python", "./app.py" ]
+CMD [ "fastapi", "run", "--host", "0.0.0.0", "--port", "8080", "--no-reload", "--workers", "${NUM_WORKERS}" ]
