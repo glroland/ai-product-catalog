@@ -10,3 +10,4 @@ data:
   OPENAI_MODEL: "llama3.2"
   OPENAI_APIKEY: "nokey"
   PRODUCT_DB_CONN_STRING: "host={{ .Release.Name }}-db-primary port=5432 dbname=ai_product_catalog user=ai-product-catalog password=ai_product_catalog123 connect_timeout=30"
+  NUM_WORKERS: "20"

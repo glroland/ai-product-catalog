@@ -63,6 +63,11 @@ spec:
                 configMapKeyRef:
                   name: {{ include "ai-product-catalog.fullname" . }}
                   key: PRODUCT_DB_CONN_STRING
+            - name: NUM_WORKERS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "ai-product-catalog.fullname" . }}
+                  key: NUM_WORKERS
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           readinessProbe:
