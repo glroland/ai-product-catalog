@@ -9,7 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from api.chat import chat_api_handler, ChatRequest
 from api.health import health_api_handler
-from api.default import default_api_handler
+from api.default import default_api_handler, DefaultResponse
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     return JSONResponse(content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 @app.get("/")
-def default():
+def default() -> DefaultResponse:
     """Provide a simple textual response to the root url to verify the application is working.
     """
     return default_api_handler()

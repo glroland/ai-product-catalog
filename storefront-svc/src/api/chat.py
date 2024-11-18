@@ -7,6 +7,7 @@ import logging
 from json.decoder import JSONDecodeError
 from pydantic import BaseModel
 from supervisor import inquiry_by_customer
+from utils.data import to_json_string, get_state_value, get_state_strlist
 
 logger = logging.getLogger(__name__)
 
@@ -16,68 +17,70 @@ UNRELATED_RESPONSE = "I'm sorry but this is a shoe store.  " + \
 
 IM_SPEECHLESS_RESPONSE = "Whoah!  You stumped the AI!  Not sure how you got here!"
 
+ERROR_RESPONSE = "ERROR: My AI brain is very fried right now.  Please try again!"
+
 class ChatRequest(BaseModel):
     """ Chat Request Input Structure """
-    user_message: str
-    client_id: str
+    client_id : str
+    user_message : str
 
-def chat_api_handler(chat_request: ChatRequest):
+    def __str__(self) -> str:
+        return to_json_string(self)
+
+class ChatResponse(BaseModel):
+    """ Chat Request Output Structure """
+    ai_response : str | None = None
+    qualified_customer_flag : bool = False
+    identified_attributes : list[str] = []
+    matching_products: list[str] = []
+
+    def __str__(self) -> str:
+        return to_json_string(self)
+
+def chat_api_handler(chat_request: ChatRequest) -> ChatResponse:
     """Virtual Store entry point for textual interaction with the customer.
 
     Keyword arguments:
     chat_request - chat request object
     """
-    user_message = chat_request.user_message
-    client_id = chat_request.client_id
-    logging.info("chat() User_Message: %s   Client_ID: %s", user_message, client_id)
-
     # Invoke LangGraph Agent
-    state = inquiry_by_customer(user_message, client_id)
+    logger.info("chat_api_handler() chat_request: %s", chat_request)
+    state = inquiry_by_customer(chat_request.user_message, chat_request.client_id)
     logger.info("Resulting State After Invoke: %s", state)
 
-    # Create qualification flag
-    qualified_customer_flag = bool("YES" == state["qualified_customer"])
+    # Build Response
+    response = ChatResponse()
+    response.qualified_customer_flag = bool("YES" == get_state_value(state, "qualified_customer", False))
+    response.identified_attributes = get_state_strlist(state, "product_attributes")
+    response.matching_products = get_state_value(state, "matching_products", [])
 
-    # Prepare attributes response
-    product_attributes = ""
-    if "product_attributes" in state:
-        product_attributes = state["product_attributes"]
+    # Get the AI Response, if existent
+    most_recent_response = get_state_value(state, "most_recent_ai_response", None)
+    json_str_response = ""
+    if most_recent_response is not None and most_recent_response.content is not None:
+        json_str_response = most_recent_response.content
 
-    # Prepare default AI Response - allows ai to override logic by design
-    if state["most_recent_ai_response"] is None:
-        if qualified_customer_flag is True:
-            ai_response = IM_SPEECHLESS_RESPONSE
+    # Build AI Response
+    if len(json_str_response) == 0:
+        # Empty Response
+        if response.qualified_customer_flag:
+            response.ai_response = IM_SPEECHLESS_RESPONSE
         else:
-            ai_response = UNRELATED_RESPONSE
-            product_attributes = ""
+            response.ai_response = UNRELATED_RESPONSE
+            response.identified_attributes.clear()
+            response.matching_products.clear()
     else:
-        json_str_response = state["most_recent_ai_response"].content
-        product_attributes = None
+        # Textual Response
+        response.identified_attributes.clear()
         try:
             json_response = json.loads(json_str_response)
-            ai_response = json_response["Response"]
-            if "Attributes" in json_response:
-                product_attributes = json_response["Attributes"]
+            response.ai_response = get_state_value(json_response, "Response", ERROR_RESPONSE)
+            response.identified_attributes = get_state_strlist(json_response, "Attributes")
         except JSONDecodeError as e:
             logger.error("Unable to parse JSON response!  JsonStr=%s  Exception=%s",
                          json_str_response, e)
-            ai_response = json_str_response
+            response.ai_response = json_str_response
 
-    # Process matching products data
-    matching_products = ""
-    if "matching_products" in state and state["matching_products"] is not None:
-        matching_products = state["matching_products"]
-    else:
-        logging.info("No matching products.  Defaulting to empty string")
-    logging.info("Matching Products: %s", matching_products)
-
-    # Map State to Response Object
-    logger.info("AI Response - %s", ai_response)
-    response = {
-        "ai_response": f"{ai_response}",
-        "qualified_customer_flag": qualified_customer_flag,
-        "identified_attributes": product_attributes,
-        "matching_products": matching_products
-    }
+    # Return Response
     logger.info("Response to Chat Request <<< %s >>>", response)
     return response
