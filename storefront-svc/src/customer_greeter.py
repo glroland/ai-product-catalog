@@ -4,7 +4,7 @@ Analyzes a new customer inquiry to determine if its a qualified opportunity or n
 """
 import logging
 from langchain_core.messages import HumanMessage, SystemMessage
-from openai_client import openai_invoke
+from utils.openai_client import openai_invoke
 
 logger = logging.getLogger(__name__)
 

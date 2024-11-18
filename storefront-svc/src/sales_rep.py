@@ -5,7 +5,7 @@ shoes they want to buy.
 """
 import logging
 from langchain_core.messages import SystemMessage
-from openai_client import openai_invoke
+from utils.openai_client import openai_invoke
 
 logger = logging.getLogger(__name__)
 
