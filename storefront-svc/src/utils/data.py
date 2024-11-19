@@ -12,6 +12,69 @@ def to_json_string(i : BaseModel):
     """
     return i.model_dump_json(indent=2)
 
+def is_not_empty_str(s):
+    """ Analyzes the variable to ensure it is a non-empty string.
+    
+        s - string
+    """
+    if s is None or not isinstance(s, str) or len(s) == 0 or len(s.trim()) == 0:
+        return False
+    return True
+
+def is_key_similar(primary, secondary):
+    """ Analyzes the provided keys and determines if they are similar or a match.
+    
+        primary - first key
+        secondary - second key
+    """
+    # validate input parameters
+    if not is_not_empty_str(primary):
+        msg = "is_key_similar() Primary string is invalid or empty!"
+        logger.error(msg)
+        raise ValueError(msg)
+    if not is_not_empty_str(secondary):
+        msg = "is_key_similar() Secondary string is invalid or empty!"
+        logger.error(msg)
+        raise ValueError(msg)
+
+    # trim values and standardize case
+    p = primary.trim().lower()
+    s = secondary.trim().lower()
+
+    return p == s
+
+def find_approximate_key_for_state(state, variable_name):
+    """ Searches the list of keys already in state to find an approximate
+        match.  The problem this is solving ties to how LLMs do not always
+        obey guidance, so this attempts to find something that is similar.
+        
+        Initial matches seek to ignore case and whitespace.
+        
+        state - some type of dict
+        variable_name - key
+    """
+    # validate input
+    if state is None or not isinstance(state, dict):
+        msg = f"find_approximate_key_for_state() State is null or invalid! T={type(state)}"
+        logger.error(msg)
+        raise ValueError(msg)
+
+    # get keys
+    keys = state.keys()
+    if len(keys) == 0:
+        logger.warning("find_approximate_key_for_state() No keys in state! Using default.")
+        return variable_name
+
+    # work through each key
+    for key in keys:
+        if is_key_similar(variable_name, key):
+            return key
+
+    # No match found, keeping default
+    logger.warning("Key not found in state.  Using default...  Key=%s  State=%s",
+                   variable_name, state)
+    return variable_name
+
 def get_state_value(state, variable_name, default_value):
     """ Gets the provided variable from the state object, along with all
         the error handling needed given that state data could be all over
@@ -31,7 +94,7 @@ def get_state_value(state, variable_name, default_value):
         return default_value
 
     if variable_name not in state:
-        logger.debug("Key not in state, using default.   Key=%s", variable_name)
+        logger.info("Key not in state, using default.   Key=%s  State=%s", variable_name, state)
         return default_value
 
     return state[variable_name]

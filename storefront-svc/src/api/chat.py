@@ -64,6 +64,8 @@ def chat_api_handler(chat_request: ChatRequest) -> ChatResponse:
     json_str_response = ""
     if most_recent_response is not None and most_recent_response.content is not None:
         json_str_response = most_recent_response.content
+    else:
+        logger.warning("Most Recent AI Response is Empty or Invalid!")
 
     # Build AI Response
     if len(json_str_response) == 0:
@@ -78,6 +80,7 @@ def chat_api_handler(chat_request: ChatRequest) -> ChatResponse:
         # Textual Response
         response.identified_attributes.clear()
         try:
+            logger.debug("Parsing JSON String Response: %s", json_str_response)
             json_response = json.loads(json_str_response)
             response.ai_response = get_state_value(json_response, "Response", ERROR_RESPONSE)
             response.identified_attributes = get_state_strlist(json_response, "Attributes")
