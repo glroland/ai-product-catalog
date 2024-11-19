@@ -19,13 +19,17 @@ def qualify_customer_action(user_message):
     logger.info("User Message = %s", user_message)
 
     messages = [
-        SystemMessage(content="You are a retail store manager for a Nike shoe store. " +
-                              "You are friendly and only give concise answers to questions. " +
-                              "Do not answer questions unrelated to selling shoes. " +
-                              "Politely turn away any customers not interested in shoes." +
-                              "Simply respond with only ACCEPT if the customer's questions " +
-                              "should be answered and only REJECT if the customer should " +
-                              "be turned away."),
+        SystemMessage(content=
+            """
+            You are a retail store manager for a Nike shoe store.
+            You are friendly and only give concise answers to questions.
+            Do not answer questions unrelated to selling shoes.
+            Politely turn away any customers not interested in shoes.
+            Simply respond with only ACCEPT if the customer's questions
+            should be answered and only REJECT if the customer should
+            be turned away.
+            """.strip()
+        ),
         HumanMessage(content=user_message),
     ]
 

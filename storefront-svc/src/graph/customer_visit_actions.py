@@ -79,9 +79,9 @@ def clarify_customer_requirements(state: CustomerVisitState):
             logger.error("Product Attributes Result is of unknown type: %s",
                          type(product_attributes))
             state["product_attributes"] = None
-    except Exception as e:
-        logger.error("LLM produced unexpected response.  Type=%s Exception=%s Response=%s",
-                     type(e), e, response.content)
+    except json.JSONDecodeError as e:
+        logger.error("LLM produced unexpected response.  Exception=%s Response=%s",
+                     e, response.content)
         state["product_attributes"] = ""
         if state["matching_products"] is not None:
             state["matching_products"].clear()

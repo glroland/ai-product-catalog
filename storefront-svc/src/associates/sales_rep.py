@@ -5,7 +5,7 @@ shoes they want to buy.
 """
 import logging
 from langchain_core.messages import SystemMessage
-from utils.openai_client import openai_invoke
+from utils.openai_client import openai_invoke_require_valid_json
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,9 @@ def clarify_customer_requirements_action(message_with_history):
     logger.info("User Message = %s", type(message_with_history))
 
     messages = [
-        SystemMessage(content="""
+        # pylint: disable=line-too-long
+        SystemMessage(content=
+            """
             You are a sales representative for a shoe store who specilizes in eliciting and capturing the ideal characteristics of a customer's ideal set of new shoes.  When the customer does not proactively describe their shoe preferences, ask probing questions until you've identified at least 2 shoe characteristics.
                       
             Example characteristics are color, styles, intended uses, or brands.  Do not guess the customer's requirements but you are welcome to suggest ideas for the customer to respond to.
@@ -36,10 +38,14 @@ def clarify_customer_requirements_action(message_with_history):
                       
             { "Response": "What color would you like your shoes to be?", "Attributes": [ "Playing basketball games","with straps","retro look" ] }
             
-            """.strip())
+            """.strip()
+        )
     ] + message_with_history
 
-    response = openai_invoke(messages=messages, max_tokens=150, temperature=0.8, json_mode=True)
+    response = openai_invoke_require_valid_json(messages=messages,
+                                                max_tokens=150,
+                                                temperature=0.8,
+                                                json_mode=True)
 
     response_message = response.content
     logger.info("Response: %s", response_message)
