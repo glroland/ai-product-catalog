@@ -34,6 +34,18 @@ def get_connection_string():
     logger.info("Product DB Connection String: %s", connection_string)
     return connection_string
 
+def ping_database():
+    """ Perform a simple query to the database to ensure connectivity. """
+    sql = "SELECT 1"
+    with psycopg.connect(get_connection_string()) as db_connection:
+        with db_connection.cursor() as c:
+            c.execute(sql, [])
+            rows = c.fetchall()
+            if rows is None or len(rows) != 1:
+                msg = "Health Check - Database Ping did not return correct # of rows"
+                logger.fatal(msg)
+                raise ValueError(msg)
+
 def product_semantic_search(attributes, limit = 3):
     """ Perform a semantic search across products using the provided attributes. 
     
