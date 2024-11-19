@@ -13,7 +13,7 @@ global:
 
   image:
     repository: registry.home.glroland.com/ai-product-catalog/
-    tag: 31
+    tag: 33
     pullPolicy: IfNotPresent
     usePullSecret: true
 
