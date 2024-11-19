@@ -7,7 +7,7 @@ import logging
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from api.chat import chat_api_handler, ChatRequest
+from api.chat import chat_api_handler, ChatRequest, ChatResponse
 from api.health import health_api_handler
 from api.default import default_api_handler, DefaultResponse
 
@@ -30,13 +30,13 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     content = {'status_code': 10422, 'message': exc_str, 'data': None}
     return JSONResponse(content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-@app.get("/")
+@app.get("/", response_model=DefaultResponse)
 def default() -> DefaultResponse:
     """Provide a simple textual response to the root url to verify the application is working.
     """
     return default_api_handler()
 
-@app.post("/chat")
+@app.post("/chat", response_model=ChatResponse)
 def chat(chat_request: ChatRequest):
     """Virtual Store entry point for textual interaction with the customer.
 
@@ -45,7 +45,7 @@ def chat(chat_request: ChatRequest):
     """
     return chat_api_handler(chat_request)
 
-@app.get("/health")
+@app.get("/health", response_model=str)
 def health():
     """ Provide a basic response indicating the app is available for consumption. """
     return health_api_handler()
