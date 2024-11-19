@@ -1,8 +1,8 @@
 """ Health Check API Handler
 """
 import logging
-from langchain_core.messages import HumanMessage
-from utils.openai_client import openai_invoke
+#from langchain_core.messages import HumanMessage
+#from utils.openai_client import openai_invoke
 from utils.semantic_search import ping_database
 
 logger = logging.getLogger(__name__)

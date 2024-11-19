@@ -37,6 +37,7 @@ def get_connection_string():
 def ping_database():
     """ Perform a simple query to the database to ensure connectivity. """
     sql = "SELECT 1"
+    # pylint: disable=E1129
     with psycopg.connect(get_connection_string()) as db_connection:
         with db_connection.cursor() as c:
             c.execute(sql, [])

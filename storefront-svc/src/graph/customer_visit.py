@@ -5,6 +5,7 @@ inquiries and deferral to other agents.
 """
 import logging
 from langgraph.graph import StateGraph, START, END
+from langgraph.checkpoint.memory import MemorySaver
 from IPython.display import Image
 from graph.customer_visit_state import CustomerVisitState
 from graph.customer_visit_actions import qualify_customer
@@ -38,10 +39,13 @@ def build_customer_visit_graph(checkpointer):
 
     return store_builder.compile(checkpointer=checkpointer)
 
-def invoke_customer_visit_graph(cv_graph, graph_input, client_id, debug=False):
+graph_memory = MemorySaver()
+
+customer_visit_graph = build_customer_visit_graph(graph_memory)
+
+def invoke_customer_visit_graph(graph_input, client_id, debug=False):
     """ Meet new customer node.
 
-        cv_graph - graph output
         graph_input - their initial statement of purpose or question
         client_id - unique identifier of communication
         debug - whether to enable debug output
@@ -49,7 +53,7 @@ def invoke_customer_visit_graph(cv_graph, graph_input, client_id, debug=False):
     # Continue graph
     config = {"configurable": {"thread_id": client_id}}
     logger.info("Built new customer inquiry graph.  Invoking as Thread ID=%s", client_id)
-    final_state = cv_graph.invoke(
+    final_state = customer_visit_graph.invoke(
                 graph_input,
                 config,
                 debug=debug

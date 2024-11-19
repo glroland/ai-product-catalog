@@ -6,7 +6,7 @@ enhancemnets.
 import logging
 from IPython.display import Image
 from langgraph.checkpoint.memory import MemorySaver
-import associates.supervisor as s
+from graph.customer_visit import build_customer_visit_graph
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +16,6 @@ def test_graph_compilation_and_visualization():
 
     # Build the storefront agent experience graph
     memory = MemorySaver()
-    graph = s.build_customer_visit_graph(memory)
+    graph = build_customer_visit_graph(memory)
     assert graph is not None
     assert Image(graph.get_graph(xray=1).draw_mermaid_png()) is not None
