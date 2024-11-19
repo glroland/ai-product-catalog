@@ -9,7 +9,7 @@ DEFAULT_RESPONSE = "Hello!  Welcome to the Virtual AI Storefront!  " + \
 class DefaultResponse(BaseModel):
     """ Default API Response Type """
 
-    message : str
+    message : str = ""
 
 def default_api_handler() -> DefaultResponse:
     """Provide a simple textual response to the root url to verify the application is working.

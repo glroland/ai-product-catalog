@@ -7,14 +7,14 @@ import logging
 import json
 from typing import Literal
 from langgraph.graph import END
-from customer_greeter import qualify_customer_action
-from sales_rep import clarify_customer_requirements_action
-from semantic_search import product_semantic_search
-import supervisor_state as ss
+from graph.customer_visit_state import CustomerVisitState
+from associates.customer_greeter import qualify_customer_action
+from associates.sales_rep import clarify_customer_requirements_action
+from utils.semantic_search import product_semantic_search
 
 logger = logging.getLogger(__name__)
 
-def qualify_customer(state: ss.CustomerVisitState):
+def qualify_customer(state: CustomerVisitState):
     """ Qualify whether a new customer walking into the virtual store is interested in
         shoes.
 
@@ -34,7 +34,7 @@ def qualify_customer(state: ss.CustomerVisitState):
     return state
 
 
-def is_customer_qualified(state: ss.CustomerVisitState) -> \
+def is_customer_qualified(state: CustomerVisitState) -> \
                 Literal["clarify_customer_requirements", END]:
     """ Determine whether the graph should proceed to clarify customer requirements or end.
 
@@ -47,7 +47,7 @@ def is_customer_qualified(state: ss.CustomerVisitState) -> \
 
 
 # pylint disable=W0718
-def clarify_customer_requirements(state: ss.CustomerVisitState):
+def clarify_customer_requirements(state: CustomerVisitState):
     """ Attempt to clarify customer purchasing needs node.
 
         state - langgraph state
@@ -80,8 +80,8 @@ def clarify_customer_requirements(state: ss.CustomerVisitState):
                          type(product_attributes))
             state["product_attributes"] = None
     except Exception as e:
-        logger.error("LLM produced unexpected response.  Exception=%s Response=%s",
-                     e, response.content)
+        logger.error("LLM produced unexpected response.  Type=%s Exception=%s Response=%s",
+                     type(e), e, response.content)
         state["product_attributes"] = ""
         if state["matching_products"] is not None:
             state["matching_products"].clear()
@@ -91,7 +91,7 @@ def clarify_customer_requirements(state: ss.CustomerVisitState):
     return state
 
 
-def is_sufficient_attributes(state: ss.CustomerVisitState) -> \
+def is_sufficient_attributes(state: CustomerVisitState) -> \
                 Literal["match_attributes_to_product", END]:
     """ Check attributes to see if there is sufficient quanitity and quality to
         proceed.
@@ -107,7 +107,7 @@ def is_sufficient_attributes(state: ss.CustomerVisitState) -> \
     return END
 
 
-def match_attributes_to_product(state: ss.CustomerVisitState):
+def match_attributes_to_product(state: CustomerVisitState):
     """ Take the shoe attributes gathered from the customer and attempt to
         match available products to them.  """
     logger.debug("match_attributes_to_product")

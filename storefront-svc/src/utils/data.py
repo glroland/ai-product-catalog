@@ -27,7 +27,7 @@ def get_state_value(state, variable_name, default_value):
         raise ValueError(msg)
 
     if state is None:
-        logger.warning("get_state_value() was provided a state value that is Null.  Returning default.")
+        logger.warning("get_state_value() was provided a NULL state value.  Returning default.")
         return default_value
 
     if variable_name not in state:

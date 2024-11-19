@@ -4,7 +4,7 @@ Attributes that are carried from node to node within the graph.
 """
 from typing import TypedDict, Annotated
 from langgraph.graph.message import add_messages
-from service_adapter import Product
+from utils.semantic_search import Product
 
 class CustomerVisitState(TypedDict):
     """ State structure used throughout the storefront agent process.

@@ -3,7 +3,7 @@
 Validate semantic search functions.
 """
 import logging
-import semantic_search as ss
+import utils.semantic_search as ss
 
 logger = logging.getLogger(__name__)
 

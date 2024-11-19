@@ -3,7 +3,7 @@
 Verify that the greeter functionality works as intended. 
 """
 import logging
-import customer_greeter as g
+import associates.customer_greeter as g
 import messages as m
 
 logger = logging.getLogger(__name__)

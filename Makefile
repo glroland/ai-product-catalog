@@ -55,13 +55,13 @@ chatbot.build: chatbot.lint
 # Storefront API Lifecycle Actions
 #
 storefront.lint:
-	cd storefront-svc && pylint src/*.py
+	pylint --recursive y storefront-svc/src
 
 storefront.install:
 	cd storefront-svc && pip install -r requirements.txt
 
 storefront.run: #storefront.lint
-	cd storefront-svc/src && fastapi dev --host 0.0.0.0 --port $(run_storefront_port) --reload
+	cd storefront-svc/src && fastapi dev app.py  --host 0.0.0.0 --port $(run_storefront_port) --reload
 
 storefront.run.supervisor:
 	cd storefront-svc/src && ENV_PRODUCT_SERVICE_ADDRESS=http://localhost:8083 python supervisor.py --show-options

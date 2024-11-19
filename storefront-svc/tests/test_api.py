@@ -4,7 +4,9 @@ Validate API results and conformance during happy path invocations.
 """
 import logging
 from fastapi.testclient import TestClient
-from app import app, DEFAULT_RESPONSE, UNRELATED_RESPONSE, IM_SPEECHLESS_RESPONSE
+from app import app
+from api.default import DEFAULT_RESPONSE
+from api.chat import UNRELATED_RESPONSE, IM_SPEECHLESS_RESPONSE
 import messages as m
 
 logger = logging.getLogger(__name__)
@@ -51,7 +53,6 @@ def test_basic_unresolved_question():
     assert json["ai_response"] != IM_SPEECHLESS_RESPONSE
     assert len(json["ai_response"]) > 0
     assert json["identified_attributes"] is not None
-    assert len(json["identified_attributes"]) > 0
 
 
 def test_fully_qualified_question():

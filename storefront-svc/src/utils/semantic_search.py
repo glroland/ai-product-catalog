@@ -6,7 +6,7 @@ import os
 import logging
 from typing import TypedDict, List
 import psycopg
-from embedding_utils import create_embedding
+from utils.embeddings import create_embedding
 
 logger = logging.getLogger(__name__)
 

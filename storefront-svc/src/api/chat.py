@@ -6,7 +6,7 @@ import json
 import logging
 from json.decoder import JSONDecodeError
 from pydantic import BaseModel
-from supervisor import inquiry_by_customer
+from associates.supervisor import inquiry_by_customer
 from utils.data import to_json_string, get_state_value, get_state_strlist
 
 logger = logging.getLogger(__name__)
@@ -50,9 +50,14 @@ def chat_api_handler(chat_request: ChatRequest) -> ChatResponse:
 
     # Build Response
     response = ChatResponse()
-    response.qualified_customer_flag = bool("YES" == get_state_value(state, "qualified_customer", False))
-    response.identified_attributes = get_state_strlist(state, "product_attributes")
-    response.matching_products = get_state_value(state, "matching_products", [])
+    is_qualified = bool("YES" == get_state_value(state, "qualified_customer", False))
+    response.qualified_customer_flag = is_qualified
+    attributes = get_state_strlist(state, "product_attributes")
+    if attributes is not None:
+        response.identified_attributes = attributes
+    products = get_state_value(state, "matching_products", [])
+    if products is not None:
+        response.matching_products = products
 
     # Get the AI Response, if existent
     most_recent_response = get_state_value(state, "most_recent_ai_response", None)
