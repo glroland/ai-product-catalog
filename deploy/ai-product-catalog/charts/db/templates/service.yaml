@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ai-product-catalog.fullname" . }}
+  labels:
+    app.kubernetes.io/part-of: "{{ .Release.Name }}-ai-product-catalog"
+    {{- include "ai-product-catalog.labels" . | nindent 4 }}
+spec:
+  ipFamilies:
+    - IPv4
+  ports:
+    - protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.image.port }}
+  internalTrafficPolicy: Cluster
+  type: {{ .Values.service.type }}
+  ipFamilyPolicy: SingleStack
+  sessionAffinity: None
+  selector:
+    app: "{{ include "ai-product-catalog.fullname" . }}"
+    deployment: "{{ include "ai-product-catalog.fullname" . }}"
