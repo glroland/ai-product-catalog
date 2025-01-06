@@ -375,7 +375,36 @@
             "kubernetes_pod_annotations": [],
             "kubernetes_shared_mem_size": {},
             "kubernetes_secrets": [],
-            "env_vars": [],
+            "env_vars": [
+              {
+                "env_var": "DB_HOST",
+                "value": "ai-product-catalog-db.ai-product-catalog-prod.svc.cluster.local"
+              },
+              {
+                "env_var": "DB_PORT",
+                "value": "5432"
+              },
+              {
+                "env_var": "DB_NAME",
+                "value": "ai_product_catalog"
+              },
+              {
+                "env_var": "DB_USER",
+                "value": "ai-product-catalog"
+              },
+              {
+                "env_var": "DB_PASSWORD",
+                "value": "ai_product_catalog123"
+              },
+              {
+                "env_var": "DB_DBA_USER",
+                "value": "ai-product-catalog"
+              },
+              {
+                "env_var": "DB_DBA_PASSWORD",
+                "value": "ai_product_catalog123"
+              }
+            ],
             "runtime_image": "registry.home.glroland.com/paas/notebook-3.11"
           },
           "pipeline_parameters": []
