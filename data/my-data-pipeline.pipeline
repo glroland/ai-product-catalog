@@ -65,158 +65,6 @@
           ]
         },
         {
-          "id": "068ca240-7f66-4754-aee9-85e302563410",
-          "type": "execution_node",
-          "op": "execute-python-node",
-          "app_data": {
-            "component_parameters": {
-              "dependencies": [],
-              "include_subdirectories": false,
-              "outputs": [],
-              "env_vars": [
-                {
-                  "env_var": "DB_HOST"
-                },
-                {
-                  "env_var": "DB_PORT"
-                },
-                {
-                  "env_var": "DB_DBA_USER"
-                },
-                {
-                  "env_var": "DB_DBA_PASSWORD"
-                }
-              ],
-              "kubernetes_pod_annotations": [],
-              "kubernetes_pod_labels": [],
-              "kubernetes_secrets": [],
-              "kubernetes_shared_mem_size": {},
-              "kubernetes_tolerations": [],
-              "mounted_volumes": [],
-              "filename": "python_ddl/drop_db.py"
-            },
-            "label": "Drop Database",
-            "ui_data": {
-              "label": "Drop Database",
-              "image": "/notebook/ai-product-catalog/my-workbench/static/elyra/python.svg",
-              "x_pos": 91,
-              "y_pos": 158,
-              "description": "Run Python script"
-            }
-          },
-          "inputs": [
-            {
-              "id": "inPort",
-              "app_data": {
-                "ui_data": {
-                  "cardinality": {
-                    "min": 0,
-                    "max": -1
-                  },
-                  "label": "Input Port"
-                }
-              },
-              "links": [
-                {
-                  "id": "639c5bb9-1b66-49ae-a827-5485afd1e670",
-                  "node_id_ref": "0ae9fd4b-eb20-40ab-b94e-f5a9f314bf8d",
-                  "port_id_ref": "outPort"
-                }
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "id": "outPort",
-              "app_data": {
-                "ui_data": {
-                  "cardinality": {
-                    "min": 0,
-                    "max": -1
-                  },
-                  "label": "Output Port"
-                }
-              }
-            }
-          ]
-        },
-        {
-          "id": "2a9c0e35-ea7e-4329-b717-b74ca29cbadb",
-          "type": "execution_node",
-          "op": "execute-python-node",
-          "app_data": {
-            "component_parameters": {
-              "dependencies": [],
-              "include_subdirectories": false,
-              "outputs": [],
-              "env_vars": [
-                {
-                  "env_var": "DB_HOST"
-                },
-                {
-                  "env_var": "DB_PORT"
-                },
-                {
-                  "env_var": "DB_DBA_USER"
-                },
-                {
-                  "env_var": "DB_DBA_PASSWORD"
-                }
-              ],
-              "kubernetes_pod_annotations": [],
-              "kubernetes_pod_labels": [],
-              "kubernetes_secrets": [],
-              "kubernetes_shared_mem_size": {},
-              "kubernetes_tolerations": [],
-              "mounted_volumes": [],
-              "filename": "python_ddl/create_db.py"
-            },
-            "label": "Create Database",
-            "ui_data": {
-              "label": "Create Database",
-              "image": "/notebook/ai-product-catalog/my-workbench/static/elyra/python.svg",
-              "x_pos": 90,
-              "y_pos": 267,
-              "description": "Run Python script"
-            }
-          },
-          "inputs": [
-            {
-              "id": "inPort",
-              "app_data": {
-                "ui_data": {
-                  "cardinality": {
-                    "min": 0,
-                    "max": -1
-                  },
-                  "label": "Input Port"
-                }
-              },
-              "links": [
-                {
-                  "id": "8d9352ea-7cd7-40d2-bd6c-ad35dd0f2987",
-                  "node_id_ref": "068ca240-7f66-4754-aee9-85e302563410",
-                  "port_id_ref": "outPort"
-                }
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "id": "outPort",
-              "app_data": {
-                "ui_data": {
-                  "cardinality": {
-                    "min": 0,
-                    "max": -1
-                  },
-                  "label": "Output Port"
-                }
-              }
-            }
-          ]
-        },
-        {
           "id": "dfd4d830-f63b-4876-a2ad-c688432cfa40",
           "type": "execution_node",
           "op": "execute-python-node",
@@ -254,8 +102,8 @@
             "ui_data": {
               "label": "Create Tables",
               "image": "/notebook/ai-product-catalog/my-workbench/static/elyra/python.svg",
-              "x_pos": 90,
-              "y_pos": 376,
+              "x_pos": 93,
+              "y_pos": 188,
               "description": "Run Python script"
             }
           },
@@ -273,8 +121,8 @@
               },
               "links": [
                 {
-                  "id": "59eaa9d5-40d8-40b8-a3fc-3e249bf455c7",
-                  "node_id_ref": "2a9c0e35-ea7e-4329-b717-b74ca29cbadb",
+                  "id": "b4f15b2a-8838-4ddc-abbc-b733d9c50a2b",
+                  "node_id_ref": "0ae9fd4b-eb20-40ab-b94e-f5a9f314bf8d",
                   "port_id_ref": "outPort"
                 }
               ]
@@ -318,7 +166,7 @@
               "label": "Ingest Product Data",
               "image": "/notebook/ai-product-catalog/my-workbench/static/elyra/notebook.svg",
               "x_pos": 89,
-              "y_pos": 484,
+              "y_pos": 346,
               "description": "Run notebook file"
             }
           },
@@ -369,12 +217,11 @@
           "name": "my-data-pipeline",
           "runtime": "Data Science Pipelines",
           "pipeline_defaults": {
-            "kubernetes_pod_labels": [],
-            "mounted_volumes": [],
             "kubernetes_tolerations": [],
             "kubernetes_pod_annotations": [],
             "kubernetes_shared_mem_size": {},
-            "kubernetes_secrets": [],
+            "kubernetes_pod_labels": [],
+            "mounted_volumes": [],
             "env_vars": [
               {
                 "env_var": "DB_HOST",
@@ -405,7 +252,8 @@
                 "value": "ai_product_catalog123"
               }
             ],
-            "runtime_image": "registry.home.glroland.com/paas/notebook-3.11"
+            "kubernetes_secrets": [],
+            "runtime_image": "quay.io/modh/runtime-images@sha256:e1f7ad986f694236a818796af290a99b4e7f73d44cd39ca45860087644d136dd"
           },
           "pipeline_parameters": []
         }
