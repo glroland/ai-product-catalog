@@ -7,8 +7,8 @@ serviceAccount:
 global:
 
   appconfig:
-    inferenceUrl: http://ocpwork:11434
-    inferenceEngine: ollama
+    inferenceUrl: http://envision:11434/v1
+    inferenceEngine: openai
     inferenceModel: llama3.2
 
   image:
