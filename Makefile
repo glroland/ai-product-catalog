@@ -1,13 +1,14 @@
 #
 # Configuration
 #
-db_host ?= localhost
+db_host ?= db
 db_port ?= 5432
 db_user ?= ai-product-catalog
 db_name ?= ai_product_catalog
 db_password ?= ai_product_catalog123
 db_dba_user ?= postgres
-db_dba_password ?= S@mmyR0cks
+db_dba_password ?= d8nnyr0cks
+openai_url ?= http://envision:11434/v1
 run_chatbot_port ?= 8080
 run_storefront_port ?= 8081
 run_greeter_port ?= 8082
@@ -32,7 +33,7 @@ else
 	psql -h "$(db_host)" -p "$(db_port)" -w -f data/sql_ddl/create_db.sql
 endif
 	PGPASSWORD="$(db_password)" psql -h "$(db_host)" -p "$(db_port)" -U "$(db_user)" -d "$(db_name)" -w -f data/sql_ddl/create_tables.sql
-	cd data && jupyter nbconvert --to python ingest_dataworld_nike_dataset.ipynb --stdout  | DB_HOST="$(db_host)" DB_PORT="$(db_port)" DB_USER="$(db_user)" DB_PASSWORD="$(db_password)" DB_NAME="$(db_name)" python
+	cd data && jupyter nbconvert --to python ingest_dataworld_nike_dataset.ipynb --stdout  | DB_HOST="$(db_host)" DB_PORT="$(db_port)" DB_USER="$(db_user)" DB_PASSWORD="$(db_password)" DB_NAME="$(db_name)" OPENAI_API_URL="${openai_url}" python
 
 
 #
