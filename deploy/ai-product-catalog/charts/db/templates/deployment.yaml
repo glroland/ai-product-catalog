@@ -47,6 +47,9 @@ spec:
       dnsPolicy: ClusterFirst
       securityContext: {}
       schedulerName: default-scheduler
+      volumeMounts:
+        - mountPath: "/var/lib/postgresql/data"
+          name: {{ include "ai-product-catalog.fullname" . }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -54,3 +57,7 @@ spec:
       maxSurge: 25%
   revisionHistoryLimit: 10
   progressDeadlineSeconds: 600
+  volumes:
+    - name: {{ include "ai-product-catalog.fullname" . }}
+      persistentVolumeClaim:
+        claimName: {{ include "ai-product-catalog.fullname" . }}
