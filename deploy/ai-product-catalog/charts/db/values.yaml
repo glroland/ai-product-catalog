@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  name: postgres:13-alpine
+  name: pgvector/pgvector:pg17
   port: 5432
   repository: nginx
   pullPolicy: IfNotPresent
