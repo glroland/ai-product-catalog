@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  name: pgvector/pgvector:pg17
+  name: registry.hub.docker.com/pgvector/pgvector:pg17
   port: 5432
   repository: nginx
   pullPolicy: IfNotPresent
