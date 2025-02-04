@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: postgresql
-          image: 'registry.redhat.io/rhel9/postgresql-16@sha256:1c65c89c880228f8526ac359556419eaa4a691246b78a4ab543c61394f7e7888'
+          image: "{{ .Values.global.image.repository }}{{ .Values.image.name }}:{{ .Values.global.image.tag }}"
           ports:
             - containerPort: 5432
               protocol: TCP
