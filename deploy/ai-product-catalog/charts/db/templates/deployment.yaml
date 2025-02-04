@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: postgresql
-          image: "{{ .Values.global.image.repository }}{{ .Values.image.name }}:{{ .Values.global.image.tag }}"
+          image: "{{ .Values.image.name }}"
           ports:
             - containerPort: 5432
               protocol: TCP
