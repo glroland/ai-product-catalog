@@ -39,8 +39,8 @@ spec:
               value: ai_product_catalog123
             - name: POSTGRES_DATABASE
               value: ai_product_catalog
-            - name: POSTGRES_HOST_AUTH_METHOD
-              value: trust
+#            - name: POSTGRES_HOST_AUTH_METHOD
+#              value: trust
             - name: PGDATA
               value: /pvc_mount/data
           resources: {}

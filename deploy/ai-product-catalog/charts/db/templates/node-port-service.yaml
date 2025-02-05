@@ -1,0 +1,24 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: "{{ include "ai-product-catalog.fullname" . }}"
+  labels:
+    app.kubernetes.io/part-of: "{{ .Release.Name }}-ai-product-catalog"
+    {{- include "ai-product-catalog.labels" . | nindent 4 }}
+spec:
+  externalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ports:
+    - name: 5432-30001
+      protocol: TCP
+      port: 5432
+      targetPort: 5432
+      nodePort: 30001
+  internalTrafficPolicy: Cluster
+  type: NodePort
+  ipFamilyPolicy: SingleStack
+  sessionAffinity: None
+  selector:
+    app: "{{ include "ai-product-catalog.fullname" . }}"
+    deployment: "{{ include "ai-product-catalog.fullname" . }}"
