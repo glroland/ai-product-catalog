@@ -6,7 +6,7 @@ from langgraph.prebuilt import ToolNode
 logger = logging.getLogger(__name__)
 
 @tool
-def get_product_price(sku: str) -> float:
+def get_product_price(sku: str = None) -> float:
     """ Get the price of a product by SKU. """
     logger.info("LLM TOOL INVOKED >>> get_product_price(%s)", sku)
 
@@ -27,7 +27,8 @@ def invoke_tools(llm_response, messages):
         return None
 
     for tool_call in llm_response.tool_calls:
-        selected_tool = {"get_product_price": get_product_price} [tool_call["name"].lower()]
+        selected_tool = {"getproductprice": get_product_price,
+                         "get_product_price": get_product_price} [tool_call["name"].lower()]
         tool_output = selected_tool.invoke(tool_call["args"])
         messages.append(ToolMessage(tool_output, tool_call_id=tool_call["id"]))
     
