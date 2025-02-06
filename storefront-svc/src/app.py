@@ -10,17 +10,13 @@ from fastapi.responses import JSONResponse
 from api.chat import chat_api_handler, ChatRequest, ChatResponse
 from api.health import health_api_handler
 from api.default import default_api_handler, DefaultResponse
-
-logger = logging.getLogger(__name__)
-
-app = FastAPI()
+import coloredlogs
 
 # Setup Logging
-logging.basicConfig(level=logging.DEBUG,
-    handlers=[
-        # no need from a docker container - logging.FileHandler("storefront-svc.log"),
-        logging.StreamHandler()
-    ])
+logger = logging.getLogger(__name__)
+coloredlogs.install(level="DEBUG")
+
+app = FastAPI()
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):

@@ -4,7 +4,8 @@ Searches the product database for similarity
 """
 import os
 import logging
-from typing import TypedDict, List
+from typing import List
+from typing_extensions import TypedDict
 import psycopg
 from utils.embeddings import create_embedding
 

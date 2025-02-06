@@ -37,7 +37,13 @@ def build_customer_visit_graph(checkpointer):
     store_builder.add_conditional_edges("clarify_customer_requirements", is_sufficient_attributes)
     store_builder.add_edge("match_attributes_to_product", END)
 
-    return store_builder.compile(checkpointer=checkpointer)
+    graph =  store_builder.compile(checkpointer=checkpointer)
+
+    ascii = graph.get_graph().draw_ascii()
+    logger.debug("Customer Visit Graph: %s", ascii)
+    print(ascii)
+
+    return graph
 
 graph_memory = MemorySaver()
 

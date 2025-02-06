@@ -2,7 +2,8 @@
 
 Attributes that are carried from node to node within the graph.
 """
-from typing import TypedDict, Annotated
+from typing import Annotated
+from typing_extensions import TypedDict
 from langgraph.graph.message import add_messages
 from utils.semantic_search import Product
 
